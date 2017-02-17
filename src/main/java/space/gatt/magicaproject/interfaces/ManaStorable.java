@@ -1,4 +1,4 @@
-package space.gatt.magicaproject.managers;
+package space.gatt.magicaproject.interfaces;
 
 public interface ManaStorable {
 	public float getManaLevel();

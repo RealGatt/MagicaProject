@@ -2,9 +2,8 @@ package space.gatt.magicaproject.managers;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
 import space.gatt.magicaproject.MagicaMain;
+import space.gatt.magicaproject.interfaces.Saveable;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -29,23 +28,30 @@ public class StorageManager {
 	public void saveToFile(){
 		for (Saveable saveable : storage.keySet()){
 			saveable.shutdownCall();
-			saveHash(saveable.getSaveFileName(), storage.get(saveable));
+			if (storage.get(saveable) != null && !storage.get(saveable).isEmpty()) {
+				saveHash(saveable.getSaveFileName(), storage.get(saveable));
+			}
 		}
 	}
 
 	public void saveHash(String title, HashMap hash){
 		File f = new File(MagicaMain.getMagicaMain().getDataFolder() + "/" + title + ".json");
+		System.out.println("Creating paths");
 		try {
-			if (!MagicaMain.getMagicaMain().getDataFolder().exists()){
-				MagicaMain.getMagicaMain().getDataFolder().mkdirs();
+			File path = new File(f.getPath());
+			if (!path.exists()){
+				path.mkdirs();
 			}
 			if (!f.exists()){
 				f.createNewFile();
 			}
 		}catch (IOException ignored){
+			ignored.printStackTrace();
 		}
-		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+		System.out.println("Created paths");
+		Gson gson = new Gson();
 		String json = gson.toJson(hash);
+		System.out.println("JSON: " + json);
 
 		try {
 			FileWriter fileWriter = new FileWriter(f);
@@ -54,6 +60,7 @@ public class StorageManager {
 		}catch (IOException fileE){
 			fileE.printStackTrace();
 		}
+
 
 		System.out.println(json);
 	}

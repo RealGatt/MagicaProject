@@ -3,12 +3,13 @@ package space.gatt.magicaproject.managers;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import space.gatt.magicaproject.MagicaMain;
+import space.gatt.magicaproject.interfaces.Saveable;
 import space.gatt.magicaproject.utilities.JsonUtils;
 
 import java.util.HashMap;
 import java.util.UUID;
 
-public class ManaManager implements Saveable{
+public class ManaManager implements Saveable {
 
 	HashMap<UUID, Float> manaStorage = new HashMap<UUID, Float>();
 	HashMap<UUID, Float> maxManaStorage = new HashMap<UUID, Float>();

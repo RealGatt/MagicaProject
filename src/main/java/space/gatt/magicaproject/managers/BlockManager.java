@@ -2,8 +2,8 @@ package space.gatt.magicaproject.managers;
 
 import org.bukkit.Bukkit;
 import space.gatt.magicaproject.MagicaMain;
-import space.gatt.magicaproject.objects.MagicCrafter;
-import space.gatt.magicaproject.objects.MagicaBlock;
+import space.gatt.magicaproject.interfaces.MagicaBlock;
+import space.gatt.magicaproject.interfaces.Saveable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +23,12 @@ public class BlockManager {
 	public void registerBlock(MagicaBlock mb){
 		if (!runningBlocks.contains(mb)){
 			runningBlocks.add(mb);
+		}
+	}
+
+	public void removeBlock(MagicaBlock mb){
+		if (runningBlocks.contains(mb)){
+			runningBlocks.remove(mb);
 		}
 	}
 

@@ -1,4 +1,4 @@
-package space.gatt.magicaproject.objects;
+package space.gatt.magicaproject.interfaces;
 
 import org.bukkit.Location;
 import org.bukkit.Material;

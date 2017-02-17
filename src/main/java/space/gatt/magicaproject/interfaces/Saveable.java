@@ -1,4 +1,4 @@
-package space.gatt.magicaproject.managers;
+package space.gatt.magicaproject.interfaces;
 
 import com.google.gson.JsonObject;
 

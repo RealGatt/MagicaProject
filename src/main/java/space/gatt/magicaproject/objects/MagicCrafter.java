@@ -5,29 +5,33 @@ import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import space.gatt.magicaproject.MagicaMain;
-import space.gatt.magicaproject.managers.Saveable;
+import space.gatt.magicaproject.interfaces.MagicaBlock;
+import space.gatt.magicaproject.interfaces.Saveable;
 import space.gatt.magicaproject.utilities.BaseUtils;
 
 import java.util.List;
 
-public class MagicCrafter implements MagicaBlock, Saveable {
-	static {
+public class MagicCrafter implements MagicaBlock, Saveable, Listener{
+	public static void registerListener(){
 		Bukkit.getPluginManager().registerEvents(new Listener(){
 			@EventHandler
 			public void onPlace(BlockPlaceEvent e){
-				try {
-					ItemStack is = (ItemStack)getClass().getMethod("getCraftedItem").invoke(null);
-					if (e.getItemInHand() == is){
-						MagicCrafter mc = new MagicCrafter(e.getBlockPlaced().getLocation());
-						MagicaMain.getMagicaMain().getBlockManager().registerBlock(mc);
+				if (e.getBlockPlaced().getType() == Material.ENCHANTMENT_TABLE) {
+					try {
+						ItemStack is = (ItemStack) MagicCrafter.class.getMethod("getStaticCraftedItem").invoke(this);
+						if (BaseUtils.matchItem(e.getItemInHand(), is)) {
+							MagicCrafter mc = new MagicCrafter(e.getBlockPlaced().getLocation());
+							MagicaMain.getMagicaMain().getBlockManager().registerBlock(mc);
+						}
+					} catch (Exception ignored) {
+						ignored.printStackTrace();
 					}
-				}catch (Exception ignored){
-
 				}
 			}
 		},  MagicaMain.getMagicaMain());
@@ -38,11 +42,20 @@ public class MagicCrafter implements MagicaBlock, Saveable {
 	public MagicCrafter(Location l) {
 		this.l = l;
 		l.getWorld().playSound(l, Sound.ENTITY_WITHER_SPAWN, 1, 1);
+		Bukkit.getPluginManager().registerEvents(this, MagicaMain.getMagicaMain());
+		shutdownCall();
+	}
+
+	@EventHandler
+	public void onBreak(BlockBreakEvent e){
+		if (e.getBlock() == l.getBlock()){
+			MagicaMain.getMagicaMain().getBlockManager().removeBlock(this);
+		}
 	}
 
 	@Override
 	public String getSaveFileName() {
-		return null;
+		return "blocks/" + BaseUtils.getStringFromLocation(l) + "-magiccrafters";
 	}
 
 	@Override
@@ -52,7 +65,6 @@ public class MagicCrafter implements MagicaBlock, Saveable {
 
 	@Override
 	public void loadCall(JsonObject loadedObject) {
-
 	}
 
 	@Override
@@ -62,8 +74,8 @@ public class MagicCrafter implements MagicaBlock, Saveable {
 
 	@Override
 	public void runParticles() {
-		l.getWorld().spawnParticle(Particle.ENCHANTMENT_TABLE, l, 100, 0, 0, 0, 0.5);
-		l.getWorld().spawnParticle(Particle.PORTAL, l, 100, 0, 0, 0, 0.5);
+		l.getWorld().spawnParticle(Particle.ENCHANTMENT_TABLE, l.clone().add(0.5, 0.5, 0.5), 100, 0, 0, 0, 1);
+		l.getWorld().spawnParticle(Particle.PORTAL, l.clone().add(0.5, 0.5, 0.5), 100, 0, 0, 0, 1);
 	}
 
 	@Override
@@ -73,6 +85,10 @@ public class MagicCrafter implements MagicaBlock, Saveable {
 
 	@Override
 	public ItemStack getCraftedItem() {
+		return MagicCrafter.getStaticCraftedItem();
+	}
+
+	public static ItemStack getStaticCraftedItem() {
 		ItemStack magicCrafter = new ItemStack(Material.ENCHANTMENT_TABLE);
 		ItemMeta im = magicCrafter.getItemMeta();
 		im.addEnchant(Enchantment.DURABILITY, 1, true);

@@ -7,8 +7,9 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import space.gatt.magicaproject.MagicaMain;
-import space.gatt.magicaproject.managers.ManaStorable;
-import space.gatt.magicaproject.managers.Saveable;
+import space.gatt.magicaproject.interfaces.MagicaBlock;
+import space.gatt.magicaproject.interfaces.ManaStorable;
+import space.gatt.magicaproject.interfaces.Saveable;
 import space.gatt.magicaproject.utilities.BaseUtils;
 
 import java.util.Arrays;
@@ -22,10 +23,7 @@ public class ManaGenerator implements MagicaBlock, Saveable, ManaStorable{
 	public ManaGenerator(Location l, OfflinePlayer playerPlaced) {
 		this.l = l;
 		this.playerPlaced = playerPlaced;
-		Bukkit.getScheduler().runTaskTimer(MagicaMain.getMagicaMain(), ()->{
-			runParticles();
-			runParticles();
-		}, 20, 20);
+		shutdownCall();
 	}
 
 	@Override
@@ -41,7 +39,7 @@ public class ManaGenerator implements MagicaBlock, Saveable, ManaStorable{
 
 	@Override
 	public void runParticles() {
-		l.getWorld().spawnParticle(Particle.DRAGON_BREATH, l, 30, 0.3, 0.3, 0.3);
+		l.getWorld().spawnParticle(Particle.DRAGON_BREATH, l.clone().add(0.5, 0.5, 0.5), 30, 0.3, 0.3, 0.3);
 	}
 
 	@Override
