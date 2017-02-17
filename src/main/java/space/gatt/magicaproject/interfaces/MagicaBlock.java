@@ -14,5 +14,6 @@ public interface MagicaBlock {
 	public ItemStack getCraftedItem();
 	public Material getInventoryMaterial();
 	public List<ItemStack> getItemRecipe();
+	public boolean isActive();
 
 }

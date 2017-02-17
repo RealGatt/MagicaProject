@@ -43,6 +43,11 @@ public class ManaGenerator implements MagicaBlock, Saveable, ManaStorable{
 	}
 
 	@Override
+	public boolean isActive() {
+		return false;
+	}
+
+	@Override
 	public String getBlockName() {
 		return "Mana Generator";
 	}
@@ -88,12 +93,21 @@ public class ManaGenerator implements MagicaBlock, Saveable, ManaStorable{
 
 	@Override
 	public String getSaveFileName() {
-		return "blocks/" + BaseUtils.getStringFromLocation(l) + "-managenerator";
+		return "managenerator";
+	}
+
+	@Override
+	public String getSaveFileFolder() {
+		return "blocks/" + BaseUtils.getStringFromLocation(l);
 	}
 
 	@Override
 	public void shutdownCall() {
-		MagicaMain.getMagicaMain().getStorageManager().save(this, BaseUtils.getStringFromLocation(l) + "-managenerator-location", l);
+		MagicaMain.getMagicaMain().getStorageManager().save(this, "class", this.getClass());
+		MagicaMain.getMagicaMain().getStorageManager().save(this, "location-x", l.getX());
+		MagicaMain.getMagicaMain().getStorageManager().save(this, "location-y", l.getY());
+		MagicaMain.getMagicaMain().getStorageManager().save(this, "location-z", l.getZ());
+		MagicaMain.getMagicaMain().getStorageManager().save(this, "location-world", l.getWorld().getName());
 		MagicaMain.getMagicaMain().getStorageManager().save(this, BaseUtils.getStringFromLocation(l) + "-managenerator-player", playerPlaced);
 		MagicaMain.getMagicaMain().getStorageManager().save(this, BaseUtils.getStringFromLocation(l) + "-managenerator-storedmana", storedMana);
 	}

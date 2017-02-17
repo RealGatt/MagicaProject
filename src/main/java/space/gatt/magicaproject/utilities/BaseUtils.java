@@ -9,7 +9,11 @@ public class BaseUtils {
 
 	public static String getStringFromLocation(Location l){
 		return "X-" + l.getX() + "Y-" + l.getY() + "Z-" + l.getZ() +
-				"W-" + l.getWorld() + "Y-" + l.getYaw() + "P-" + l.getPitch();
+				"W-" + l.getWorld().getName() + "Y-" + l.getYaw() + "P-" + l.getPitch();
+	}
+	public static String getFileNameFromLocation(Location l){
+		return "X" + l.getX() + "/Y" + l.getY() + "/Z" + l.getZ() +
+				"/W" + l.getWorld().getName();
 	}
 
 	public static boolean matchItem(ItemStack i1, ItemStack i2){

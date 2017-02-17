@@ -10,12 +10,14 @@ import java.util.List;
 
 public class BlockManager {
 
-	private List<MagicaBlock> runningBlocks = new ArrayList<>();
+	private ArrayList<MagicaBlock> runningBlocks = new ArrayList<>();
 
 	public BlockManager() {
 		Bukkit.getScheduler().runTaskTimer(MagicaMain.getMagicaMain(), ()->{
 			for (MagicaBlock mb : runningBlocks){
-				mb.runParticles();
+				if (mb.isActive()) {
+					mb.runParticles();
+				}
 			}
 		}, 10, 10);
 	}
@@ -34,7 +36,7 @@ public class BlockManager {
 
 	public void shutdown(){
 		for (MagicaBlock mb : runningBlocks){
-			if (mb instanceof Saveable){
+			if (mb instanceof Saveable && mb.isActive()){
 				((Saveable)mb).shutdownCall();
 			}
 		}

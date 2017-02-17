@@ -3,6 +3,7 @@ package space.gatt.magicaproject.managers;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import space.gatt.magicaproject.MagicaMain;
+import space.gatt.magicaproject.interfaces.MagicaBlock;
 import space.gatt.magicaproject.interfaces.Saveable;
 
 import java.io.File;
@@ -21,6 +22,13 @@ public class StorageManager {
 		return storage.containsKey(key);
 	}
 
+	public boolean removeFromSave(Saveable saveable){
+		if (storage.containsKey(saveable)){
+			storage.remove(saveable);
+		}
+		return true;
+	}
+
 	public Object load(Saveable saveable, String key){
 		return storage.containsKey(saveable) && storage.get(saveable).containsKey(key) ? storage.get(saveable).get(key) : null;
 	}
@@ -29,40 +37,47 @@ public class StorageManager {
 		for (Saveable saveable : storage.keySet()){
 			saveable.shutdownCall();
 			if (storage.get(saveable) != null && !storage.get(saveable).isEmpty()) {
-				saveHash(saveable.getSaveFileName(), storage.get(saveable));
+				if (saveable instanceof MagicaBlock){
+					if (((MagicaBlock)saveable).isActive()){
+						saveHash(saveable.getSaveFileFolder(), saveable.getSaveFileName(), storage.get(saveable));
+					}
+				}else{
+					saveHash(saveable.getSaveFileFolder(), saveable.getSaveFileName(), storage.get(saveable));
+				}
+
 			}
 		}
 	}
 
-	public void saveHash(String title, HashMap hash){
-		File f = new File(MagicaMain.getMagicaMain().getDataFolder() + "/" + title + ".json");
-		System.out.println("Creating paths");
+	public void saveHash(String path, String title, HashMap hash){
+		File f = new File(MagicaMain.getMagicaMain().getDataFolder() + "/" + path + "/" + title + ".json");
+		File pathF = new File(MagicaMain.getMagicaMain().getDataFolder() + "/" + path);
+		boolean fileexists = false;
 		try {
-			File path = new File(f.getPath());
-			if (!path.exists()){
-				path.mkdirs();
+			if (!MagicaMain.getMagicaMain().getDataFolder().exists()){
+				MagicaMain.getMagicaMain().getDataFolder().mkdirs();
+			}
+			if (!pathF.exists()){
+				pathF.mkdirs();
 			}
 			if (!f.exists()){
-				f.createNewFile();
+				fileexists = f.createNewFile();
 			}
 		}catch (IOException ignored){
-			ignored.printStackTrace();
 		}
-		System.out.println("Created paths");
-		Gson gson = new Gson();
-		String json = gson.toJson(hash);
-		System.out.println("JSON: " + json);
-
-		try {
-			FileWriter fileWriter = new FileWriter(f);
-			fileWriter.write(json);
-			fileWriter.close();
-		}catch (IOException fileE){
-			fileE.printStackTrace();
+		if (fileexists) {
+			Gson gson = new Gson();
+			System.out.println("Preparing to create JSON Magic for " + title + ".");
+			String json = gson.toJson(hash);
+			try {
+				FileWriter fileWriter = new FileWriter(f);
+				fileWriter.write(json);
+				fileWriter.close();
+			} catch (IOException fileE) {
+			}
+		}else{
+			System.out.println("The file didn't get created! Aborting!");
 		}
-
-
-		System.out.println(json);
 	}
 
 }

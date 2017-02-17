@@ -19,6 +19,7 @@ public class MagicaMain extends JavaPlugin {
 
 	@Override
 	public void onDisable() {
+		getManaManager().shutdownCall();
 		// StorageManager should be last!!
 		storageManager.saveToFile();
 	}

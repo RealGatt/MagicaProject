@@ -36,6 +36,11 @@ public class ManaManager implements Saveable {
 		}
 	}
 
+	@Override
+	public String getSaveFileFolder() {
+		return "/";
+	}
+
 	public String getSaveFileName() {
 		return "mana";
 	}
