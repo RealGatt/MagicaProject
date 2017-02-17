@@ -28,6 +28,7 @@ public class StorageManager {
 
 	public void saveToFile(){
 		for (Saveable saveable : storage.keySet()){
+			saveable.shutdownCall();
 			saveHash(saveable.getSaveFileName(), storage.get(saveable));
 		}
 	}
