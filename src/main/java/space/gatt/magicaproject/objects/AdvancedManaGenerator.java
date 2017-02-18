@@ -10,6 +10,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import space.gatt.magicaproject.MagicaMain;
 import space.gatt.magicaproject.events.EventAddItemToRecipe;
+import space.gatt.magicaproject.interfaces.Craftable;
 import space.gatt.magicaproject.interfaces.MagicaBlock;
 import space.gatt.magicaproject.interfaces.ManaStorable;
 import space.gatt.magicaproject.interfaces.Saveable;
@@ -19,7 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class AdvancedManaGenerator implements MagicaBlock, Saveable, ManaStorable {
+public class AdvancedManaGenerator extends Craftable implements MagicaBlock, Saveable, ManaStorable {
 	private Location l;
 	private OfflinePlayer playerPlaced;
 	private float storedMana;
@@ -48,11 +49,11 @@ public class AdvancedManaGenerator implements MagicaBlock, Saveable, ManaStorabl
 	}
 
 	public static List<ItemStack> getStaticRecipe() {
-		List<ItemStack> items = Arrays.asList(
+		List<ItemStack> items = new ArrayList<>(Arrays.asList(
 				ManaGenerator.getStaticCraftedItem(),
 				new ItemStack(Material.NETHER_STAR),
 				new ItemStack(Material.TOTEM),
-				new ItemStack(Material.WHITE_SHULKER_BOX));
+				new ItemStack(Material.WHITE_SHULKER_BOX)));
 		return items;
 	}
 
@@ -63,7 +64,7 @@ public class AdvancedManaGenerator implements MagicaBlock, Saveable, ManaStorabl
 
 	@Override
 	public void runParticles() {
-		l.getWorld().spawnParticle(Particle.DRAGON_BREATH, l.clone().add(0.5, 0.5, 0.5), 30, 0.3, 0.3, 0.3);
+		l.getWorld().spawnParticle(Particle.DRAGON_BREATH, l.clone().add(0.5, 0.5, 0.5), 7, 0.4, 0.4, 0.4, 0);
 	}
 
 	@Override
@@ -72,7 +73,7 @@ public class AdvancedManaGenerator implements MagicaBlock, Saveable, ManaStorabl
 	}
 
 	@Override
-	public String getBlockName() {
+	public String getItemName() {
 		return "Mana Generator";
 	}
 

@@ -21,6 +21,7 @@ import org.bukkit.util.Vector;
 import space.gatt.magicaproject.CancellableBukkitTask;
 import space.gatt.magicaproject.MagicaMain;
 import space.gatt.magicaproject.events.EventAddItemToRecipe;
+import space.gatt.magicaproject.interfaces.Craftable;
 import space.gatt.magicaproject.interfaces.MagicaBlock;
 import space.gatt.magicaproject.interfaces.Saveable;
 import space.gatt.magicaproject.utilities.BaseUtils;
@@ -31,7 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class MagicCrafter implements MagicaBlock, Saveable, Listener {
+public class MagicCrafter extends Craftable implements MagicaBlock, Saveable, Listener {
 
 	private enum STATE{
 		CRAFTING, WAITING;
@@ -60,14 +61,10 @@ public class MagicCrafter implements MagicaBlock, Saveable, Listener {
 			@EventHandler
 			public void onPlace(BlockPlaceEvent e) {
 				if (e.getBlockPlaced().getType() == Material.ENCHANTMENT_TABLE) {
-					try {
-						ItemStack is = getStaticCraftedItem();
-						if (BaseUtils.matchItem(e.getItemInHand(), is)) {
-							MagicCrafter mc = new MagicCrafter(e.getBlock().getLocation());
-							MagicaMain.getMagicaMain().getBlockManager().registerBlock(mc);
-						}
-					} catch (Exception ignored) {
-						ignored.printStackTrace();
+					ItemStack is = getStaticCraftedItem();
+					if (BaseUtils.matchItem(e.getItemInHand(), is)) {
+						MagicCrafter mc = new MagicCrafter(e.getBlock().getLocation());
+						MagicaMain.getMagicaMain().getBlockManager().registerBlock(mc);
 					}
 				}
 			}
@@ -76,7 +73,7 @@ public class MagicCrafter implements MagicaBlock, Saveable, Listener {
 
 	BukkitTask craftingTask;
 
-	public boolean beginCrafting(Class<? extends MagicaBlock> block, final float timeInTicks, float manaPerTick, Player p){
+	public boolean beginCrafting(Class<? extends Craftable> block, final float timeInTicks, float manaPerTick, Player p){
 		if (state == STATE.WAITING){
 			try {
 				for (Method m : block.getMethods()){
@@ -148,6 +145,7 @@ public class MagicCrafter implements MagicaBlock, Saveable, Listener {
 
 	@EventHandler
 	public void onBreak(BlockBreakEvent e) {
+		if (isActive())
 		if (e.getBlock().getLocation().toString().equalsIgnoreCase(l.toString())) { // Bukkit didn't like checking between two locations
 			if (state == STATE.CRAFTING){
 				e.setCancelled(true);
@@ -157,12 +155,13 @@ public class MagicCrafter implements MagicaBlock, Saveable, Listener {
 			MagicaMain.getMagicaMain().getBlockManager().removeBlock(this);
 			MagicaMain.getMagicaMain().getStorageManager().removeFromSave(this);
 			isActive = false;
-			e.getBlock().getWorld().createExplosion(l.add(0.5, 0.5, 0.5), 0);
+			e.getBlock().getWorld().createExplosion(l.clone().add(0.5, 0.5, 0.5), 0);
 		}
 	}
 
 	@EventHandler
 	public void onClick(PlayerInteractEvent e) {
+		if (isActive())
 		if (e.getAction() == Action.RIGHT_CLICK_BLOCK && e.getClickedBlock().getLocation().toString().equalsIgnoreCase(l.toString())) {
 			e.setUseItemInHand(Event.Result.DENY);
 			e.setUseInteractedBlock(Event.Result.DENY);
@@ -181,7 +180,6 @@ public class MagicCrafter implements MagicaBlock, Saveable, Listener {
 				e.getPlayer().sendMessage(BaseUtils.colorString("&bDrop an item to add it to the Magic Crafter"));
 			}
 		}
-
 	}
 
 	public void runItemSpinner() {
@@ -200,7 +198,7 @@ public class MagicCrafter implements MagicaBlock, Saveable, Listener {
 
 	@EventHandler
 	public void onDrop(PlayerDropItemEvent e) {
-
+		if (isActive())
 		if (items.size() < MAX_ITEMS && state == STATE.WAITING) {
 			Bukkit.getScheduler().runTaskTimer(MagicaMain.getMagicaMain(), new CancellableBukkitTask() {
 				@Override
@@ -302,13 +300,15 @@ public class MagicCrafter implements MagicaBlock, Saveable, Listener {
 
 	@Override
 	public void runParticles() {
-		l.getWorld().spawnParticle(Particle.ENCHANTMENT_TABLE, l.clone().add(0.5, 0.5, 0.5), 10, 0, 0, 0, 1);
 		l.getWorld().spawnParticle(Particle.PORTAL, l.clone().add(0.5, 0.5, 0.5), 10, 0, 0, 0, 1);
+		for (Location l : MathUtils.getCircle(l.clone().add(0.5, 1, .5), 1, 64)){
+			l.getWorld().spawnParticle(Particle.ENCHANTMENT_TABLE, l, 1, 0, 0, 0, 0);
+		}
 		runItemSpinner();
 	}
 
 	@Override
-	public String getBlockName() {
+	public String getItemName() {
 		return "Magica Crafter";
 	}
 

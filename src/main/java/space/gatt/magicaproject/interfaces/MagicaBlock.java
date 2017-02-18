@@ -12,14 +12,6 @@ public interface MagicaBlock {
 
 	void runParticles();
 
-	String getBlockName();
-
-	ItemStack getCraftedItem();
-
-	Material getInventoryMaterial();
-
-	List<ItemStack> getItemRecipe();
-
 	boolean isActive();
 
 }

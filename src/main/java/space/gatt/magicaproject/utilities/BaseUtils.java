@@ -1,6 +1,5 @@
 package space.gatt.magicaproject.utilities;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
@@ -17,13 +16,16 @@ public class BaseUtils {
 		int trueCount = 0;
 		for (ItemStack is1 : stack1){
 			boolean foundClone = false;
+			int id = -1;
 			for (ItemStack is2 : stack2){
-				if (!foundClone){
-					foundClone = matchItem(is1, is2);
-					if (foundClone){
-						trueCount++;
-					}
+				id++;
+				foundClone = matchItem(is1, is2);
+				if (foundClone){
+					stack2.remove(id);
+					trueCount++;
+					break;
 				}
+
 			}
 		}
 		return trueCount == stack1.size();

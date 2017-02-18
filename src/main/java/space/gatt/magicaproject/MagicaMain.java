@@ -5,6 +5,7 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.reflections.Reflections;
+import space.gatt.magicaproject.interfaces.Craftable;
 import space.gatt.magicaproject.interfaces.MagicaBlock;
 import space.gatt.magicaproject.managers.BlockManager;
 import space.gatt.magicaproject.managers.ManaManager;
@@ -55,8 +56,8 @@ public class MagicaMain extends JavaPlugin {
 		// Registering Listeners. There's probably a better way but I cbs using reflection rn
 		Reflections reflections = new Reflections("space.gatt.magicaproject");
 
-		Set<Class<? extends MagicaBlock>> subTypes = reflections.getSubTypesOf(MagicaBlock.class);
-		System.out.println("Found " + subTypes.size() + " MagicaBlocks.");
+		Set<Class<? extends Craftable>> subTypes = reflections.getSubTypesOf(Craftable.class);
+		System.out.println("Found " + subTypes.size() + " Craftable Items.");
 		for (Class c : subTypes) {
 			try {
 				for (Method m : c.getMethods()){
