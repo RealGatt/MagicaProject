@@ -84,40 +84,53 @@ public class MagicCrafter extends Craftable implements MagicaBlock, Saveable, Li
 			itemObject.setPickupDelay(9999999);
 			itemObject.setGravity(false);
 			itemObject.teleport(l.clone().add(0.5, 1.5, 0.5));
-			itemObject.setCustomName(BaseUtils.colorString("&aCrafting... " + is.getItemMeta().getDisplayName()));
 			itemObject.setCustomNameVisible(true);
 			l.getWorld().playSound(l, Sound.BLOCK_PORTAL_TRAVEL, 0.1f, 2f);
-			craftingTask = Bukkit.getScheduler().runTaskTimer(MagicaMain.getMagicaMain(), new CancellableBukkitTask() {
-				float timeTaken = 0;
-				boolean crafted = false;
-				@Override
-				public void run() {
-					if (crafted == false) {
-						timeTaken++;
-						itemObject.teleport(l.clone().add(0.5, 1.5, 0.5));
-						l.getWorld().spawnParticle(Particle.END_ROD, l.clone().add(0.5, 1.3, 0.5), 10, 0, 0.3, 0, 0);
-						itemObject.setCustomName(BaseUtils.colorString("&aCrafting... " +
-								is.getItemMeta().getDisplayName() +
-								" " + Math.round(timeTaken/timeInTicks * 100) + "%"));
-						if (timeTaken >= timeInTicks) {
-							for (Item i : items) {
-								i.remove();
+			if (timeInTicks > 0) {
+				itemObject.setCustomName(BaseUtils.colorString("&aCrafting... " + is.getItemMeta().getDisplayName()));
+				craftingTask = Bukkit.getScheduler().runTaskTimer(MagicaMain.getMagicaMain(), new CancellableBukkitTask() {
+					float timeTaken = 0;
+					boolean crafted = false;
+
+					@Override
+					public void run() {
+						if (crafted == false) {
+							timeTaken++;
+							itemObject.teleport(l.clone().add(0.5, 1.5, 0.5));
+							l.getWorld().spawnParticle(Particle.END_ROD, l.clone().add(0.5, 1.3, 0.5), 10, 0, 0.3, 0, 0);
+							itemObject.setCustomName(BaseUtils.colorString("&aCrafting... " +
+									is.getItemMeta().getDisplayName() +
+									" " + Math.round(timeTaken / timeInTicks * 100) + "%"));
+							if (timeTaken >= timeInTicks) {
+								for (Item i : items) {
+									i.remove();
+								}
+								items.clear();
+								l.getWorld().playSound(l, Sound.ENTITY_ZOMBIE_VILLAGER_CURE, 0.2f, 2f);
+								itemObject.setPickupDelay(0);
+								itemObject.setCustomName(BaseUtils.colorString("&eCompleted"));
+								itemObject.setCustomNameVisible(true);
+								state = STATE.WAITING;
+								craftingTask.cancel();
+								crafted = true;
+								return;
 							}
-							items.clear();
-							l.getWorld().playSound(l, Sound.ENTITY_ZOMBIE_VILLAGER_CURE, 0.2f, 2f);
-							itemObject.setPickupDelay(0);
-							itemObject.setCustomName(BaseUtils.colorString("&eCompleted"));
-							itemObject.setCustomNameVisible(true);
-							state = STATE.WAITING;
-							craftingTask.cancel();
-							crafted = true;
-							return;
 						}
 					}
+				}, 1, 1);
+			}else{
+				itemObject.teleport(l.clone().add(0.5, 1.5, 0.5));
+				l.getWorld().spawnParticle(Particle.END_ROD, l.clone().add(0.5, 1.3, 0.5), 10, 0, 0.3, 0, 0);
+				for (Item i : items) {
+					i.remove();
 				}
-			}, 1, 1);
-
-
+				items.clear();
+				l.getWorld().playSound(l, Sound.ENTITY_ZOMBIE_VILLAGER_CURE, 0.2f, 2f);
+				itemObject.setPickupDelay(0);
+				itemObject.setCustomName(BaseUtils.colorString("&eCompleted"));
+				itemObject.setCustomNameVisible(true);
+				state = STATE.WAITING;
+			}
 			return true;
 		}else{
 			return false;
@@ -147,6 +160,9 @@ public class MagicCrafter extends Craftable implements MagicaBlock, Saveable, Li
 			}
 			MagicaMain.getMagicaMain().getBlockManager().removeBlock(this);
 			MagicaMain.getMagicaMain().getStorageManager().removeFromSave(this);
+			e.setCancelled(true);
+			e.getBlock().setType(Material.AIR);
+			e.getBlock().getWorld().dropItem(e.getBlock().getLocation(), getStaticCraftedItem());
 			isActive = false;
 			e.getBlock().getWorld().createExplosion(l.clone().add(0.5, 0.5, 0.5), 0);
 		}

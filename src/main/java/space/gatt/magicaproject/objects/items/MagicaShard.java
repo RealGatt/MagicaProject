@@ -50,14 +50,14 @@ public class MagicaShard extends Craftable{
 
 	public static ArrayList<MagicaRecipe> getStaticRecipes(){
 		ArrayList<MagicaRecipe> recipes = new ArrayList<>();
-		MagicaRecipe rec1 = new MagicaRecipe(new ArrayList<>(Arrays.asList(MagicaShard.getStaticCraftedItem(),
-				MagicaShard.getStaticCraftedItem(),
-				MagicaShard.getStaticCraftedItem(),
-				MagicaShard.getStaticCraftedItem(),
-				MagicaShard.getStaticCraftedItem(),
-				MagicaShard.getStaticCraftedItem(),
-				MagicaShard.getStaticCraftedItem(),
-				MagicaShard.getStaticCraftedItem())), getStaticCraftedItem(), 0, 0);
+		MagicaRecipe rec1 = new MagicaRecipe(new ArrayList<>(Arrays.asList(MagicaEssence.getStaticCraftedItem(),
+				MagicaEssence.getStaticCraftedItem(),
+				MagicaEssence.getStaticCraftedItem(),
+				MagicaEssence.getStaticCraftedItem(),
+				MagicaEssence.getStaticCraftedItem(),
+				MagicaEssence.getStaticCraftedItem(),
+				MagicaEssence.getStaticCraftedItem(),
+				MagicaEssence.getStaticCraftedItem())), getStaticCraftedItem(), 0, 0);
 		recipes.add(rec1);
 		return recipes;
 	}
