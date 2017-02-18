@@ -11,7 +11,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemFlag;
@@ -202,7 +201,7 @@ public class MagicCrafter implements MagicaBlock, Saveable, Listener {
 	@EventHandler
 	public void onDrop(PlayerDropItemEvent e) {
 
-		if (items.size() < MAX_ITEMS) {
+		if (items.size() < MAX_ITEMS && state == STATE.WAITING) {
 			Bukkit.getScheduler().runTaskTimer(MagicaMain.getMagicaMain(), new CancellableBukkitTask() {
 				@Override
 				public void run() {
@@ -225,6 +224,7 @@ public class MagicCrafter implements MagicaBlock, Saveable, Listener {
 									copy.setAmount(copy.getAmount() - 1);
 									e.getItemDrop().setItemStack(i);
 									Item i2 = l.getWorld().dropItem(e.getItemDrop().getLocation().getBlock().getLocation().add(0.5, 1, 0.5), copy);
+									Bukkit.getPluginManager().callEvent(new PlayerDropItemEvent(e.getPlayer(), i2));
 									i2.setVelocity(new Vector(0, 0, 0));
 									i2.setPickupDelay(e.getItemDrop().getPickupDelay());
 								}

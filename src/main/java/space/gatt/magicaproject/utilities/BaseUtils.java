@@ -1,12 +1,11 @@
 package space.gatt.magicaproject.utilities;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class BaseUtils {
@@ -15,21 +14,19 @@ public class BaseUtils {
 		if (stack1.size() != stack2.size()){
 			return false;
 		}
-		boolean finalYes = false;
+		int trueCount = 0;
 		for (ItemStack is1 : stack1){
 			boolean foundClone = false;
 			for (ItemStack is2 : stack2){
-				foundClone = matchItem(is1, is2);
-				if (foundClone){
-					break;
+				if (!foundClone){
+					foundClone = matchItem(is1, is2);
+					if (foundClone){
+						trueCount++;
+					}
 				}
 			}
-			finalYes = foundClone;
-			if (!finalYes){
-				return false;
-			}
 		}
-		return finalYes;
+		return trueCount == stack1.size();
 
 	}
 
@@ -46,7 +43,10 @@ public class BaseUtils {
 	public static boolean matchItem(ItemStack i1, ItemStack i2) {
 		ItemMeta im1 = i1.getItemMeta();
 		ItemMeta im2 = i2.getItemMeta();
-		boolean nameMatch = true, loreMatch = true, enchantMatch = true;
+		boolean nameMatch = true, loreMatch = true, enchantMatch = true, materialMatch = true;
+
+		materialMatch = (i1.getType() == i2.getType());
+
 		if (im1.getDisplayName() != null && im2.getDisplayName() != null) {
 			nameMatch = im1.getDisplayName().equals(im2.getDisplayName());
 		} else {
@@ -74,7 +74,7 @@ public class BaseUtils {
 				enchantMatch = false;
 			}
 		}
-		return nameMatch && loreMatch && enchantMatch;
+		return nameMatch && loreMatch && enchantMatch && materialMatch;
 
 	}
 
