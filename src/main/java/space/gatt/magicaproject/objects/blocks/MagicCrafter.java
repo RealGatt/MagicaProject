@@ -1,4 +1,4 @@
-package space.gatt.magicaproject.objects;
+package space.gatt.magicaproject.objects.blocks;
 
 import com.google.gson.JsonObject;
 import org.bukkit.*;
@@ -27,9 +27,7 @@ import space.gatt.magicaproject.interfaces.Saveable;
 import space.gatt.magicaproject.utilities.BaseUtils;
 import space.gatt.magicaproject.utilities.MathUtils;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 public class MagicCrafter extends Craftable implements MagicaBlock, Saveable, Listener {
@@ -73,59 +71,53 @@ public class MagicCrafter extends Craftable implements MagicaBlock, Saveable, Li
 
 	BukkitTask craftingTask;
 
-	public boolean beginCrafting(Class<? extends Craftable> block, final float timeInTicks, float manaPerTick, Player p){
+	public boolean beginCrafting(ItemStack resultItem, final float timeInTicks, float manaPerTick, Player p){
 		if (state == STATE.WAITING){
-			try {
-				for (Method m : block.getMethods()){
-					if (m.getName().equalsIgnoreCase("getStaticCraftedItem")){
-						ItemStack is = (ItemStack)m.invoke(this);
-						state = STATE.CRAFTING;
-						Item itemObject = l.getWorld().dropItem(l.clone().add(0.5, 1.5, 0.5), is);
-						itemObject.setVelocity(new Vector(0, 0, 0));
-						itemObject.setGlowing(true);
-						for (Item i : items) {
-							i.setGlowing(false);
-						}
-						itemObject.setPickupDelay(9999999);
-						itemObject.setGravity(false);
+			ItemStack is = resultItem;
+			state = STATE.CRAFTING;
+			Item itemObject = l.getWorld().dropItem(l.clone().add(0.5, 1.5, 0.5), is);
+			itemObject.setVelocity(new Vector(0, 0, 0));
+			itemObject.setGlowing(true);
+			for (Item i : items) {
+				i.setGlowing(false);
+			}
+			itemObject.setPickupDelay(9999999);
+			itemObject.setGravity(false);
+			itemObject.teleport(l.clone().add(0.5, 1.5, 0.5));
+			itemObject.setCustomName(BaseUtils.colorString("&aCrafting... " + is.getItemMeta().getDisplayName()));
+			itemObject.setCustomNameVisible(true);
+			l.getWorld().playSound(l, Sound.BLOCK_PORTAL_TRAVEL, 0.1f, 2f);
+			craftingTask = Bukkit.getScheduler().runTaskTimer(MagicaMain.getMagicaMain(), new CancellableBukkitTask() {
+				float timeTaken = 0;
+				boolean crafted = false;
+				@Override
+				public void run() {
+					if (crafted == false) {
+						timeTaken++;
 						itemObject.teleport(l.clone().add(0.5, 1.5, 0.5));
-						itemObject.setCustomName(BaseUtils.colorString("&aCrafting... " + is.getItemMeta().getDisplayName()));
-						itemObject.setCustomNameVisible(true);
-						l.getWorld().playSound(l, Sound.BLOCK_PORTAL_TRAVEL, 0.1f, 2f);
-						craftingTask = Bukkit.getScheduler().runTaskTimer(MagicaMain.getMagicaMain(), new CancellableBukkitTask() {
-							float timeTaken = 0;
-							boolean crafted = false;
-							@Override
-							public void run() {
-								if (crafted == false) {
-									timeTaken++;
-									itemObject.teleport(l.clone().add(0.5, 1.5, 0.5));
-									l.getWorld().spawnParticle(Particle.END_ROD, l.clone().add(0.5, 1.3, 0.5), 10, 0, 0.3, 0, 0);
-									itemObject.setCustomName(BaseUtils.colorString("&aCrafting... " +
-											is.getItemMeta().getDisplayName() +
-											" " + Math.round(timeTaken/timeInTicks * 100) + "%"));
-									if (timeTaken >= timeInTicks) {
-										for (Item i : items) {
-											i.remove();
-										}
-										items.clear();
-										l.getWorld().playSound(l, Sound.ENTITY_ZOMBIE_VILLAGER_CURE, 0.2f, 2f);
-										itemObject.setPickupDelay(0);
-										itemObject.setCustomName(BaseUtils.colorString("&eCompleted"));
-										itemObject.setCustomNameVisible(true);
-										state = STATE.WAITING;
-										craftingTask.cancel();
-										crafted = true;
-										return;
-									}
-								}
+						l.getWorld().spawnParticle(Particle.END_ROD, l.clone().add(0.5, 1.3, 0.5), 10, 0, 0.3, 0, 0);
+						itemObject.setCustomName(BaseUtils.colorString("&aCrafting... " +
+								is.getItemMeta().getDisplayName() +
+								" " + Math.round(timeTaken/timeInTicks * 100) + "%"));
+						if (timeTaken >= timeInTicks) {
+							for (Item i : items) {
+								i.remove();
 							}
-						}, 1, 1);
+							items.clear();
+							l.getWorld().playSound(l, Sound.ENTITY_ZOMBIE_VILLAGER_CURE, 0.2f, 2f);
+							itemObject.setPickupDelay(0);
+							itemObject.setCustomName(BaseUtils.colorString("&eCompleted"));
+							itemObject.setCustomNameVisible(true);
+							state = STATE.WAITING;
+							craftingTask.cancel();
+							crafted = true;
+							return;
+						}
 					}
 				}
-			}catch (Exception e){
+			}, 1, 1);
 
-			}
+
 			return true;
 		}else{
 			return false;
@@ -312,18 +304,4 @@ public class MagicCrafter extends Craftable implements MagicaBlock, Saveable, Li
 		return "Magica Crafter";
 	}
 
-	@Override
-	public ItemStack getCraftedItem() {
-		return MagicCrafter.getStaticCraftedItem();
-	}
-
-	@Override
-	public Material getInventoryMaterial() {
-		return Material.ENCHANTMENT_TABLE;
-	}
-
-	@Override
-	public List<ItemStack> getItemRecipe() {
-		return null;
-	}
 }

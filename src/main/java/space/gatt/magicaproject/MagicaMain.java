@@ -6,11 +6,10 @@ import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.reflections.Reflections;
 import space.gatt.magicaproject.interfaces.Craftable;
-import space.gatt.magicaproject.interfaces.MagicaBlock;
 import space.gatt.magicaproject.managers.BlockManager;
 import space.gatt.magicaproject.managers.ManaManager;
 import space.gatt.magicaproject.managers.StorageManager;
-import space.gatt.magicaproject.objects.MagicCrafter;
+import space.gatt.magicaproject.objects.blocks.MagicCrafter;
 
 import java.lang.reflect.Method;
 import java.util.Set;

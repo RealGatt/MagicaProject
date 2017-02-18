@@ -1,9 +1,8 @@
-package space.gatt.magicaproject.objects;
+package space.gatt.magicaproject.objects.blocks;
 
 import com.google.gson.JsonObject;
 import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Item;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -16,6 +15,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import space.gatt.magicaproject.MagicaMain;
 import space.gatt.magicaproject.events.EventAddItemToRecipe;
+import space.gatt.magicaproject.extra.MagicaRecipe;
 import space.gatt.magicaproject.interfaces.Craftable;
 import space.gatt.magicaproject.interfaces.MagicaBlock;
 import space.gatt.magicaproject.interfaces.ManaStorable;
@@ -24,7 +24,6 @@ import space.gatt.magicaproject.utilities.BaseUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 public class ManaGenerator extends Craftable implements MagicaBlock, Saveable, ManaStorable, Listener {
 	private Location l;
@@ -68,9 +67,9 @@ public class ManaGenerator extends Craftable implements MagicaBlock, Saveable, M
 		Bukkit.getPluginManager().registerEvents(new Listener() {
 			@EventHandler
 			public void onItemAdd(EventAddItemToRecipe e) {
-				if (e.getCrafter().getItems().size() == getStaticRecipe().size()) {
-					if (BaseUtils.isSameListItems(e.getCrafter().getItemsAsStack(), getStaticRecipe())) {
-						e.getCrafter().beginCrafting(ManaGenerator.class, 100, 0, e.getPlayer());
+				for (MagicaRecipe recipe : getStaticRecipes()){
+					if (BaseUtils.isSameListItems(e.getCrafter().getItemsAsStack(), recipe.getRequirements())) {
+						e.getCrafter().beginCrafting(recipe.getCraftedItem(), recipe.getTimeInTicks(), recipe.getManaPerTick(), e.getPlayer());
 					}
 				}
 			}
@@ -89,15 +88,22 @@ public class ManaGenerator extends Craftable implements MagicaBlock, Saveable, M
 		}, MagicaMain.getMagicaMain());
 	}
 
-	public static List<ItemStack> getStaticRecipe() {
-		List<ItemStack> items = new ArrayList<>(Arrays.asList(new ItemStack(Material.DIAMOND),
+	public static ArrayList<MagicaRecipe> getStaticRecipes(){
+		ArrayList<MagicaRecipe> recipes = new ArrayList<>();
+		MagicaRecipe rec1 = new MagicaRecipe(new ArrayList<>(Arrays.asList(new ItemStack(Material.DIAMOND),
 				new ItemStack(Material.EMERALD),
 				new ItemStack(Material.BUCKET),
 				new ItemStack(Material.ENDER_PEARL),
 				new ItemStack(Material.ENDER_PEARL),
 				new ItemStack(Material.BLAZE_POWDER),
-				new ItemStack(Material.CHEST)));
-		return items;
+				new ItemStack(Material.CHEST))), getStaticCraftedItem(), 5, 0);
+		recipes.add(rec1);
+		return recipes;
+	}
+
+	@Override
+	public ArrayList<MagicaRecipe> getRecipes() {
+		return getStaticRecipes();
 	}
 
 	public static ItemStack getStaticCraftedItem() {
@@ -111,10 +117,6 @@ public class ManaGenerator extends Craftable implements MagicaBlock, Saveable, M
 		return manaGenerator;
 	}
 
-	@Override
-	public List<ItemStack> getItemRecipe() {
-		return getStaticRecipe();
-	}
 
 	@Override
 	public Location getLocation() {
@@ -134,16 +136,6 @@ public class ManaGenerator extends Craftable implements MagicaBlock, Saveable, M
 	@Override
 	public String getItemName() {
 		return "Mana Generator";
-	}
-
-	@Override
-	public ItemStack getCraftedItem() {
-		return getStaticCraftedItem();
-	}
-
-	@Override
-	public Material getInventoryMaterial() {
-		return Material.CYAN_SHULKER_BOX;
 	}
 
 	@Override
