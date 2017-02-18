@@ -8,7 +8,7 @@ import org.bukkit.Bukkit;
 
 public class Reflection {
 
-	public static Class magicaClass(String name){
+	public static Class magicaClass(String name) {
 		try {
 			return Class.forName("space.gatt.magicaproject." + name);
 		} catch (ClassNotFoundException e) {

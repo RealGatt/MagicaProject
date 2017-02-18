@@ -3,7 +3,6 @@ package space.gatt.magicaproject.objects;
 import com.google.gson.JsonObject;
 import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Item;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemFlag;
@@ -20,11 +19,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class ManaGenerator implements MagicaBlock, Saveable, ManaStorable {
+public class AdvancedManaGenerator implements MagicaBlock, Saveable, ManaStorable {
 	private Location l;
 	private OfflinePlayer playerPlaced;
 	private float storedMana;
-	public ManaGenerator(Location l, OfflinePlayer playerPlaced) {
+	public AdvancedManaGenerator(Location l, OfflinePlayer playerPlaced) {
 		this.l = l;
 		this.playerPlaced = playerPlaced;
 		shutdownCall();
@@ -36,7 +35,7 @@ public class ManaGenerator implements MagicaBlock, Saveable, ManaStorable {
 			public void onItemAdd(EventAddItemToRecipe e) {
 				if (e.getCrafter().getItems().size() == getStaticRecipe().size()){
 					if (BaseUtils.isSameListItems(e.getCrafter().getItemsAsStack(), getStaticRecipe())){
-						e.getCrafter().beginCrafting(ManaGenerator.class, 100, 0, e.getPlayer());
+						e.getCrafter().beginCrafting(AdvancedManaGenerator.class, 1000, 2, e.getPlayer());
 					}
 				}
 			}
@@ -49,13 +48,11 @@ public class ManaGenerator implements MagicaBlock, Saveable, ManaStorable {
 	}
 
 	public static List<ItemStack> getStaticRecipe() {
-		List<ItemStack> items = Arrays.asList(new ItemStack(Material.DIAMOND),
-				new ItemStack(Material.EMERALD),
-				new ItemStack(Material.BUCKET),
-				new ItemStack(Material.ENDER_PEARL),
-				new ItemStack(Material.ENDER_PEARL),
-				new ItemStack(Material.BLAZE_POWDER),
-				new ItemStack(Material.CHEST));
+		List<ItemStack> items = Arrays.asList(
+				ManaGenerator.getStaticCraftedItem(),
+				new ItemStack(Material.NETHER_STAR),
+				new ItemStack(Material.TOTEM),
+				new ItemStack(Material.WHITE_SHULKER_BOX));
 		return items;
 	}
 
@@ -85,10 +82,10 @@ public class ManaGenerator implements MagicaBlock, Saveable, ManaStorable {
 	}
 
 	public static ItemStack getStaticCraftedItem() {
-		ItemStack manaGenerator = new ItemStack(Material.CYAN_SHULKER_BOX);
+		ItemStack manaGenerator = new ItemStack(Material.WHITE_SHULKER_BOX);
 		ItemMeta im = manaGenerator.getItemMeta();
 		im.addEnchant(Enchantment.DURABILITY, 1, true);
-		im.setDisplayName(BaseUtils.colorString("&bMana Generator"));
+		im.setDisplayName(BaseUtils.colorString("&aAdvanced Mana Generator"));
 		im.addItemFlags(ItemFlag.values());
 		im.setUnbreakable(true);
 		manaGenerator.setItemMeta(im);
@@ -97,7 +94,7 @@ public class ManaGenerator implements MagicaBlock, Saveable, ManaStorable {
 
 	@Override
 	public Material getInventoryMaterial() {
-		return Material.CYAN_SHULKER_BOX;
+		return Material.WHITE_SHULKER_BOX;
 	}
 
 	@Override
@@ -124,7 +121,7 @@ public class ManaGenerator implements MagicaBlock, Saveable, ManaStorable {
 
 	@Override
 	public String getSaveFileName() {
-		return "managenerator";
+		return "advancedmanagenerator";
 	}
 
 	@Override

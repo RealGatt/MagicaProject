@@ -1,8 +1,11 @@
 package space.gatt.magicaproject.interfaces;
 
 public interface ManaStorable {
-	public float getManaLevel();
-	public void setManaLevel(float f);
-	public float increaseMana(float f);
-	public float decreaseMana(float f);
+	float getManaLevel();
+
+	void setManaLevel(float f);
+
+	float increaseMana(float f);
+
+	float decreaseMana(float f);
 }

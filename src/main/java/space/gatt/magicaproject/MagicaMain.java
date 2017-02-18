@@ -4,18 +4,27 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.reflections.Reflections;
+import space.gatt.magicaproject.interfaces.MagicaBlock;
 import space.gatt.magicaproject.managers.BlockManager;
 import space.gatt.magicaproject.managers.ManaManager;
 import space.gatt.magicaproject.managers.StorageManager;
 import space.gatt.magicaproject.objects.MagicCrafter;
 
+import java.lang.reflect.Method;
+import java.util.Set;
+
 public class MagicaMain extends JavaPlugin {
 
-	private StorageManager storageManager;
 	private static MagicaMain magicaMain;
+	private StorageManager storageManager;
 	private MagicaMain plugin;
 	private ManaManager manaManager;
 	private BlockManager blockManager;
+
+	public static MagicaMain getMagicaMain() {
+		return magicaMain;
+	}
 
 	@Override
 	public void onDisable() {
@@ -42,7 +51,25 @@ public class MagicaMain extends JavaPlugin {
 		magicCrafterRecipe.setIngredient('W', Material.WORKBENCH);
 		magicCrafterRecipe.setIngredient('O', Material.OBSIDIAN);
 		Bukkit.addRecipe(magicCrafterRecipe);
-		MagicCrafter.registerListener();
+
+		// Registering Listeners. There's probably a better way but I cbs using reflection rn
+		Reflections reflections = new Reflections("space.gatt.magicaproject");
+
+		Set<Class<? extends MagicaBlock>> subTypes = reflections.getSubTypesOf(MagicaBlock.class);
+		System.out.println("Found " + subTypes.size() + " MagicaBlocks.");
+		for (Class c : subTypes) {
+			try {
+				for (Method m : c.getMethods()){
+					if (m.getName().equalsIgnoreCase("registerListener")){
+						m.invoke(this);
+					}
+				}
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+
 	}
 
 	public BlockManager getBlockManager() {
@@ -55,9 +82,5 @@ public class MagicaMain extends JavaPlugin {
 
 	public StorageManager getStorageManager() {
 		return storageManager;
-	}
-
-	public static MagicaMain getMagicaMain() {
-		return magicaMain;
 	}
 }

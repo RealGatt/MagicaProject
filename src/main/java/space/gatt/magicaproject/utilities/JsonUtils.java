@@ -9,7 +9,7 @@ import java.util.Set;
 
 public class JsonUtils {
 
-	public static HashMap<String, JsonElement> convertToHash(JsonObject array){
+	public static HashMap<String, JsonElement> convertToHash(JsonObject array) {
 		HashMap<String, JsonElement> map = new HashMap<>();
 
 		Set<Map.Entry<String, JsonElement>> entrySet = array.entrySet();
