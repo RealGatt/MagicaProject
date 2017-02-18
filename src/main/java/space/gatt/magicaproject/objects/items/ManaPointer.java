@@ -39,6 +39,7 @@ public class ManaPointer extends Craftable {
 		im.setDisplayName(BaseUtils.colorString("&bMana Pointer"));
 		im.addItemFlags(ItemFlag.values());
 		im.setUnbreakable(true);
+		im.setLore(MagicaMain.getLoreLine());
 		manaGenerator.setItemMeta(im);
 		return manaGenerator;
 	}

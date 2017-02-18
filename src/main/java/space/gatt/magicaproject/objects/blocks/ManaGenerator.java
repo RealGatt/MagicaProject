@@ -112,6 +112,7 @@ public class ManaGenerator extends Craftable implements MagicaBlock, Saveable, M
 		im.addEnchant(Enchantment.DURABILITY, 1, true);
 		im.setDisplayName(BaseUtils.colorString("&bMana Generator"));
 		im.addItemFlags(ItemFlag.values());
+		im.setLore(MagicaMain.getLoreLine());
 		im.setUnbreakable(true);
 		manaGenerator.setItemMeta(im);
 		return manaGenerator;

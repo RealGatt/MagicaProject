@@ -85,6 +85,7 @@ public class AdvancedManaGenerator extends Craftable implements MagicaBlock, Sav
 		im.addEnchant(Enchantment.DURABILITY, 1, true);
 		im.setDisplayName(BaseUtils.colorString("&aAdvanced Mana Generator"));
 		im.addItemFlags(ItemFlag.values());
+		im.setLore(MagicaMain.getLoreLine());
 		im.setUnbreakable(true);
 		manaGenerator.setItemMeta(im);
 		return manaGenerator;

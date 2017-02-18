@@ -2,7 +2,14 @@ package space.gatt.magicaproject;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.event.Event;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.CraftItemEvent;
+import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.reflections.Reflections;
 import space.gatt.magicaproject.interfaces.Craftable;
@@ -10,11 +17,14 @@ import space.gatt.magicaproject.managers.BlockManager;
 import space.gatt.magicaproject.managers.ManaManager;
 import space.gatt.magicaproject.managers.StorageManager;
 import space.gatt.magicaproject.objects.blocks.MagicCrafter;
+import space.gatt.magicaproject.utilities.BaseUtils;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
-public class MagicaMain extends JavaPlugin {
+public class MagicaMain extends JavaPlugin implements Listener{
 
 	private static MagicaMain magicaMain;
 	private StorageManager storageManager;
@@ -52,6 +62,8 @@ public class MagicaMain extends JavaPlugin {
 		magicCrafterRecipe.setIngredient('O', Material.OBSIDIAN);
 		Bukkit.addRecipe(magicCrafterRecipe);
 
+		Bukkit.getPluginManager().registerEvents(this, this);
+
 		// Registering Listeners. There's probably a better way but I cbs using reflection rn
 		Reflections reflections = new Reflections("space.gatt.magicaproject");
 
@@ -69,7 +81,22 @@ public class MagicaMain extends JavaPlugin {
 				e.printStackTrace();
 			}
 		}
+	}
 
+	public static List<String> getLoreLine(){
+		return Arrays.asList(BaseUtils.colorString("&9MagicaProject"));
+	}
+
+	@EventHandler
+	public void onCraft(CraftItemEvent e){
+		for (ItemStack is : e.getInventory().getMatrix()){
+			ItemMeta im = is.getItemMeta();
+			if (im.isUnbreakable() && im.getItemFlags().size() == ItemFlag.values().length && im.getLore().contains(BaseUtils.colorString("&9MagicaProject"))){
+				e.setCancelled(true);
+				e.setResult(Event.Result.DENY);
+				e.setCurrentItem(new ItemStack(Material.AIR));
+			}
+		}
 	}
 
 	public BlockManager getBlockManager() {

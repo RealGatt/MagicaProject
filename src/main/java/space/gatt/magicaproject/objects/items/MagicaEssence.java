@@ -38,6 +38,7 @@ public class MagicaEssence extends Craftable{
 		im.addEnchant(Enchantment.DURABILITY, 1, true);
 		im.setDisplayName(BaseUtils.colorString("&bMana Essense"));
 		im.addItemFlags(ItemFlag.values());
+		im.setLore(MagicaMain.getLoreLine());
 		im.setUnbreakable(true);
 		manaGenerator.setItemMeta(im);
 		return manaGenerator;
@@ -50,11 +51,13 @@ public class MagicaEssence extends Craftable{
 
 	public static ArrayList<MagicaRecipe> getStaticRecipes(){
 		ArrayList<MagicaRecipe> recipes = new ArrayList<>();
-		MagicaRecipe rec1 = new MagicaRecipe(new ArrayList<>(Arrays.asList(new ItemStack(Material.REDSTONE))), getStaticCraftedItem(), 5, 0);
+		MagicaRecipe rec1 = new MagicaRecipe(new ArrayList<>(Arrays.asList(new ItemStack(Material.REDSTONE))), getStaticCraftedItem(), 0, 0);
 		ItemStack lapis = new ItemStack(Material.INK_SACK, 1, (short) DyeColor.BLUE.getDyeData());
-		MagicaRecipe rec2 = new MagicaRecipe(new ArrayList<>(Arrays.asList(lapis)), getStaticCraftedItem(), 5, 0);
+		MagicaRecipe rec2 = new MagicaRecipe(new ArrayList<>(Arrays.asList(lapis)), getStaticCraftedItem(), 0, 0);
+		MagicaRecipe rec3 = new MagicaRecipe(new ArrayList<>(Arrays.asList(new ItemStack(Material.DIAMOND))), getStaticCraftedItem(), 0, 0, 16);
 		recipes.add(rec1);
 		recipes.add(rec2);
+		recipes.add(rec3);
 		return recipes;
 	}
 

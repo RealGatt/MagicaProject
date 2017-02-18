@@ -131,6 +131,7 @@ public class MagicCrafter extends Craftable implements MagicaBlock, Saveable, Li
 		im.setDisplayName(BaseUtils.colorString("&b&lMana Crafter"));
 		im.addItemFlags(ItemFlag.values());
 		im.setUnbreakable(true);
+		im.setLore(MagicaMain.getLoreLine());
 		magicCrafter.setItemMeta(im);
 		return magicCrafter;
 	}
