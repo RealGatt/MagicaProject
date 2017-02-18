@@ -10,6 +10,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockDispenseEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -141,7 +142,7 @@ public class MagicCrafter extends Craftable implements MagicaBlock, Saveable, Li
 		ItemStack magicCrafter = new ItemStack(Material.ENCHANTMENT_TABLE);
 		ItemMeta im = magicCrafter.getItemMeta();
 		im.addEnchant(Enchantment.DURABILITY, 1, true);
-		im.setDisplayName(BaseUtils.colorString("&b&lMana Crafter"));
+		im.setDisplayName(BaseUtils.colorString("&b&lMagica Crafter"));
 		im.addItemFlags(ItemFlag.values());
 		im.setUnbreakable(true);
 		im.setLore(MagicaMain.getLoreLine());
@@ -186,7 +187,7 @@ public class MagicCrafter extends Craftable implements MagicaBlock, Saveable, Li
 				}
 				items.clear();
 			} else {
-				e.getPlayer().sendMessage(BaseUtils.colorString("&bDrop an item to add it to the Magic Crafter"));
+				e.getPlayer().sendMessage(BaseUtils.colorString("&bDrop an item ontop of the Magic Crafter to add it"));
 			}
 		}
 	}
@@ -209,53 +210,57 @@ public class MagicCrafter extends Craftable implements MagicaBlock, Saveable, Li
 	public void onDrop(PlayerDropItemEvent e) {
 		if (isActive())
 		if (items.size() < MAX_ITEMS && state == STATE.WAITING) {
-			Bukkit.getScheduler().runTaskTimer(MagicaMain.getMagicaMain(), new CancellableBukkitTask() {
-				@Override
-				public void run() {
-					if (e.getItemDrop().getLocation().getY() < 0) {
-						this.cancel();
-						return;
-					}
-					if (items.size() < MAX_ITEMS) {
-						if (e.getItemDrop().isOnGround() && e.getItemDrop() != null
-								&& !e.getItemDrop().isDead()
-								&& !e.getItemDrop().isGlowing()
-								&& e.getItemDrop().getCustomName() == null) {
-							if (e.getItemDrop().getLocation().getBlockX() == l.getBlockX()
-									&& e.getItemDrop().getLocation().distance(l.clone().add(0, 1, 0)) <= 1.5
-									&& e.getItemDrop().getLocation().getBlockZ() == l.getBlockZ()) {
-								ItemStack i = e.getItemDrop().getItemStack().clone();
-								ItemStack copy = e.getItemDrop().getItemStack().clone();
-								if (i.getAmount() > 1) {
-									i.setAmount(1);
-									copy.setAmount(copy.getAmount() - 1);
-									e.getItemDrop().setItemStack(i);
-									Item i2 = l.getWorld().dropItem(e.getItemDrop().getLocation().getBlock().getLocation().add(0.5, 1, 0.5), copy);
-									Bukkit.getPluginManager().callEvent(new PlayerDropItemEvent(e.getPlayer(), i2));
-									i2.setVelocity(new Vector(0, 0, 0));
-									i2.setPickupDelay(e.getItemDrop().getPickupDelay());
-								}
-								e.getItemDrop().setCustomName(UUID.randomUUID().toString());
-								if (i.getItemMeta().getDisplayName() != null) {
-									e.getItemDrop().setCustomName(i.getItemMeta().getDisplayName());
-									e.getItemDrop().setCustomNameVisible(true);
-								}
-								e.getItemDrop().setVelocity(new Vector(0, 0, 0));
-								items.add(e.getItemDrop());
-								e.getItemDrop().setGravity(false);
-								e.getItemDrop().setGlowing(true);
-								l.getWorld().spawnParticle(Particle.FIREWORKS_SPARK, e.getItemDrop().getLocation(), 5, 0.1, 0.1, 0.1, 0.3);
-								e.getItemDrop().setPickupDelay(999999);
-								runItemSpinner();
-								Bukkit.getPluginManager().callEvent(new EventAddItemToRecipe(instance, i, e.getPlayer()));
-								this.cancel();
-								return;
+			trackItem(e.getItemDrop(), e.getPlayer());
+		}
+	}
+
+	private void trackItem(Item e, Player p){
+		Bukkit.getScheduler().runTaskTimer(MagicaMain.getMagicaMain(), new CancellableBukkitTask() {
+			@Override
+			public void run() {
+				if (e.getLocation().getY() < 0) {
+					this.cancel();
+					return;
+				}
+				if (items.size() < MAX_ITEMS) {
+					if (e.isOnGround() && e != null
+							&& !e.isDead()
+							&& !e.isGlowing()
+							&& e.getCustomName() == null) {
+						if (e.getLocation().getBlockX() == l.getBlockX()
+								&& e.getLocation().distance(l.clone().add(0, 1, 0)) <= 1.5
+								&& e.getLocation().getBlockZ() == l.getBlockZ()) {
+							ItemStack i = e.getItemStack().clone();
+							ItemStack copy = e.getItemStack().clone();
+							if (i.getAmount() > 1) {
+								i.setAmount(1);
+								copy.setAmount(copy.getAmount() - 1);
+								e.setItemStack(i);
+								Item i2 = l.getWorld().dropItem(e.getLocation().getBlock().getLocation().add(0.5, 1, 0.5), copy);
+								trackItem(i2, p);
+								i2.setVelocity(new Vector(0, 0, 0));
+								i2.setPickupDelay(e.getPickupDelay());
 							}
+							e.setCustomName(UUID.randomUUID().toString());
+							if (i.getItemMeta().getDisplayName() != null) {
+								e.setCustomName(i.getItemMeta().getDisplayName());
+								e.setCustomNameVisible(true);
+							}
+							e.setVelocity(new Vector(0, 0, 0));
+							items.add(e);
+							e.setGravity(false);
+							e.setGlowing(true);
+							l.getWorld().spawnParticle(Particle.FIREWORKS_SPARK, e.getLocation(), 5, 0.1, 0.1, 0.1, 0.3);
+							e.setPickupDelay(999999);
+							runItemSpinner();
+							Bukkit.getPluginManager().callEvent(new EventAddItemToRecipe(instance, i, p));
+							this.cancel();
+							return;
 						}
 					}
 				}
-			}, 1, 1).getTaskId();
-		}
+			}
+		}, 1, 1).getTaskId();
 	}
 
 	public ArrayList<ItemStack> getItemsAsStack() {
