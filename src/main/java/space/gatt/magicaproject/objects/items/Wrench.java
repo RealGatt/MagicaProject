@@ -4,10 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.block.BlockState;
-import org.bukkit.block.Chest;
+import org.bukkit.block.*;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
@@ -29,14 +26,15 @@ import java.util.Arrays;
 public class Wrench extends Craftable {
 
 	public static void registerItemListener(){
+		Bukkit.broadcastMessage("Registered Wrench Listener");
 		Bukkit.getPluginManager().registerEvents(new Listener() {
 			@EventHandler
 			public void onWrenchUse(PlayerInteractEvent e){
-				if (e.getAction() == Action.RIGHT_CLICK_BLOCK && e.getItem() != null && e.getItem() == getStaticCraftedItem()){
+				if (e.getAction() == Action.RIGHT_CLICK_BLOCK && e.getItem() != null && BaseUtils.matchItem(e.getItem(), getStaticCraftedItem())){
 					e.setUseInteractedBlock(Event.Result.DENY);
 					e.setUseItemInHand(Event.Result.DENY);
-					if (e.getClickedBlock() instanceof Directional){
-						Directional d = (Directional)e.getClickedBlock();
+					if (e.getClickedBlock().getState() instanceof Directional){
+						Directional d = (Directional)e.getClickedBlock().getState();
 						boolean next = false;
 						for (BlockFace bf : BlockFace.values()){
 							if (next){
