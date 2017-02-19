@@ -18,18 +18,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class MagicaShard extends Craftable{
-	public static void registerListener() {
-		Bukkit.getPluginManager().registerEvents(new Listener() {
-			@EventHandler
-			public void onItemAdd(EventAddItemToRecipe e) {
-				for (MagicaRecipe recipe : getStaticRecipes()){
-					if (BaseUtils.isSameListItems(e.getCrafter().getItemsAsStack(), recipe.getRequirements())) {
-						e.getCrafter().beginCrafting(recipe.getCraftedItem(), recipe.getTimeInTicks(), recipe.getManaPerTick(), e.getPlayer());
-					}
-				}
-			}
-		}, MagicaMain.getMagicaMain());
-	}
 
 	public static ItemStack getStaticCraftedItem() {
 		ItemStack manaGenerator = new ItemStack(Material.PRISMARINE_SHARD);

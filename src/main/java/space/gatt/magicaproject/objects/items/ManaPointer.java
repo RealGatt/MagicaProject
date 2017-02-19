@@ -1,15 +1,11 @@
 package space.gatt.magicaproject.objects.items;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import space.gatt.magicaproject.MagicaMain;
-import space.gatt.magicaproject.events.EventAddItemToRecipe;
 import space.gatt.magicaproject.extra.MagicaRecipe;
 import space.gatt.magicaproject.interfaces.Craftable;
 import space.gatt.magicaproject.utilities.BaseUtils;
@@ -18,19 +14,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class ManaPointer extends Craftable {
-
-	public static void registerListener() {
-		Bukkit.getPluginManager().registerEvents(new Listener() {
-			@EventHandler
-			public void onItemAdd(EventAddItemToRecipe e) {
-				for (MagicaRecipe recipe : getStaticRecipes()){
-					if (BaseUtils.isSameListItems(e.getCrafter().getItemsAsStack(), recipe.getRequirements())) {
-						e.getCrafter().beginCrafting(recipe.getCraftedItem(), recipe.getTimeInTicks(), recipe.getManaPerTick(), e.getPlayer());
-					}
-				}
-			}
-		}, MagicaMain.getMagicaMain());
-	}
 
 	public static ItemStack getStaticCraftedItem() {
 		ItemStack manaGenerator = new ItemStack(Material.REDSTONE_TORCH_ON);

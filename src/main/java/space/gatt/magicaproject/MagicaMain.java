@@ -1,5 +1,6 @@
 package space.gatt.magicaproject;
 
+import com.sun.org.apache.xpath.internal.operations.Mod;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.event.Event;
@@ -15,14 +16,19 @@ import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.reflections.Reflections;
+import space.gatt.magicaproject.extra.MagicaRecipe;
 import space.gatt.magicaproject.interfaces.Craftable;
+import space.gatt.magicaproject.interfaces.MagicaBlock;
 import space.gatt.magicaproject.managers.BlockManager;
 import space.gatt.magicaproject.managers.ManaManager;
+import space.gatt.magicaproject.managers.RecipeManager;
 import space.gatt.magicaproject.managers.StorageManager;
 import space.gatt.magicaproject.objects.blocks.MagicCrafter;
 import space.gatt.magicaproject.utilities.BaseUtils;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -35,6 +41,7 @@ public class MagicaMain extends JavaPlugin implements Listener{
 	private MagicaMain plugin;
 	private ManaManager manaManager;
 	private BlockManager blockManager;
+	private RecipeManager recipeManager;
 
 	public static MagicaMain getMagicaMain() {
 		return magicaMain;
@@ -54,6 +61,7 @@ public class MagicaMain extends JavaPlugin implements Listener{
 		manaManager = new ManaManager();
 		blockManager = new BlockManager();
 		storageManager = new StorageManager();
+		recipeManager = new RecipeManager();
 
 		ShapedRecipe magicCrafterRecipe = new ShapedRecipe(MagicCrafter.getStaticCraftedItem());
 		magicCrafterRecipe.shape("ABA", "FWR", "IOI");
@@ -76,8 +84,12 @@ public class MagicaMain extends JavaPlugin implements Listener{
 		for (Class c : subTypes) {
 			try {
 				for (Method m : c.getMethods()){
-					if (m.getName().equalsIgnoreCase("registerListener")){
-						m.invoke(this);
+					if (m.getReturnType() == ArrayList.class && Modifier.isStatic(m.getModifiers())){
+						ArrayList<MagicaRecipe> recipes = (ArrayList<MagicaRecipe>)m.invoke(this);
+						for (MagicaRecipe recipe : recipes){
+							recipeManager.registerRecipe(recipe);
+						}
+						System.out.println("Registered recipes for " + c.getSimpleName());
 					}
 				}
 
@@ -85,6 +97,24 @@ public class MagicaMain extends JavaPlugin implements Listener{
 				e.printStackTrace();
 			}
 		}
+
+		Set<Class<? extends MagicaBlock>> magicaBlocks = reflections.getSubTypesOf(MagicaBlock.class);
+		System.out.println("Found " + magicaBlocks.size() + " MagicaBlocks.");
+		for (Class c : magicaBlocks) {
+			try {
+				for (Method m : c.getMethods()){
+					if (m.getName().equalsIgnoreCase("registerListener")){
+						m.invoke(this);
+						System.out.println("Registered listeners for " + c.getSimpleName());
+					}
+				}
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+
+
 	}
 
 	public static List<String> getLoreLine(){

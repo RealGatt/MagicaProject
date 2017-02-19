@@ -22,7 +22,6 @@ import org.bukkit.util.Vector;
 import space.gatt.magicaproject.CancellableBukkitTask;
 import space.gatt.magicaproject.MagicaMain;
 import space.gatt.magicaproject.events.EventAddItemToRecipe;
-import space.gatt.magicaproject.interfaces.Craftable;
 import space.gatt.magicaproject.interfaces.MagicaBlock;
 import space.gatt.magicaproject.interfaces.Saveable;
 import space.gatt.magicaproject.utilities.BaseUtils;
@@ -31,10 +30,10 @@ import space.gatt.magicaproject.utilities.MathUtils;
 import java.util.ArrayList;
 import java.util.UUID;
 
-public class MagicCrafter extends Craftable implements MagicaBlock, Saveable, Listener {
+public class MagicCrafter implements MagicaBlock, Saveable, Listener {
 
 	private enum STATE{
-		CRAFTING, WAITING;
+		CRAFTING, WAITING
 	}
 
 	final int MAX_ITEMS = 16;
@@ -101,7 +100,7 @@ public class MagicCrafter extends Craftable implements MagicaBlock, Saveable, Li
 							l.getWorld().spawnParticle(Particle.END_ROD, l.clone().add(0.5, 1.3, 0.5), 10, 0, 0.3, 0, 0);
 							itemObject.setCustomName(BaseUtils.colorString("&aCrafting... " +
 									is.getItemMeta().getDisplayName() +
-									" " + Math.round(timeTaken / timeInTicks * 100) + "%"));
+									" &a" + Math.round(timeTaken / timeInTicks * 100) + "%"));
 							if (timeTaken >= timeInTicks) {
 								for (Item i : items) {
 									i.remove();
@@ -162,6 +161,13 @@ public class MagicCrafter extends Craftable implements MagicaBlock, Saveable, Li
 			MagicaMain.getMagicaMain().getBlockManager().removeBlock(this);
 			MagicaMain.getMagicaMain().getStorageManager().removeFromSave(this);
 			e.setCancelled(true);
+			if (items.size() > 0) {
+				for (Item i : items) {
+					l.getWorld().dropItemNaturally(e.getBlock().getLocation().add(0.5, 2, 0.5), i.getItemStack());
+					i.remove();
+				}
+				items.clear();
+			}
 			e.getBlock().setType(Material.AIR);
 			e.getBlock().getWorld().dropItem(e.getBlock().getLocation(), getStaticCraftedItem());
 			isActive = false;
@@ -194,7 +200,9 @@ public class MagicCrafter extends Craftable implements MagicaBlock, Saveable, Li
 
 	public void runItemSpinner() {
 		int id = -1;
-		ArrayList<Location> locs = 	MathUtils.getCircle(l.clone().add(0.5, .5, 0.5), 1, 16);
+		boolean isstar = false;
+		ArrayList<Location> locs = !isstar ? MathUtils.getCircle(l.clone().add(0.5, .5, 0.5), 1, items.size()):
+				MathUtils.getStar(l.clone().add(0.5, .5, 0.5), 1, items.size(), 1);
 
 		for (Item as : items) {
 			as.setPickupDelay(999999);
@@ -319,11 +327,6 @@ public class MagicCrafter extends Craftable implements MagicaBlock, Saveable, Li
 			l.getWorld().spawnParticle(Particle.ENCHANTMENT_TABLE, l, 1, 0, 0, 0, 0);
 		}
 		runItemSpinner();
-	}
-
-	@Override
-	public String getItemName() {
-		return "Magica Crafter";
 	}
 
 }

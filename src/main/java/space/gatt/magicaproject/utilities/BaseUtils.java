@@ -5,23 +5,32 @@ import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class BaseUtils {
 
-	public static boolean isSameListItems(List<ItemStack> stack1, List<ItemStack> stack2){
+	public static boolean isSameListItems(ArrayList<ItemStack> stack1, ArrayList<ItemStack> stack2){
 		if (stack1.size() != stack2.size()){
 			return false;
 		}
 		int trueCount = 0;
-		for (ItemStack is1 : stack1){
+		ArrayList<ItemStack> stack1Clone = new ArrayList<>();
+		for (ItemStack i1 : stack1){
+			stack1Clone.add(i1);
+		}
+		ArrayList<ItemStack> stack2Clone = new ArrayList<>();
+		for (ItemStack i1 : stack2){
+			stack2Clone.add(i1);
+		}
+		for (ItemStack is1 : stack1Clone){
 			boolean foundClone = false;
 			int id = -1;
-			for (ItemStack is2 : stack2){
+			for (ItemStack is2 : stack2Clone){
 				id++;
 				foundClone = matchItem(is1, is2);
 				if (foundClone){
-					stack2.remove(id);
+					stack2Clone.remove(id);
 					trueCount++;
 					break;
 				}
