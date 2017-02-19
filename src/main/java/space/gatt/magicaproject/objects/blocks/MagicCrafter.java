@@ -177,64 +177,77 @@ public class MagicCrafter implements MagicaBlock, Saveable, Listener {
 		}
 	}
 
+	Random random = new Random();
+
 	private void placeInHopper(Item i){
 		Hopper hp = null;
 		List<Hopper> hoppers = new ArrayList<>();
 		if (getLocation().subtract(0, 1, 0).getBlock().getType() == Material.HOPPER){
+			Bukkit.broadcastMessage("Hopper Down");
 			hp = (Hopper)getLocation().subtract(0, 1, 0).getBlock().getState();
 			if (InventoryWorkAround.canAdd(hp.getInventory(), i.getItemStack())){
 				hoppers.add(hp);
 			}
 		}
-		if (getLocation().add(1, 0, 0).getBlock().getType() == Material.HOPPER){
+		if (getLocation().add(1, 0, 0).getBlock().getType() == Material.HOPPER){ // Up
+			Bukkit.broadcastMessage("Hopper Forward");
 			hp = (Hopper)getLocation().add(1, 0, 0).getBlock().getState();
 			if (InventoryWorkAround.canAdd(hp.getInventory(), i.getItemStack())){
 				hoppers.add(hp);
 			}
 		}
-		if (getLocation().add(0, 0, 1).getBlock().getType() == Material.HOPPER){
+		if (getLocation().add(0, 0, 1).getBlock().getType() == Material.HOPPER){ // Right
+			Bukkit.broadcastMessage("Hopper Right");
 			hp = (Hopper)getLocation().add(0, 0, 1).getBlock().getState();
 			if (InventoryWorkAround.canAdd(hp.getInventory(), i.getItemStack())){
 				hoppers.add(hp);
 			}
 		}
-		if (getLocation().add(1, 0, 1).getBlock().getType() == Material.HOPPER){
+		if (getLocation().add(1, 0, 1).getBlock().getType() == Material.HOPPER){ // Up + Left
+			Bukkit.broadcastMessage("Hopper Up+Left");
 			hp = (Hopper)getLocation().add(1, 0, 1).getBlock().getState();
 			if (InventoryWorkAround.canAdd(hp.getInventory(), i.getItemStack())){
 				hoppers.add(hp);
 			}
 		}
-		if (getLocation().add(1, 0, -1).getBlock().getType() == Material.HOPPER){
+		if (getLocation().add(1, 0, -1).getBlock().getType() == Material.HOPPER){ // Up + Right
+			Bukkit.broadcastMessage("Hopper Up+Right");
 			hp = (Hopper)getLocation().add(1, 0, -1).getBlock().getState();
 			if (InventoryWorkAround.canAdd(hp.getInventory(), i.getItemStack())){
 				hoppers.add(hp);
 			}
 		}
-		if (getLocation().subtract(1, 0, 0).getBlock().getType() == Material.HOPPER){
+		if (getLocation().subtract(1, 0, 0).getBlock().getType() == Material.HOPPER){ // Down
+			Bukkit.broadcastMessage("Hopper Down");
 			hp = (Hopper)getLocation().subtract(1, 0, 0).getBlock().getState();
 			if (InventoryWorkAround.canAdd(hp.getInventory(), i.getItemStack())){
 				hoppers.add(hp);
 			}
 		}
-		if (getLocation().subtract(0, 0, 1).getBlock().getType() == Material.HOPPER){
+		if (getLocation().subtract(0, 0, 1).getBlock().getType() == Material.HOPPER){ // Left
+			Bukkit.broadcastMessage("Hopper Left");
 			hp = (Hopper)getLocation().subtract(0, 0, 1).getBlock().getState();
 			if (InventoryWorkAround.canAdd(hp.getInventory(), i.getItemStack())){
 				hoppers.add(hp);
 			}
 		}
-		if (getLocation().subtract(1, 0, 1).getBlock().getType() == Material.HOPPER){
+		if (getLocation().subtract(1, 0, 1).getBlock().getType() == Material.HOPPER){ // Down + Right
+			Bukkit.broadcastMessage("Hopper Down+Right");
 			hp = (Hopper)getLocation().subtract(1, 0, 1).getBlock().getState();
 			if (InventoryWorkAround.canAdd(hp.getInventory(), i.getItemStack())){
 				hoppers.add(hp);
 			}
 		}
-		if (getLocation().add(1, 0, -1).getBlock().getType() == Material.HOPPER){
-			hp = (Hopper)getLocation().add(1, 0, -1).getBlock().getState();
+		if (getLocation().subtract(1, 0, -1).getBlock().getType() == Material.HOPPER){ // Down + Left
+			Bukkit.broadcastMessage("Hopper Down+Left");
+			hp = (Hopper)getLocation().subtract(1, 0, -1).getBlock().getState();
 			if (InventoryWorkAround.canAdd(hp.getInventory(), i.getItemStack())){
 				hoppers.add(hp);
 			}
 		}
-		placeInHopper(hoppers.get(new Random().nextInt(hoppers.size())), i);
+		if (hoppers.size() > 0) {
+			placeInHopper(hoppers.get(random.nextInt(hoppers.size())), i);
+		}
 	}
 
 	private void placeInHopper(Hopper hp, Item i){

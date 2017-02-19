@@ -91,6 +91,11 @@ public class MagicaMain extends JavaPlugin implements Listener{
 						}
 						System.out.println("Registered recipes for " + c.getSimpleName());
 					}
+
+
+					if (Modifier.isStatic(m.getModifiers()) && m.getName().toLowerCase().contains("registeritemlistener")){
+						m.invoke(this);
+					}
 				}
 
 			} catch (Exception e) {

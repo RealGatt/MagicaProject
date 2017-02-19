@@ -1,6 +1,6 @@
 package space.gatt.magicaproject.utilities;
 
-import org.bukkit.entity.Item;
+import org.bukkit.Bukkit;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
@@ -38,28 +38,21 @@ public final class InventoryWorkAround {
 	}
 
 	public static boolean canAdd(final Inventory inventory1, final ItemStack item) {
-		if ((inventory1.firstEmpty() < 0)) {
-			for (ItemStack stack1 : getItems(inventory1)) {
-				if (BaseUtils.matchItem(stack1, item) && (stack1.getAmount() + item.getAmount() <= stack1.getMaxStackSize())){
-					return true;
-				}
-				if (BaseUtils.matchItem(stack1, item) && (stack1.getAmount() + item.getAmount() > stack1.getMaxStackSize())) {
-					return false;
-				}
+		if (inventory1.firstEmpty() > -1){
+			return true;
+		}
+		for (ItemStack stack1 : getItems(inventory1)) {
+			System.out.println("Stack 1 Size: " + stack1.getAmount());
+			System.out.println("Checking Item Size: " + item.getAmount());
+			System.out.println("Total Size: " + (stack1.getAmount() + item.getAmount()));
+			System.out.println("\n\n\n" +
+					"");
+			if (BaseUtils.matchItem(stack1, item) && (stack1.getAmount() + item.getAmount() <= stack1.getMaxStackSize())){
+				return true;
 			}
 		}
+		return false;
 
-		if (getEmptySlots(inventory1) < 1) {
-			for (ItemStack stack1 : getItems(inventory1)) {
-				if (BaseUtils.matchItem(stack1, item) && (stack1.getAmount() + item.getAmount() <= stack1.getMaxStackSize())){
-					return true;
-				}
-				if (BaseUtils.matchItem(stack1, item) && (stack1.getAmount() + item.getAmount() > item.getMaxStackSize())) {
-					return false;
-				}
-			}
-		}
-		return true;
 	}
 
 	public static int getEmptySlots(final Inventory inventory) {
