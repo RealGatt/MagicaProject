@@ -136,7 +136,7 @@ public class WandCore extends Craftable{
 						new ItemStack(Material.OBSIDIAN),
 						new ItemStack(Material.OBSIDIAN),
 						new ItemStack(Material.OBSIDIAN),
-						MagicaShard.getStaticCraftedItem())), getObsidianCore(), 1000, 0);
+						MagicaShard.getStaticCraftedItem())), getObsidianCore(), 1400, 0);
 
 		recipes.add(obsidianCore);
 
@@ -144,7 +144,7 @@ public class WandCore extends Craftable{
 				Arrays.asList(new ItemStack(Material.DIAMOND),
 						new ItemStack(Material.DIAMOND),
 						new ItemStack(Material.DIAMOND),
-						MagicaShard.getStaticCraftedItem())), getDiamondCore(), 400, 0);
+						MagicaShard.getStaticCraftedItem())), getDiamondCore(), 800, 0);
 		recipes.add(diamondCore);
 
 		MagicaRecipe goldCore = new MagicaRecipe(new ArrayList<>(

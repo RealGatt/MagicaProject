@@ -42,7 +42,7 @@ public class WandHilt extends Craftable {
 	}
 
 	public static ItemStack getBoneHilt() {
-		ItemStack manaGenerator = new ItemStack(Material.BLAZE_ROD);
+		ItemStack manaGenerator = new ItemStack(Material.BONE);
 		ItemMeta im = manaGenerator.getItemMeta();
 		im.addEnchant(Enchantment.DURABILITY, 1, true);
 		im.setDisplayName(BaseUtils.colorString("&7Bone Hilt"));
@@ -68,13 +68,13 @@ public class WandHilt extends Craftable {
 
 		rec1 = new MagicaRecipe(new ArrayList<>(
 				Arrays.asList(new ItemStack(Material.BLAZE_ROD),
-						MagicaShard.getStaticCraftedItem())), getBlazeHilt(), 400, 0);
+						MagicaShard.getStaticCraftedItem())), getBlazeHilt(), 600, 0);
 
 		recipes.add(rec1);
 
 		rec1 = new MagicaRecipe(new ArrayList<>(
 				Arrays.asList(new ItemStack(Material.BONE),
-						MagicaShard.getStaticCraftedItem())), getBoneHilt(), 600, 0);
+						MagicaShard.getStaticCraftedItem())), getBoneHilt(), 400, 0);
 
 		recipes.add(rec1);
 

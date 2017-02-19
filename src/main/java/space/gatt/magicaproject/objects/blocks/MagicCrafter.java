@@ -230,15 +230,13 @@ public class MagicCrafter implements MagicaBlock, Saveable, Listener {
 			as.teleport(locs.get(id).clone().add(0, 0.5, 0));
 			as.setTicksLived(1);
 			as.setFallDistance(0);
-
-
-
 			if (state == STATE.CRAFTING) {
 				Location point = as.getLocation().clone().subtract(0, 1.3, 0);
 				Vector dir = new Vector(point.getX() - mid.getX(),
-						mid.getY() - point.getY(),
+						mid.getY() + point.getY(),
 						point.getZ() - mid.getZ());
 				mid.getWorld().spawnParticle(Particle.ENCHANTMENT_TABLE, locs.get(id), 0, dir.getX(), dir.getY(), dir.getZ(), 0.5);
+
 			}
 		}
 	}

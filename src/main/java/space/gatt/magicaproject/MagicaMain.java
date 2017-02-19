@@ -114,8 +114,6 @@ public class MagicaMain extends JavaPlugin implements Listener{
 				e.printStackTrace();
 			}
 		}
-
-
 	}
 
 	public static List<String> getLoreLine(){
@@ -169,9 +167,11 @@ public class MagicaMain extends JavaPlugin implements Listener{
 		e.getInventory().forEach(new Consumer<ItemStack>() {
 			@Override
 			public void accept(ItemStack stack) {
-				ItemMeta im = stack.getItemMeta();
-				if (im.isUnbreakable() && im.getItemFlags().size() == ItemFlag.values().length && im.getLore().contains(BaseUtils.colorString("&9MagicaProject"))){
-					e.setResult(new ItemStack(Material.AIR));
+				if (stack != null && stack.hasItemMeta()) {
+					ItemMeta im = stack.getItemMeta();
+					if (im.isUnbreakable() && im.getItemFlags().size() == ItemFlag.values().length && im.getLore().contains(BaseUtils.colorString("&9MagicaProject"))) {
+						e.setResult(new ItemStack(Material.AIR));
+					}
 				}
 			}
 		});
