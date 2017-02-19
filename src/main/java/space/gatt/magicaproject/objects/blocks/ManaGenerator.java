@@ -101,7 +101,6 @@ public class ManaGenerator extends Craftable implements MagicaBlock, Saveable, M
 	public static ItemStack getStaticCraftedItem() {
 		ItemStack manaGenerator = new ItemStack(Material.CYAN_SHULKER_BOX);
 		ItemMeta im = manaGenerator.getItemMeta();
-		im.addEnchant(Enchantment.DURABILITY, 1, true);
 		im.setDisplayName(BaseUtils.colorString("&bMana Generator"));
 		im.addItemFlags(ItemFlag.values());
 		im.setLore(MagicaMain.getLoreLine());

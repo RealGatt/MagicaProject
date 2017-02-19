@@ -21,6 +21,13 @@ public class StorageManager {
 		return storage.containsKey(key);
 	}
 
+	public boolean registerSaveable(Saveable saveable){
+		if (!storage.containsKey(saveable)){
+			storage.put(saveable, new HashMap<>());
+		}
+		return true;
+	}
+
 	public boolean removeFromSave(Saveable saveable) {
 		if (storage.containsKey(saveable)) {
 			storage.remove(saveable);

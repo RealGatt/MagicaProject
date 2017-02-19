@@ -18,7 +18,7 @@ public class BlockManager {
 					mb.runParticles();
 				}
 			}
-		}, 10, 10);
+		}, 1, 1);
 	}
 
 	public void registerBlock(MagicaBlock mb) {
@@ -36,7 +36,7 @@ public class BlockManager {
 	public void shutdown() {
 		for (MagicaBlock mb : runningBlocks) {
 			if (mb instanceof Saveable && mb.isActive()) {
-				((Saveable) mb).shutdownCall();
+				MagicaMain.getMagicaMain().getStorageManager().registerSaveable(((Saveable) mb));
 			}
 		}
 	}

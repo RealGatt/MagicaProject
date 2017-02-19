@@ -6,6 +6,7 @@ import org.bukkit.Material;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.ItemDespawnEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.FurnaceBurnEvent;
 import org.bukkit.event.inventory.FurnaceSmeltEvent;
@@ -50,6 +51,7 @@ public class MagicaMain extends JavaPlugin implements Listener{
 	@Override
 	public void onDisable() {
 		getManaManager().shutdownCall();
+		getBlockManager().shutdown();
 		// StorageManager should be last!!
 		storageManager.saveToFile();
 	}
@@ -76,7 +78,6 @@ public class MagicaMain extends JavaPlugin implements Listener{
 
 		Bukkit.getPluginManager().registerEvents(this, this);
 
-		// Registering Listeners. There's probably a better way but I cbs using reflection rn
 		Reflections reflections = new Reflections("space.gatt.magicaproject");
 
 		Set<Class<? extends Craftable>> subTypes = reflections.getSubTypesOf(Craftable.class);
@@ -119,6 +120,14 @@ public class MagicaMain extends JavaPlugin implements Listener{
 
 	public static List<String> getLoreLine(){
 		return Arrays.asList(BaseUtils.colorString("&9MagicaProject"));
+	}
+
+
+	@EventHandler
+	public void onItemDespawn(ItemDespawnEvent e){
+		if (e.getEntity().getCustomName() != null){
+			e.setCancelled(true);
+		}
 	}
 
 	@EventHandler

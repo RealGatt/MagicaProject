@@ -25,10 +25,8 @@ public class RecipeManager implements Listener{
 
 	@EventHandler
 	public void onItemAdd(EventAddItemToRecipe e) {
-		Bukkit.broadcastMessage("Item Added");
 		for (MagicaRecipe recipe : this.recipes){
 			if (BaseUtils.isSameListItems(e.getCrafter().getItemsAsStack(), recipe.getRequirements())) {
-				Bukkit.broadcastMessage("Can Craft Item");
 				e.getCrafter().beginCrafting(recipe.getCraftedItem(), recipe.getTimeInTicks(), recipe.getManaPerTick(), e.getPlayer());
 			}
 		}

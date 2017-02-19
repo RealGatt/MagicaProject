@@ -2,9 +2,11 @@ package space.gatt.magicaproject.objects.blocks;
 
 import com.google.gson.JsonObject;
 import org.bukkit.*;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Vex;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -12,11 +14,14 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDispenseEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.ItemDespawnEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 import space.gatt.magicaproject.CancellableBukkitTask;
@@ -26,8 +31,10 @@ import space.gatt.magicaproject.interfaces.MagicaBlock;
 import space.gatt.magicaproject.interfaces.Saveable;
 import space.gatt.magicaproject.utilities.BaseUtils;
 import space.gatt.magicaproject.utilities.MathUtils;
+import space.gatt.magicaproject.utilities.ParticleEffect;
 
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.UUID;
 
 public class MagicCrafter implements MagicaBlock, Saveable, Listener {
@@ -43,13 +50,13 @@ public class MagicCrafter implements MagicaBlock, Saveable, Listener {
 	private MagicCrafter instance;
 	private STATE state = STATE.WAITING;
 
+	private Item craftingItemObject = null;
 	private ArrayList<Item> items = new ArrayList<>();
 
 	public MagicCrafter(Location l) {
 		this.l = l;
 		l.getWorld().playSound(l, Sound.ENTITY_WITHER_SPAWN, 1, 1);
 		Bukkit.getPluginManager().registerEvents(this, MagicaMain.getMagicaMain());
-		shutdownCall();
 		this.instance = this;
 		isActive = true;
 	}
@@ -75,41 +82,51 @@ public class MagicCrafter implements MagicaBlock, Saveable, Listener {
 		if (state == STATE.WAITING){
 			ItemStack is = resultItem;
 			state = STATE.CRAFTING;
-			Item itemObject = l.getWorld().dropItem(l.clone().add(0.5, 1.5, 0.5), is);
-			itemObject.setVelocity(new Vector(0, 0, 0));
-			itemObject.setGlowing(true);
+			craftingItemObject = l.getWorld().dropItem(l.clone().add(0.5, 1.5, 0.5), is);
+			craftingItemObject.setVelocity(new Vector(0, 0, 0));
+
+			craftingItemObject.setPickupDelay(9999999);
+			craftingItemObject.setGravity(false);
+			craftingItemObject.teleport(l.clone().add(0.5, 1.5, 0.5));
+			craftingItemObject.setCustomNameVisible(true);
 			for (Item i : items) {
-				i.setGlowing(false);
+				i.setCustomNameVisible(false);
+				i.setInvulnerable(true);
 			}
-			itemObject.setPickupDelay(9999999);
-			itemObject.setGravity(false);
-			itemObject.teleport(l.clone().add(0.5, 1.5, 0.5));
-			itemObject.setCustomNameVisible(true);
 			l.getWorld().playSound(l, Sound.BLOCK_PORTAL_TRAVEL, 0.1f, 2f);
 			if (timeInTicks > 0) {
-				itemObject.setCustomName(BaseUtils.colorString("&aCrafting... " + is.getItemMeta().getDisplayName()));
+				craftingItemObject.setCustomName(BaseUtils.colorString("&aCrafting... " + is.getItemMeta().getDisplayName()));
 				craftingTask = Bukkit.getScheduler().runTaskTimer(MagicaMain.getMagicaMain(), new CancellableBukkitTask() {
 					float timeTaken = 0;
 					boolean crafted = false;
-
+					float previousPerc = 0;
+					Random rnd = new Random();
 					@Override
 					public void run() {
 						if (crafted == false) {
 							timeTaken++;
-							itemObject.teleport(l.clone().add(0.5, 1.5, 0.5));
-							l.getWorld().spawnParticle(Particle.END_ROD, l.clone().add(0.5, 1.3, 0.5), 10, 0, 0.3, 0, 0);
-							itemObject.setCustomName(BaseUtils.colorString("&aCrafting... " +
+							craftingItemObject.teleport(l.clone().add(0.5, 1.5, 0.5));
+							l.getWorld().spawnParticle(Particle.END_ROD, l.clone().add(0.5, 1.3, 0.5), 10, 0, 0.1, 0, 0);
+							craftingItemObject.setCustomName(BaseUtils.colorString("&aCrafting... " +
 									is.getItemMeta().getDisplayName() +
 									" &a" + Math.round(timeTaken / timeInTicks * 100) + "%"));
+							if (Math.round(timeTaken / timeInTicks * 100) > previousPerc) {
+								for (Item i : items) {
+									i.setGlowing(rnd.nextBoolean());
+								}
+								previousPerc = Math.round(timeTaken / timeInTicks * 100);
+							}
 							if (timeTaken >= timeInTicks) {
+								Item finishedItem = craftingItemObject;
+								craftingItemObject = null;
 								for (Item i : items) {
 									i.remove();
 								}
 								items.clear();
 								l.getWorld().playSound(l, Sound.ENTITY_ZOMBIE_VILLAGER_CURE, 0.2f, 2f);
-								itemObject.setPickupDelay(0);
-								itemObject.setCustomName(BaseUtils.colorString("&eCompleted"));
-								itemObject.setCustomNameVisible(true);
+								finishedItem.setPickupDelay(0);
+								finishedItem.setCustomName(BaseUtils.colorString("&eCompleted"));
+								finishedItem.setCustomNameVisible(true);
 								state = STATE.WAITING;
 								craftingTask.cancel();
 								crafted = true;
@@ -119,16 +136,18 @@ public class MagicCrafter implements MagicaBlock, Saveable, Listener {
 					}
 				}, 1, 1);
 			}else{
-				itemObject.teleport(l.clone().add(0.5, 1.5, 0.5));
+				Item finishedItem = craftingItemObject;
+				craftingItemObject = null;
+				finishedItem.teleport(l.clone().add(0.5, 1.5, 0.5));
 				l.getWorld().spawnParticle(Particle.END_ROD, l.clone().add(0.5, 1.3, 0.5), 10, 0, 0.3, 0, 0);
 				for (Item i : items) {
 					i.remove();
 				}
 				items.clear();
 				l.getWorld().playSound(l, Sound.ENTITY_ZOMBIE_VILLAGER_CURE, 0.2f, 2f);
-				itemObject.setPickupDelay(0);
-				itemObject.setCustomName(BaseUtils.colorString("&eCompleted"));
-				itemObject.setCustomNameVisible(true);
+				finishedItem.setPickupDelay(0);
+				finishedItem.setCustomName(BaseUtils.colorString("&eCompleted"));
+				finishedItem.setCustomNameVisible(true);
 				state = STATE.WAITING;
 			}
 			return true;
@@ -203,7 +222,7 @@ public class MagicCrafter implements MagicaBlock, Saveable, Listener {
 		boolean isstar = false;
 		ArrayList<Location> locs = !isstar ? MathUtils.getCircle(l.clone().add(0.5, .5, 0.5), 1, items.size()):
 				MathUtils.getStar(l.clone().add(0.5, .5, 0.5), 1, items.size(), 1);
-
+		Location mid = l.clone().add(0.5, 0.5, 0.5);
 		for (Item as : items) {
 			as.setPickupDelay(999999);
 			id++;
@@ -211,6 +230,16 @@ public class MagicCrafter implements MagicaBlock, Saveable, Listener {
 			as.teleport(locs.get(id).clone().add(0, 0.5, 0));
 			as.setTicksLived(1);
 			as.setFallDistance(0);
+
+
+
+			if (state == STATE.CRAFTING) {
+				Location point = as.getLocation().clone().subtract(0, 1.3, 0);
+				Vector dir = new Vector(point.getX() - mid.getX(),
+						mid.getY() - point.getY(),
+						point.getZ() - mid.getZ());
+				mid.getWorld().spawnParticle(Particle.ENCHANTMENT_TABLE, locs.get(id), 0, dir.getX(), dir.getY(), dir.getZ(), 0.5);
+			}
 		}
 	}
 
@@ -230,7 +259,7 @@ public class MagicCrafter implements MagicaBlock, Saveable, Listener {
 					this.cancel();
 					return;
 				}
-				if (items.size() < MAX_ITEMS) {
+				if (items.size() < MAX_ITEMS && state == STATE.WAITING) {
 					if (e.isOnGround() && e != null
 							&& !e.isDead()
 							&& !e.isGlowing()
@@ -249,7 +278,7 @@ public class MagicCrafter implements MagicaBlock, Saveable, Listener {
 								i2.setVelocity(new Vector(0, 0, 0));
 								i2.setPickupDelay(e.getPickupDelay());
 							}
-							e.setCustomName(UUID.randomUUID().toString());
+							e.setCustomName(UUID.randomUUID().toString().substring(0, 8));
 							if (i.getItemMeta().getDisplayName() != null) {
 								e.setCustomName(i.getItemMeta().getDisplayName());
 								e.setCustomNameVisible(true);
@@ -257,7 +286,6 @@ public class MagicCrafter implements MagicaBlock, Saveable, Listener {
 							e.setVelocity(new Vector(0, 0, 0));
 							items.add(e);
 							e.setGravity(false);
-							e.setGlowing(true);
 							l.getWorld().spawnParticle(Particle.FIREWORKS_SPARK, e.getLocation(), 5, 0.1, 0.1, 0.1, 0.3);
 							e.setPickupDelay(999999);
 							runItemSpinner();
@@ -304,7 +332,18 @@ public class MagicCrafter implements MagicaBlock, Saveable, Listener {
 
 	@Override
 	public void shutdownCall() {
-		MagicaMain.getMagicaMain().getStorageManager().save(this, "class", this.getClass());
+		if (craftingItemObject != null && !craftingItemObject.isDead()){
+			if (state == STATE.WAITING) {
+				l.getWorld().dropItemNaturally(l.clone().add(0.5, 2, 0.5), craftingItemObject.getItemStack());
+			}
+			craftingItemObject.remove();
+		}
+		for (Item i : items) {
+			l.getWorld().dropItemNaturally(l.clone().add(0.5, 2, 0.5), i.getItemStack());
+			i.remove();
+		}
+		l.getWorld().dropItemNaturally(l.clone().add(0.5, 2, 0.5), getStaticCraftedItem());
+		l.getBlock().setType(Material.AIR);
 		MagicaMain.getMagicaMain().getStorageManager().save(this, "location-x", l.getX());
 		MagicaMain.getMagicaMain().getStorageManager().save(this, "location-y", l.getY());
 		MagicaMain.getMagicaMain().getStorageManager().save(this, "location-z", l.getZ());
@@ -323,9 +362,6 @@ public class MagicCrafter implements MagicaBlock, Saveable, Listener {
 	@Override
 	public void runParticles() {
 		l.getWorld().spawnParticle(Particle.PORTAL, l.clone().add(0.5, 0.5, 0.5), 10, 0, 0, 0, 1);
-		for (Location l : MathUtils.getCircle(l.clone().add(0.5, 1, .5), 1, 64)){
-			l.getWorld().spawnParticle(Particle.ENCHANTMENT_TABLE, l, 1, 0, 0, 0, 0);
-		}
 		runItemSpinner();
 	}
 

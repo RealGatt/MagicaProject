@@ -32,14 +32,7 @@ public class AdvancedManaGenerator extends Craftable implements MagicaBlock, Sav
 
 	public static void registerListener() {
 		Bukkit.getPluginManager().registerEvents(new Listener() {
-			@EventHandler
-			public void onItemAdd(EventAddItemToRecipe e) {
-				for (MagicaRecipe recipe : getStaticRecipes()){
-					if (BaseUtils.isSameListItems(e.getCrafter().getItemsAsStack(), recipe.getRequirements())) {
-						e.getCrafter().beginCrafting(recipe.getCraftedItem(), recipe.getTimeInTicks(), recipe.getManaPerTick(), e.getPlayer());
-					}
-				}
-			}
+
 		}, MagicaMain.getMagicaMain());
 	}
 
@@ -82,7 +75,6 @@ public class AdvancedManaGenerator extends Craftable implements MagicaBlock, Sav
 	public static ItemStack getStaticCraftedItem() {
 		ItemStack manaGenerator = new ItemStack(Material.WHITE_SHULKER_BOX);
 		ItemMeta im = manaGenerator.getItemMeta();
-		im.addEnchant(Enchantment.DURABILITY, 1, true);
 		im.setDisplayName(BaseUtils.colorString("&aAdvanced Mana Generator"));
 		im.addItemFlags(ItemFlag.values());
 		im.setLore(MagicaMain.getLoreLine());
