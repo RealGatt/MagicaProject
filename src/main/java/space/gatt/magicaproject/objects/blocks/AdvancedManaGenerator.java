@@ -30,6 +30,10 @@ public class AdvancedManaGenerator extends Craftable implements MagicaBlock, Sav
 		shutdownCall();
 	}
 
+	public AdvancedManaGenerator(JsonObject object){
+
+	}
+
 	public static void registerListener() {
 		Bukkit.getPluginManager().registerEvents(new Listener() {
 

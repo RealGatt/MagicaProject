@@ -2,26 +2,22 @@ package space.gatt.magicaproject.objects.blocks;
 
 import com.google.gson.JsonObject;
 import org.bukkit.*;
-import org.bukkit.attribute.Attribute;
+import org.bukkit.block.Hopper;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Vex;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockDispenseEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.entity.ItemDespawnEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
+import org.bukkit.material.MaterialData;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 import space.gatt.magicaproject.CancellableBukkitTask;
@@ -30,10 +26,11 @@ import space.gatt.magicaproject.events.EventAddItemToRecipe;
 import space.gatt.magicaproject.interfaces.MagicaBlock;
 import space.gatt.magicaproject.interfaces.Saveable;
 import space.gatt.magicaproject.utilities.BaseUtils;
+import space.gatt.magicaproject.utilities.InventoryWorkAround;
 import space.gatt.magicaproject.utilities.MathUtils;
-import space.gatt.magicaproject.utilities.ParticleEffect;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
@@ -59,6 +56,28 @@ public class MagicCrafter implements MagicaBlock, Saveable, Listener {
 		Bukkit.getPluginManager().registerEvents(this, MagicaMain.getMagicaMain());
 		this.instance = this;
 		isActive = true;
+	}
+
+	public MagicCrafter(JsonObject object){
+		double x = 0, y = 0, z = 0;
+		World world = Bukkit.getWorlds().get(0);
+		if (object.has("location-x")){
+			x = object.get("location-x").getAsDouble();
+		}
+		if (object.has("location-y")){
+			y = object.get("location-y").getAsDouble();
+		}
+		if (object.has("location-z")){
+			z = object.get("location-z").getAsDouble();
+		}
+		if (object.has("location-world")){
+			world = Bukkit.getWorld(object.get("location-world").getAsString());
+		}
+		this.l = new Location(world, x, y, z);
+		Bukkit.getPluginManager().registerEvents(this, MagicaMain.getMagicaMain());
+		this.instance = this;
+		isActive = true;
+		MagicaMain.getMagicaMain().getBlockManager().registerBlock(this);
 	}
 
 	public static void registerListener() {
@@ -130,6 +149,7 @@ public class MagicCrafter implements MagicaBlock, Saveable, Listener {
 								state = STATE.WAITING;
 								craftingTask.cancel();
 								crafted = true;
+								placeInHopper(finishedItem);
 								return;
 							}
 						}
@@ -149,11 +169,82 @@ public class MagicCrafter implements MagicaBlock, Saveable, Listener {
 				finishedItem.setCustomName(BaseUtils.colorString("&eCompleted"));
 				finishedItem.setCustomNameVisible(true);
 				state = STATE.WAITING;
+				placeInHopper(finishedItem);
 			}
 			return true;
 		}else{
 			return false;
 		}
+	}
+
+	private void placeInHopper(Item i){
+		Hopper hp = null;
+		List<Hopper> hoppers = new ArrayList<>();
+		if (getLocation().subtract(0, 1, 0).getBlock().getType() == Material.HOPPER){
+			hp = (Hopper)getLocation().subtract(0, 1, 0).getBlock().getState();
+			if (InventoryWorkAround.canAdd(hp.getInventory(), i.getItemStack())){
+				hoppers.add(hp);
+			}
+		}
+		if (getLocation().add(1, 0, 0).getBlock().getType() == Material.HOPPER){
+			hp = (Hopper)getLocation().add(1, 0, 0).getBlock().getState();
+			if (InventoryWorkAround.canAdd(hp.getInventory(), i.getItemStack())){
+				hoppers.add(hp);
+			}
+		}
+		if (getLocation().add(0, 0, 1).getBlock().getType() == Material.HOPPER){
+			hp = (Hopper)getLocation().add(0, 0, 1).getBlock().getState();
+			if (InventoryWorkAround.canAdd(hp.getInventory(), i.getItemStack())){
+				hoppers.add(hp);
+			}
+		}
+		if (getLocation().add(1, 0, 1).getBlock().getType() == Material.HOPPER){
+			hp = (Hopper)getLocation().add(1, 0, 1).getBlock().getState();
+			if (InventoryWorkAround.canAdd(hp.getInventory(), i.getItemStack())){
+				hoppers.add(hp);
+			}
+		}
+		if (getLocation().add(1, 0, -1).getBlock().getType() == Material.HOPPER){
+			hp = (Hopper)getLocation().add(1, 0, -1).getBlock().getState();
+			if (InventoryWorkAround.canAdd(hp.getInventory(), i.getItemStack())){
+				hoppers.add(hp);
+			}
+		}
+		if (getLocation().subtract(1, 0, 0).getBlock().getType() == Material.HOPPER){
+			hp = (Hopper)getLocation().subtract(1, 0, 0).getBlock().getState();
+			if (InventoryWorkAround.canAdd(hp.getInventory(), i.getItemStack())){
+				hoppers.add(hp);
+			}
+		}
+		if (getLocation().subtract(0, 0, 1).getBlock().getType() == Material.HOPPER){
+			hp = (Hopper)getLocation().subtract(0, 0, 1).getBlock().getState();
+			if (InventoryWorkAround.canAdd(hp.getInventory(), i.getItemStack())){
+				hoppers.add(hp);
+			}
+		}
+		if (getLocation().subtract(1, 0, 1).getBlock().getType() == Material.HOPPER){
+			hp = (Hopper)getLocation().subtract(1, 0, 1).getBlock().getState();
+			if (InventoryWorkAround.canAdd(hp.getInventory(), i.getItemStack())){
+				hoppers.add(hp);
+			}
+		}
+		if (getLocation().add(1, 0, -1).getBlock().getType() == Material.HOPPER){
+			hp = (Hopper)getLocation().add(1, 0, -1).getBlock().getState();
+			if (InventoryWorkAround.canAdd(hp.getInventory(), i.getItemStack())){
+				hoppers.add(hp);
+			}
+		}
+		placeInHopper(hoppers.get(new Random().nextInt(hoppers.size())), i);
+	}
+
+	private void placeInHopper(Hopper hp, Item i){
+
+		i.teleport(hp.getLocation().add(0, 0.5, 0));
+		hp.getLocation().getWorld().playEffect(hp.getLocation(), Effect.STEP_SOUND, new MaterialData(Material.HOPPER).getItemTypeId());
+		hp.getInventory().addItem(i.getItemStack());
+		i.remove();
+		i.getWorld().playSound(i.getLocation(), Sound.ENTITY_ITEM_PICKUP, 0.2f, 1);
+
 	}
 
 	public static ItemStack getStaticCraftedItem() {
@@ -178,7 +269,6 @@ public class MagicCrafter implements MagicaBlock, Saveable, Listener {
 				return;
 			}
 			MagicaMain.getMagicaMain().getBlockManager().removeBlock(this);
-			MagicaMain.getMagicaMain().getStorageManager().removeFromSave(this);
 			e.setCancelled(true);
 			if (items.size() > 0) {
 				for (Item i : items) {
@@ -318,14 +408,18 @@ public class MagicCrafter implements MagicaBlock, Saveable, Listener {
 		return isActive;
 	}
 
-	@Override
-	public String getSaveFileName() {
+	public static String getStaticSaveFileName(){
 		return "magiccrafter";
 	}
 
 	@Override
+	public String getSaveFileName() {
+		return getStaticSaveFileName();
+	}
+
+	@Override
 	public String getSaveFileFolder() {
-		return "blocks/" + BaseUtils.getFileNameFromLocation(l);
+		return "blocks/" + BaseUtils.getStringFromLocation(l);
 	}
 
 	@Override
@@ -340,8 +434,7 @@ public class MagicCrafter implements MagicaBlock, Saveable, Listener {
 			l.getWorld().dropItemNaturally(l.clone().add(0.5, 2, 0.5), i.getItemStack());
 			i.remove();
 		}
-		l.getWorld().dropItemNaturally(l.clone().add(0.5, 2, 0.5), getStaticCraftedItem());
-		l.getBlock().setType(Material.AIR);
+		MagicaMain.getMagicaMain().getStorageManager().save(this, "isActive", isActive);
 		MagicaMain.getMagicaMain().getStorageManager().save(this, "location-x", l.getX());
 		MagicaMain.getMagicaMain().getStorageManager().save(this, "location-y", l.getY());
 		MagicaMain.getMagicaMain().getStorageManager().save(this, "location-z", l.getZ());
@@ -354,7 +447,7 @@ public class MagicCrafter implements MagicaBlock, Saveable, Listener {
 
 	@Override
 	public Location getLocation() {
-		return l;
+		return l.clone();
 	}
 
 	@Override

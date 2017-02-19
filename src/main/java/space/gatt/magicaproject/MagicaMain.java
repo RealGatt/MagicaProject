@@ -3,14 +3,12 @@ package space.gatt.magicaproject;
 import com.sun.org.apache.xpath.internal.operations.Mod;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ItemDespawnEvent;
-import org.bukkit.event.inventory.CraftItemEvent;
-import org.bukkit.event.inventory.FurnaceBurnEvent;
-import org.bukkit.event.inventory.FurnaceSmeltEvent;
-import org.bukkit.event.inventory.PrepareAnvilEvent;
+import org.bukkit.event.inventory.*;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
@@ -20,6 +18,7 @@ import org.reflections.Reflections;
 import space.gatt.magicaproject.extra.MagicaRecipe;
 import space.gatt.magicaproject.interfaces.Craftable;
 import space.gatt.magicaproject.interfaces.MagicaBlock;
+import space.gatt.magicaproject.interfaces.Saveable;
 import space.gatt.magicaproject.managers.BlockManager;
 import space.gatt.magicaproject.managers.ManaManager;
 import space.gatt.magicaproject.managers.RecipeManager;
@@ -53,7 +52,7 @@ public class MagicaMain extends JavaPlugin implements Listener{
 		getManaManager().shutdownCall();
 		getBlockManager().shutdown();
 		// StorageManager should be last!!
-		storageManager.saveToFile();
+		storageManager.shutdown();
 	}
 
 	@Override
@@ -99,6 +98,22 @@ public class MagicaMain extends JavaPlugin implements Listener{
 			}
 		}
 
+		Set<Class<? extends Saveable>> saveable = reflections.getSubTypesOf(Saveable.class);
+		System.out.println("Found " + saveable.size() + " Saveable Objects.");
+		for (Class c : saveable) {
+			try {
+				for (Method m : c.getMethods()){
+					if (m.getReturnType() == String.class && Modifier.isStatic(m.getModifiers()) && m.getName().toLowerCase().contains("filename")){
+						String fileName = (String)m.invoke(this);
+						getStorageManager().loadFromFile(fileName, c);
+					}
+				}
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+
 		Set<Class<? extends MagicaBlock>> magicaBlocks = reflections.getSubTypesOf(MagicaBlock.class);
 		System.out.println("Found " + magicaBlocks.size() + " MagicaBlocks.");
 		for (Class c : magicaBlocks) {
@@ -120,6 +135,19 @@ public class MagicaMain extends JavaPlugin implements Listener{
 		return Arrays.asList(BaseUtils.colorString("&9MagicaProject"));
 	}
 
+
+	@EventHandler
+	public void onHopperPickup(InventoryPickupItemEvent e){
+		e.setCancelled(e.getItem().getCustomName() != null);
+		if (e.getInventory().getType() == InventoryType.HOPPER && e.getItem().getCustomName() == null){
+			Block blockAbove = e.getInventory().getLocation().clone().add(0, 1, 0).getBlock();
+			if (blockAbove.hasMetadata("IsMagicaBlock")){
+				if (blockAbove.getMetadata("IsMagicaBlock").get(0).asBoolean()){
+					e.setCancelled(true);
+				}
+			}
+		}
+	}
 
 	@EventHandler
 	public void onItemDespawn(ItemDespawnEvent e){

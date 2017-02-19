@@ -41,10 +41,14 @@ public class ManaManager implements Saveable {
 
 	@Override
 	public String getSaveFileFolder() {
-		return "/";
+		return "/manastorage";
+	}
+
+	public static String getStaticSaveFileName(){
+		return "mana";
 	}
 
 	public String getSaveFileName() {
-		return "mana";
+		return getStaticSaveFileName();
 	}
 }

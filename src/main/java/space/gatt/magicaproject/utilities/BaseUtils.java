@@ -42,8 +42,10 @@ public class BaseUtils {
 	}
 
 	public static String getStringFromLocation(Location l) {
-		return "X-" + l.getX() + "Y-" + l.getY() + "Z-" + l.getZ() +
-				"W-" + l.getWorld().getName() + "Y-" + l.getYaw() + "P-" + l.getPitch();
+		return "-" + l.getX() +
+				"-" + l.getY() +
+				"-" + l.getZ() +
+				"-" + l.getWorld().getName();
 	}
 
 	public static String getFileNameFromLocation(Location l) {

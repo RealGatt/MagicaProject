@@ -40,6 +40,10 @@ public class ManaGenerator extends Craftable implements MagicaBlock, Saveable, M
 		shutdownCall();
 	}
 
+	public ManaGenerator(JsonObject object){
+
+	}
+
 	@EventHandler
 	public void onClick(PlayerInteractEvent e) {
 		if (isActive())
@@ -164,7 +168,6 @@ public class ManaGenerator extends Craftable implements MagicaBlock, Saveable, M
 
 	@Override
 	public void shutdownCall() {
-		MagicaMain.getMagicaMain().getStorageManager().save(this, "class", this.getClass());
 		MagicaMain.getMagicaMain().getStorageManager().save(this, "location-x", l.getX());
 		MagicaMain.getMagicaMain().getStorageManager().save(this, "location-y", l.getY());
 		MagicaMain.getMagicaMain().getStorageManager().save(this, "location-z", l.getZ());
