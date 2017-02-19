@@ -1,2 +1,2 @@
 # MagicaProject
-The Magica Project.
+The Magica Project made by Gatt.
