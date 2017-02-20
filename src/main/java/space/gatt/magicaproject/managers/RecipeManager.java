@@ -9,6 +9,7 @@ import space.gatt.magicaproject.extra.MagicaRecipe;
 import space.gatt.magicaproject.utilities.BaseUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class RecipeManager implements Listener{
 
@@ -25,6 +26,7 @@ public class RecipeManager implements Listener{
 
 	@EventHandler
 	public void onItemAdd(EventAddItemToRecipe e) {
+		Collections.shuffle(this.recipes);
 		for (MagicaRecipe recipe : this.recipes){
 			if (BaseUtils.isSameListItems(e.getCrafter().getItemsAsStack(), recipe.getRequirements())) {
 				e.getCrafter().beginCrafting(recipe.getCraftedItem(), recipe.getTimeInTicks(), recipe.getManaPerTick(), e.getPlayer());

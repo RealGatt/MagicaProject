@@ -3,6 +3,7 @@ package space.gatt.magicaproject.managers;
 import org.bukkit.Bukkit;
 import org.bukkit.metadata.FixedMetadataValue;
 import space.gatt.magicaproject.MagicaMain;
+import space.gatt.magicaproject.interfaces.EntityBlock;
 import space.gatt.magicaproject.interfaces.MagicaBlock;
 import space.gatt.magicaproject.interfaces.Saveable;
 
@@ -25,6 +26,9 @@ public class BlockManager {
 	public void registerBlock(MagicaBlock mb) {
 		if (!runningBlocks.contains(mb)) {
 			runningBlocks.add(mb);
+			if (mb instanceof EntityBlock){
+				((EntityBlock)mb).spawnExtra();
+			}
 		}
 		mb.getLocation().getBlock().setMetadata("IsMagicaBlock", new FixedMetadataValue(MagicaMain.getMagicaMain(), true));
 	}
@@ -32,6 +36,9 @@ public class BlockManager {
 	public void removeBlock(MagicaBlock mb) {
 		if (runningBlocks.contains(mb)) {
 			runningBlocks.remove(mb);
+		}
+		if (mb instanceof EntityBlock){
+			((EntityBlock)mb).destroyExtra();
 		}
 		mb.getLocation().getBlock().removeMetadata("IsMagicaBlock", MagicaMain.getMagicaMain());
 	}

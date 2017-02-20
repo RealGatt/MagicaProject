@@ -15,6 +15,7 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.Directional;
+import org.bukkit.material.DirectionalContainer;
 import space.gatt.magicaproject.MagicaMain;
 import space.gatt.magicaproject.extra.MagicaRecipe;
 import space.gatt.magicaproject.interfaces.Craftable;
@@ -33,19 +34,23 @@ public class Wrench extends Craftable {
 				if (e.getAction() == Action.RIGHT_CLICK_BLOCK && e.getItem() != null && BaseUtils.matchItem(e.getItem(), getStaticCraftedItem())){
 					e.setUseInteractedBlock(Event.Result.DENY);
 					e.setUseItemInHand(Event.Result.DENY);
-					if (e.getClickedBlock().getState() instanceof Directional){
-						Directional d = (Directional)e.getClickedBlock().getState();
+					Bukkit.broadcastMessage("TYPE IS " + e.getClickedBlock().getType());
+					Block b = e.getClickedBlock();
+					if (b.getState() instanceof Directional) {
+						Bukkit.broadcastMessage("ITS A DIRECTIONAL THING");
+						Directional d = ((Directional) e.getClickedBlock());
 						boolean next = false;
-						for (BlockFace bf : BlockFace.values()){
-							if (next){
-								d.setFacingDirection(bf);
-								return;
+						BlockFace face = BlockFace.values()[0];
+						for (BlockFace bf : BlockFace.values()) {
+							if (next) {
+								face = bf;
+								break;
 							}
-							if (bf == d.getFacing()){
+							if (bf == d.getFacing()) {
 								next = true;
 							}
 						}
-						d.setFacingDirection(BlockFace.values()[0]);
+						d.setFacingDirection(face);
 						e.getClickedBlock().getWorld().spawnParticle(Particle.SMOKE_NORMAL, e.getClickedBlock().getLocation(),
 								15, 0.3, 0.3, 0.3);
 						e.getClickedBlock().getWorld().playSound(e.getClickedBlock().getLocation(), Sound.BLOCK_ANVIL_USE, 1f, 1f);
