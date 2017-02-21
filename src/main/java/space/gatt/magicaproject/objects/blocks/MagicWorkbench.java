@@ -1,13 +1,10 @@
 package space.gatt.magicaproject.objects.blocks;
 
 import com.google.gson.JsonObject;
-import org.bukkit.Color;
-import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.FireworkEffectMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import space.gatt.magicaproject.MagicaMain;
 import space.gatt.magicaproject.extra.MagicaRecipe;
@@ -15,7 +12,6 @@ import space.gatt.magicaproject.interfaces.Craftable;
 import space.gatt.magicaproject.interfaces.EntityBlock;
 import space.gatt.magicaproject.interfaces.MagicaBlock;
 import space.gatt.magicaproject.interfaces.Saveable;
-import space.gatt.magicaproject.objects.items.wand.Wand;
 import space.gatt.magicaproject.objects.items.wand.WandCore;
 import space.gatt.magicaproject.utilities.BaseUtils;
 
@@ -45,14 +41,11 @@ public class MagicWorkbench extends Craftable implements EntityBlock, MagicaBloc
 
 	public static ArrayList<MagicaRecipe> getStaticRecipes(){
 		ArrayList<MagicaRecipe> recipes = new ArrayList<>();
-		for (MagicaRecipe wand : Wand.getStaticRecipes()){
-			MagicaRecipe recipe = new MagicaRecipe(new ArrayList<>(Arrays.asList(
-					wand.getCraftedItem(),
-					new ItemStack(Material.WORKBENCH),
-					WandCore.getWoodCore()
-			)), getStaticCraftedItem(), (6000-wand.getTimeInTicks())/2, 0);
-			recipes.add(recipe);
-		}
+		MagicaRecipe recipe = new MagicaRecipe(new ArrayList<>(Arrays.asList(
+				new ItemStack(Material.WORKBENCH),
+				WandCore.getWoodCore()
+		)), getStaticCraftedItem(), 500, 0, true);
+		recipes.add(recipe);
 
 		return recipes;
 	}

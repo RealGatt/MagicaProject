@@ -6,6 +6,7 @@ import org.bukkit.event.Listener;
 import space.gatt.magicaproject.MagicaMain;
 import space.gatt.magicaproject.events.EventAddItemToRecipe;
 import space.gatt.magicaproject.extra.MagicaRecipe;
+import space.gatt.magicaproject.objects.items.wand.Wand;
 import space.gatt.magicaproject.utilities.BaseUtils;
 
 import java.util.ArrayList;
@@ -29,9 +30,18 @@ public class RecipeManager implements Listener{
 		Collections.shuffle(this.recipes);
 		for (MagicaRecipe recipe : this.recipes){
 			if (BaseUtils.isSameListItems(e.getCrafter().getItemsAsStack(), recipe.getRequirements())) {
+				if (recipe.doesRequireWand()){
+					if (e.getCrafter().hasWand()) {
+						float time = ((recipe.getTimeInTicks()
+								/ Wand.getRecipeForWand(e.getCrafter().getWand().getItemStack()).getTimeInTicks()
+						) * 1000);
+						e.getCrafter().beginCrafting(recipe.getCraftedItem(), time, recipe.getManaPerTick(), e.getPlayer());
+						return;
+					}
+					return;
+				}
 				e.getCrafter().beginCrafting(recipe.getCraftedItem(), recipe.getTimeInTicks(), recipe.getManaPerTick(), e.getPlayer());
 			}
 		}
 	}
-
 }

@@ -23,6 +23,7 @@ public class WandHilt extends Craftable {
 		im.addEnchant(Enchantment.DURABILITY, 1, true);
 		im.setDisplayName(BaseUtils.colorString("&bBasic Hilt"));
 		im.addItemFlags(ItemFlag.values());
+		//im.setLore(Arrays.asList(BaseUtils.colorString("&9 Crafting Time Reduction: &e5%"), MagicaMain.getLoreLine().get(0)));
 		im.setLore(MagicaMain.getLoreLine());
 		im.setUnbreakable(true);
 		manaGenerator.setItemMeta(im);
@@ -35,6 +36,7 @@ public class WandHilt extends Craftable {
 		im.addEnchant(Enchantment.DURABILITY, 1, true);
 		im.setDisplayName(BaseUtils.colorString("&cBlazed Hilt"));
 		im.addItemFlags(ItemFlag.values());
+		//im.setLore(Arrays.asList(BaseUtils.colorString("&9 Crafting Time Reduction: &e20%"), MagicaMain.getLoreLine().get(0)));
 		im.setLore(MagicaMain.getLoreLine());
 		im.setUnbreakable(true);
 		manaGenerator.setItemMeta(im);
@@ -47,6 +49,7 @@ public class WandHilt extends Craftable {
 		im.addEnchant(Enchantment.DURABILITY, 1, true);
 		im.setDisplayName(BaseUtils.colorString("&7Bone Hilt"));
 		im.addItemFlags(ItemFlag.values());
+		//im.setLore(Arrays.asList(BaseUtils.colorString("&9 Crafting Time Reduction: &e10%"), MagicaMain.getLoreLine().get(0)));
 		im.setLore(MagicaMain.getLoreLine());
 		im.setUnbreakable(true);
 		manaGenerator.setItemMeta(im);
@@ -68,13 +71,13 @@ public class WandHilt extends Craftable {
 
 		rec1 = new MagicaRecipe(new ArrayList<>(
 				Arrays.asList(new ItemStack(Material.BLAZE_ROD),
-						MagicaShard.getStaticCraftedItem())), getBlazeHilt(), 600, 0);
+						MagicaShard.getStaticCraftedItem())), getBlazeHilt(), 650, 0);
 
 		recipes.add(rec1);
 
 		rec1 = new MagicaRecipe(new ArrayList<>(
 				Arrays.asList(new ItemStack(Material.BONE),
-						MagicaShard.getStaticCraftedItem())), getBoneHilt(), 400, 0);
+						MagicaShard.getStaticCraftedItem())), getBoneHilt(), 450, 0);
 
 		recipes.add(rec1);
 

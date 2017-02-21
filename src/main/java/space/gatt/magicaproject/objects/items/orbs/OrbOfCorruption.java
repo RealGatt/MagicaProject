@@ -40,7 +40,7 @@ public class OrbOfCorruption extends Craftable{
 						new ItemStack(Material.FERMENTED_SPIDER_EYE),
 						new ItemStack(Material.BEETROOT_SEEDS),
 						new ItemStack(Material.ROTTEN_FLESH))),
-				getStaticCraftedItem(), 80, 10);
+				getStaticCraftedItem(), 1000, 10, true);
 		recipes.add(rec1);
 		return recipes;
 	}

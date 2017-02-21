@@ -22,6 +22,7 @@ public class WandCore extends Craftable{
 		im.addEnchant(Enchantment.DURABILITY, 1, true);
 		im.setDisplayName(BaseUtils.colorString("&b&oPure Magica Core"));
 		im.addItemFlags(ItemFlag.values());
+		//im.setLore(Arrays.asList(BaseUtils.colorString("&9 Crafting Time Reduction: &e90%"), MagicaMain.getLoreLine().get(0)));
 		im.setLore(MagicaMain.getLoreLine());
 		im.setUnbreakable(true);
 		manaGenerator.setItemMeta(im);
@@ -34,6 +35,7 @@ public class WandCore extends Craftable{
 		im.addEnchant(Enchantment.DURABILITY, 1, true);
 		im.setDisplayName(BaseUtils.colorString("&5Obsidian Core"));
 		im.addItemFlags(ItemFlag.values());
+		//im.setLore(Arrays.asList(BaseUtils.colorString("&9 Crafting Time Reduction: &e50%"), MagicaMain.getLoreLine().get(0)));
 		im.setLore(MagicaMain.getLoreLine());
 		im.setUnbreakable(true);
 		manaGenerator.setItemMeta(im);
@@ -46,6 +48,7 @@ public class WandCore extends Craftable{
 		im.addEnchant(Enchantment.DURABILITY, 1, true);
 		im.setDisplayName(BaseUtils.colorString("&9Diamond Core"));
 		im.addItemFlags(ItemFlag.values());
+		//im.setLore(Arrays.asList(BaseUtils.colorString("&9 Crafting Time Reduction: &e45%"), MagicaMain.getLoreLine().get(0)));
 		im.setLore(MagicaMain.getLoreLine());
 		im.setUnbreakable(true);
 		manaGenerator.setItemMeta(im);
@@ -58,6 +61,7 @@ public class WandCore extends Craftable{
 		im.addEnchant(Enchantment.DURABILITY, 1, true);
 		im.setDisplayName(BaseUtils.colorString("&eGold Core"));
 		im.addItemFlags(ItemFlag.values());
+		//im.setLore(Arrays.asList(BaseUtils.colorString("&9 Crafting Time Reduction: &e30%"), MagicaMain.getLoreLine().get(0)));
 		im.setLore(MagicaMain.getLoreLine());
 		im.setUnbreakable(true);
 		manaGenerator.setItemMeta(im);
@@ -70,6 +74,7 @@ public class WandCore extends Craftable{
 		im.addEnchant(Enchantment.DURABILITY, 1, true);
 		im.setDisplayName(BaseUtils.colorString("&fIron Core"));
 		im.addItemFlags(ItemFlag.values());
+		//im.setLore(Arrays.asList(BaseUtils.colorString("&9 Crafting Time Reduction: &e20%"), MagicaMain.getLoreLine().get(0)));
 		im.setLore(MagicaMain.getLoreLine());
 		im.setUnbreakable(true);
 		manaGenerator.setItemMeta(im);
@@ -82,6 +87,7 @@ public class WandCore extends Craftable{
 		im.addEnchant(Enchantment.DURABILITY, 1, true);
 		im.setDisplayName(BaseUtils.colorString("&7Stone Core"));
 		im.addItemFlags(ItemFlag.values());
+		//im.setLore(Arrays.asList(BaseUtils.colorString("&9 Crafting Time Reduction: &e10%"), MagicaMain.getLoreLine().get(0)));
 		im.setLore(MagicaMain.getLoreLine());
 		im.setUnbreakable(true);
 		manaGenerator.setItemMeta(im);
@@ -94,6 +100,7 @@ public class WandCore extends Craftable{
 		im.addEnchant(Enchantment.DURABILITY, 1, true);
 		im.setDisplayName(BaseUtils.colorString("&8Wood Core"));
 		im.addItemFlags(ItemFlag.values());
+		//im.setLore(Arrays.asList(BaseUtils.colorString("&9 Crafting Time Reduction: &e5%"), MagicaMain.getLoreLine().get(0)));
 		im.setLore(MagicaMain.getLoreLine());
 		im.setUnbreakable(true);
 		manaGenerator.setItemMeta(im);
@@ -156,7 +163,7 @@ public class WandCore extends Craftable{
 
 		MagicaRecipe ironCore = new MagicaRecipe(new ArrayList<>(
 				Arrays.asList(new ItemStack(Material.IRON_INGOT),
-						MagicaShard.getStaticCraftedItem())), getIronCore(), 200, 0);
+						MagicaShard.getStaticCraftedItem())), getIronCore(), 600, 0);
 
 		recipes.add(ironCore);
 

@@ -46,7 +46,7 @@ public class AdvancedManaGenerator extends Craftable implements MagicaBlock, Sav
 				ManaGenerator.getStaticCraftedItem(),
 				new ItemStack(Material.NETHER_STAR),
 				new ItemStack(Material.TOTEM),
-				new ItemStack(Material.WHITE_SHULKER_BOX))), getStaticCraftedItem(), 1000, 2);
+				new ItemStack(Material.WHITE_SHULKER_BOX))), getStaticCraftedItem(), 1000, 2, true);
 		recipes.add(rec1);
 		return recipes;
 	}

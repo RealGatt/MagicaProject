@@ -14,6 +14,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -25,6 +26,7 @@ import space.gatt.magicaproject.MagicaMain;
 import space.gatt.magicaproject.events.EventAddItemToRecipe;
 import space.gatt.magicaproject.interfaces.MagicaBlock;
 import space.gatt.magicaproject.interfaces.Saveable;
+import space.gatt.magicaproject.objects.items.wand.Wand;
 import space.gatt.magicaproject.utilities.BaseUtils;
 import space.gatt.magicaproject.utilities.InventoryWorkAround;
 import space.gatt.magicaproject.utilities.MathUtils;
@@ -51,12 +53,24 @@ public class MagicCrafter implements MagicaBlock, Saveable, Listener {
 	private Item wand = null; // TODO
 	private ArrayList<Item> items = new ArrayList<>();
 
+	private ArrayList<Location> spinnerLocations;
+	private ArrayList<Location> wandSpinnerLocations;
+
+	public boolean hasWand(){
+		return wand != null;
+	}
+
+	public Item getWand() {
+		return wand;
+	}
+
 	public MagicCrafter(Location l) {
 		this.l = l;
 		l.getWorld().playSound(l, Sound.ENTITY_WITHER_SPAWN, 1, 1);
 		Bukkit.getPluginManager().registerEvents(this, MagicaMain.getMagicaMain());
 		this.instance = this;
 		isActive = true;
+		runItemSpinner();
 	}
 
 	public MagicCrafter(JsonObject object){
@@ -79,6 +93,7 @@ public class MagicCrafter implements MagicaBlock, Saveable, Listener {
 		this.instance = this;
 		isActive = true;
 		MagicaMain.getMagicaMain().getBlockManager().registerBlock(this);
+		runItemSpinner();
 	}
 
 	public static void registerListener() {
@@ -282,10 +297,15 @@ public class MagicCrafter implements MagicaBlock, Saveable, Listener {
 				}
 				items.clear();
 			}
+			if (hasWand()){
+				l.getWorld().dropItemNaturally(e.getBlock().getLocation().add(0.5, 2, 0.5), getWand().getItemStack());
+				getWand().remove();
+			}
 			e.getBlock().setType(Material.AIR);
 			e.getBlock().getWorld().dropItem(e.getBlock().getLocation(), getStaticCraftedItem());
 			isActive = false;
 			e.getBlock().getWorld().createExplosion(l.clone().add(0.5, 0.5, 0.5), 0);
+			spinnerTask.cancel();
 		}
 	}
 
@@ -300,40 +320,64 @@ public class MagicCrafter implements MagicaBlock, Saveable, Listener {
 				e.getPlayer().sendMessage(BaseUtils.colorString("&cYou must wait until the current item is finished!"));
 				return;
 			}
-			if (items.size() > 0) {
+			if (items.size() > 0 || hasWand()) {
 				for (Item i : items) {
 					l.getWorld().dropItemNaturally(e.getClickedBlock().getLocation().add(0.5, 2, 0.5), i.getItemStack());
 					i.remove();
 				}
 				items.clear();
+				if (hasWand()){
+					l.getWorld().dropItemNaturally(e.getClickedBlock().getLocation().add(0.5, 2, 0.5), getWand().getItemStack());
+					getWand().remove();
+				}
+				wand = null;
 			} else {
 				e.getPlayer().sendMessage(BaseUtils.colorString("&bDrop an item ontop of the Magic Crafter to add it"));
 			}
 		}
 	}
+	private int wandSpinnerLocation = 0;
 
+	private BukkitTask spinnerTask;
 	public void runItemSpinner() {
-		int id = -1;
-		boolean isstar = false;
-		ArrayList<Location> locs = !isstar ? MathUtils.getCircle(l.clone().add(0.5, .5, 0.5), 1, items.size()):
-				MathUtils.getStar(l.clone().add(0.5, .5, 0.5), 1, items.size(), 1);
-		Location mid = l.clone().add(0.5, 0.5, 0.5);
-		for (Item as : items) {
-			as.setPickupDelay(999999);
-			id++;
-			as.setVelocity(new Vector(0, 0, 0));
-			as.teleport(locs.get(id).clone().add(0, 0.5, 0));
-			as.setTicksLived(1);
-			as.setFallDistance(0);
-			if (state == STATE.CRAFTING) {
-				Location point = as.getLocation().clone().subtract(0, 1.3, 0);
-				Vector dir = new Vector(point.getX() - mid.getX(),
-						mid.getY() + point.getY(),
-						point.getZ() - mid.getZ());
-				mid.getWorld().spawnParticle(Particle.ENCHANTMENT_TABLE, locs.get(id), 0, dir.getX(), dir.getY(), dir.getZ(), 0.5);
-
+		this.wandSpinnerLocations = MathUtils.getCircle(l.clone().add(0.5, .5, 0.5), 0.7, 128);
+		spinnerTask = Bukkit.getScheduler().runTaskTimerAsynchronously(MagicaMain.getMagicaMain(), ()->{
+			spinnerLocations = MathUtils.getCircle(l.clone().add(0.5, .5, 0.5), 1, items.size());
+			wandSpinnerLocation++;
+			if (wandSpinnerLocation == wandSpinnerLocations.size() - 1){
+				wandSpinnerLocation = 0;
 			}
-		}
+			if (hasWand()){
+				Vector from = getWand().getLocation().toVector();
+				Vector to = wandSpinnerLocations.get(wandSpinnerLocation).clone().add(0, 0.5, 0).toVector();
+				Vector vector = to.subtract(from).normalize();
+				getWand().setVelocity(vector);
+				getWand().setPickupDelay(99999);
+				getWand().setTicksLived(1);
+				getWand().setGravity(false);
+			}
+			int id = -1;
+			boolean isstar = false;
+			ArrayList<Location> locs = !isstar ? spinnerLocations :
+					MathUtils.getStar(l.clone().add(0.5, .5, 0.5), 1, items.size(), 1);
+			Location mid = l.clone().add(0.5, 0.5, 0.5);
+			for (Item as : items) {
+				as.setPickupDelay(99999);
+				id++;
+				as.setVelocity(new Vector(0, 0, 0));
+				as.teleport(locs.get(id).clone().add(0, 0.5, 0));
+				as.setTicksLived(1);
+				as.setFallDistance(0);
+				if (state == STATE.CRAFTING) {
+					Location point = as.getLocation().clone().subtract(0, 1.3, 0);
+					Vector dir = new Vector(point.getX() - mid.getX(),
+							mid.getY() + point.getY(),
+							point.getZ() - mid.getZ());
+					mid.getWorld().spawnParticle(Particle.ENCHANTMENT_TABLE, locs.get(id), 0, dir.getX(), dir.getY(), dir.getZ(), 0.5);
+				}
+			}
+		}, 1, 1);
+
 	}
 
 	@EventHandler
@@ -362,6 +406,20 @@ public class MagicCrafter implements MagicaBlock, Saveable, Listener {
 								&& e.getLocation().getBlockZ() == l.getBlockZ()) {
 							ItemStack i = e.getItemStack().clone();
 							ItemStack copy = e.getItemStack().clone();
+
+							boolean wasWand = false;
+
+							if (Wand.isItemWand(i)) {
+								if (!hasWand()) {
+									wand = e;
+									wasWand = true;
+									e.teleport(wandSpinnerLocations.get(wandSpinnerLocation).clone().add(0, 0.5, 0));
+								}else {
+									this.cancel();
+									return;
+								}
+							}
+
 							if (i.getAmount() > 1) {
 								i.setAmount(1);
 								copy.setAmount(copy.getAmount() - 1);
@@ -377,11 +435,12 @@ public class MagicCrafter implements MagicaBlock, Saveable, Listener {
 								e.setCustomNameVisible(true);
 							}
 							e.setVelocity(new Vector(0, 0, 0));
-							items.add(e);
+							if (!wasWand) {
+								items.add(e);
+							}
 							e.setGravity(false);
 							l.getWorld().spawnParticle(Particle.FIREWORKS_SPARK, e.getLocation(), 5, 0.1, 0.1, 0.1, 0.3);
-							e.setPickupDelay(999999);
-							runItemSpinner();
+							e.setPickupDelay(99999);
 							Bukkit.getPluginManager().callEvent(new EventAddItemToRecipe(instance, i, p));
 							this.cancel();
 							return;
@@ -439,6 +498,10 @@ public class MagicCrafter implements MagicaBlock, Saveable, Listener {
 			l.getWorld().dropItemNaturally(l.clone().add(0.5, 2, 0.5), i.getItemStack());
 			i.remove();
 		}
+		if (hasWand()){
+			l.getWorld().dropItemNaturally(l.clone().add(0.5, 2, 0.5), getWand().getItemStack());
+			getWand().remove();
+		}
 		MagicaMain.getMagicaMain().getStorageManager().save(this, "isActive", isActive);
 		MagicaMain.getMagicaMain().getStorageManager().save(this, "location-x", l.getX());
 		MagicaMain.getMagicaMain().getStorageManager().save(this, "location-y", l.getY());
@@ -458,7 +521,5 @@ public class MagicCrafter implements MagicaBlock, Saveable, Listener {
 	@Override
 	public void runParticles() {
 		l.getWorld().spawnParticle(Particle.PORTAL, l.clone().add(0.5, 0.5, 0.5), 10, 0, 0, 0, 1);
-		runItemSpinner();
 	}
-
 }
