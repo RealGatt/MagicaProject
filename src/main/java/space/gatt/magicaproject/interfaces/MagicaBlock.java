@@ -1,9 +1,8 @@
 package space.gatt.magicaproject.interfaces;
 
 import com.google.gson.JsonObject;
-import net.minecraft.server.v1_11_R1.NBTTagCompound;
-import net.minecraft.server.v1_11_R1.TileEntity;
-import net.minecraft.server.v1_11_R1.TileEntityMobSpawner;
+import net.minecraft.server.v1_11_R1.*;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.CreatureSpawner;
@@ -20,7 +19,6 @@ public class MagicaBlock {
 	public MagicaBlock(Location location){
 		this.location = location;
 		this.displayedItem = new ItemStack(Material.DIAMOND_HOE);
-		updateBlock();
 	}
 
 	public MagicaBlock(JsonObject jsonObject){
@@ -32,8 +30,11 @@ public class MagicaBlock {
 		this.displayedItem = itemStack;
 	}
 
-	private void updateBlock(){
+	public void updateBlock(){
 		ItemStack itemStack = displayedItem;
+		if (displayedItem == null){
+			return;
+		}
 		location.getBlock().setType(Material.MOB_SPAWNER);
 
 		CraftWorld ws = (CraftWorld)location.getWorld(); //W is your normal bukkit world . . . I'm using player.getWorld()
@@ -41,22 +42,31 @@ public class MagicaBlock {
 		TileEntityMobSpawner te = (TileEntityMobSpawner)ws.getTileEntityAt(location.getBlockX(), location.getBlockY(), location.getBlockZ());
 		if (te != null)
 		{
-			ntc = new NBTTagCompound();
-			ntc.setString("RequiredPlayerRange", "0s");
+			ntc = te.d();
+			ntc.setShort("RequiredPlayerRange", (short)0);
 			ntc.getCompound("SpawnData").setString("id", "minecraft:armor_stand");
-			ntc.getCompound("SpawnData").setString("Invisible", "1");
-			ntc.getCompound("SpawnData").setString("Marker", "1");
-			ntc.getCompound("SpawnData").getList("ArmorItems", 4).get(3).setString("id", "minecraft:" + itemStack.getType().name().toLowerCase());
-			ntc.getCompound("SpawnData").getList("ArmorItems", 4).get(3).setString("Count", "1b");
-			ntc.getCompound("SpawnData").getList("ArmorItems", 4).get(3).setString("id", "Damage:" + itemStack.getDurability() + "s");
-			ntc.getCompound("SpawnData").getList("ArmorItems", 4).get(3).getCompound("tag").setString("Unbreakable", "1");
+			ntc.getCompound("SpawnData").setShort("Invisible", (short)1);
+			ntc.getCompound("SpawnData").setShort("Marker", (short)1);
+			NBTTagList list = ntc.getCompound("SpawnData").getList("ArmorItems", 4);
+			list.add(list.get(0));
+			list.add(list.get(1));
+			list.add(list.get(2));
+			list.add(list.get(3));
+			list.get(3).setString("id", "minecraft:" + itemStack.getType().name().toLowerCase());
+			list.get(3).setShort("Count", (short)1);
+			list.get(3).setShort("Damage" , itemStack.getDurability());
+			NBTTagCompound tag =  new NBTTagCompound();
+			tag.setShort("Unbreakable", (short)1);
+			list.get(3).set("tag", tag);
+			ntc.getCompound("SpawnData").set("ArmorItems", list);
+			te.a(ntc);
 			te.save(ntc);
+			te.update();
 		}
 	}
 
 	public void setLocation(Location location) {
 		this.location = location;
-		updateBlock();
 	}
 
 	public void setActive(boolean active) {
@@ -64,7 +74,7 @@ public class MagicaBlock {
 	}
 
 	public void setDisplayedItem(ItemStack displayedItem) {
-		updateBlock();
+		this.displayedItem = displayedItem;
 	}
 
 	public Location getLocation(){
@@ -75,6 +85,6 @@ public class MagicaBlock {
 
 	public void runParticles(){}
 
-	public boolean isActive(){return false;}
+	public boolean isActive(){return isActive;}
 
 }

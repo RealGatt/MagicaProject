@@ -98,7 +98,7 @@ public class StorageManager {
 		for (Saveable saveable : storage.keySet()) {
 			Bukkit.getLogger().info("Saving data for an " + saveable.getSaveFileName() + " instance.");
 			saveable.shutdownCall();
-			if (storage.get(saveable) != null && !storage.get(saveable).isEmpty()) {
+			if (storage.get(saveable) != null && !storage.get(saveable).isEmpty() && storage.get(saveable).size() > 0) {
 				saveHash(saveable.getSaveFileFolder(), saveable.getSaveFileName(), storage.get(saveable));
 			}
 		}
@@ -121,6 +121,7 @@ public class StorageManager {
 			}
 		} catch (IOException ignored) {
 		}
+
 		if (fileexists) {
 			Gson gson = new Gson();
 			System.out.println("Preparing to create JSON Magic for " + title + ".");

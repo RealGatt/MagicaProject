@@ -29,20 +29,15 @@ public class AdvancedManaGenerator extends MagicaBlock implements Craftable, Sav
 		super.setLocation(l);
 		super.setActive(true);
 		super.setDisplayedItem(getStaticCraftedItem());
+		super.updateBlock();
 		this.l = l;
 		this.playerPlaced = playerPlaced;
-		shutdownCall();
+		MagicaMain.getMagicaMain().getBlockManager().registerBlock(this);
 	}
 
 	public AdvancedManaGenerator(JsonObject object){
 		super(object);
 
-	}
-
-	public static void registerListener() {
-		Bukkit.getPluginManager().registerEvents(new Listener() {
-
-		}, MagicaMain.getMagicaMain());
 	}
 
 	public static ArrayList<MagicaRecipe> getStaticRecipes(){
@@ -113,9 +108,13 @@ public class AdvancedManaGenerator extends MagicaBlock implements Craftable, Sav
 		return storedMana;
 	}
 
+	public static String getStaticSaveFileName(){
+		return "advancedmanagenerator";
+	}
+
 	@Override
 	public String getSaveFileName() {
-		return "advancedmanagenerator";
+		return getStaticSaveFileName();
 	}
 
 	@Override
@@ -125,13 +124,14 @@ public class AdvancedManaGenerator extends MagicaBlock implements Craftable, Sav
 
 	@Override
 	public void shutdownCall() {
-		MagicaMain.getMagicaMain().getStorageManager().save(this, "class", this.getClass());
+		MagicaMain.getMagicaMain().getStorageManager().save(this, "isActive", super.isActive());
 		MagicaMain.getMagicaMain().getStorageManager().save(this, "location-x", l.getX());
 		MagicaMain.getMagicaMain().getStorageManager().save(this, "location-y", l.getY());
 		MagicaMain.getMagicaMain().getStorageManager().save(this, "location-z", l.getZ());
 		MagicaMain.getMagicaMain().getStorageManager().save(this, "location-world", l.getWorld().getName());
-		MagicaMain.getMagicaMain().getStorageManager().save(this, BaseUtils.getStringFromLocation(l) + "-managenerator-player", playerPlaced);
-		MagicaMain.getMagicaMain().getStorageManager().save(this, BaseUtils.getStringFromLocation(l) + "-managenerator-storedmana", storedMana);
+		MagicaMain.getMagicaMain().getStorageManager().save(this, "player", playerPlaced.getName());
+		MagicaMain.getMagicaMain().getStorageManager().save(this, "player-uuid", playerPlaced.getUniqueId());
+		MagicaMain.getMagicaMain().getStorageManager().save(this, "storedmana", storedMana);
 	}
 
 	@Override

@@ -16,6 +16,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
+import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.reflections.Reflections;
@@ -78,6 +79,9 @@ public class MagicaMain extends JavaPlugin implements Listener{
 		magicCrafterRecipe.setIngredient('I', Material.DIAMOND);
 		magicCrafterRecipe.setIngredient('W', Material.WORKBENCH);
 		magicCrafterRecipe.setIngredient('O', Material.OBSIDIAN);
+		ShapelessRecipe magicCrafterRecipe2 = new ShapelessRecipe(MagicCrafter.getStaticCraftedItem());
+		magicCrafterRecipe2.addIngredient(1, Material.BEDROCK);
+		Bukkit.addRecipe(magicCrafterRecipe2);
 		Bukkit.addRecipe(magicCrafterRecipe);
 
 		Bukkit.getPluginManager().registerEvents(this, this);
@@ -189,11 +193,13 @@ public class MagicaMain extends JavaPlugin implements Listener{
 	@EventHandler
 	public void onCraft(CraftItemEvent e){
 		for (ItemStack is : e.getInventory().getMatrix()){
-			ItemMeta im = is.getItemMeta();
-			if (im.isUnbreakable() && im.getItemFlags().size() == ItemFlag.values().length && im.getLore().contains(BaseUtils.colorString("&9MagicaProject"))){
-				e.setCancelled(true);
-				e.setResult(Event.Result.DENY);
-				e.setCurrentItem(new ItemStack(Material.AIR));
+			if (is.hasItemMeta()) {
+				ItemMeta im = is.getItemMeta();
+				if (im.isUnbreakable() && im.getItemFlags().size() == ItemFlag.values().length && im.getLore().contains(BaseUtils.colorString("&9MagicaProject"))) {
+					e.setCancelled(true);
+					e.setResult(Event.Result.DENY);
+					e.setCurrentItem(new ItemStack(Material.AIR));
+				}
 			}
 		}
 	}

@@ -1,14 +1,15 @@
 package space.gatt.magicaproject.managers;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.material.MaterialData;
 import org.bukkit.metadata.FixedMetadataValue;
 import space.gatt.magicaproject.MagicaMain;
 import space.gatt.magicaproject.interfaces.EntityBlock;
@@ -16,6 +17,8 @@ import space.gatt.magicaproject.interfaces.MagicaBlock;
 import space.gatt.magicaproject.interfaces.Saveable;
 import space.gatt.magicaproject.utilities.BaseUtils;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -85,9 +88,50 @@ public class BlockManager implements Listener{
 					}
 				}
 				if (isItem){
-					e.setCancelled(true);
+					e.setUseItemInHand(Event.Result.DENY);
+					boolean placed = false;
 					try {
-						itemToClass.get(e.getItem()).getConstructor(new Class[]{Location.class}).newInstance(b.getLocation());
+						placeCheck : for (Constructor m : itemToClass.get(e.getItem()).getConstructors()){
+							if (m.getParameterCount() == 1){
+								for (Class typeParameter : m.getParameterTypes()){
+									if (typeParameter == Location.class){
+										m.newInstance(b.getLocation());
+										placed = true;
+										break placeCheck;
+									}else if (typeParameter == OfflinePlayer.class){
+										placed = true;
+										m.newInstance((OfflinePlayer)e.getPlayer());
+										break placeCheck;
+									}
+								}
+							}
+							if (m.getParameterCount() == 2){
+								int correct = 0;
+								for (Class typeParameter : m.getParameterTypes()){
+									if (typeParameter == Location.class){
+										correct++;
+									}else if (typeParameter == OfflinePlayer.class){
+										correct++;
+									}
+									if (correct == 2){
+										placed = true;
+										m.newInstance(b.getLocation(), (OfflinePlayer)e.getPlayer());
+										break placeCheck;
+									}
+								}
+							}
+						}
+						if (placed) {
+							b.getWorld().playEffect(b.getLocation(), Effect.STEP_SOUND, new MaterialData(Material.PORTAL).getItemTypeId());
+
+							if (e.getPlayer().getGameMode() != GameMode.CREATIVE) {
+								if (e.getItem().getAmount() > 1) {
+									e.getItem().setAmount(e.getItem().getAmount() - 1);
+								} else {
+									e.getItem().setType(Material.AIR);
+								}
+							}
+						}
 					}catch (Exception exp){
 						exp.printStackTrace();
 					}

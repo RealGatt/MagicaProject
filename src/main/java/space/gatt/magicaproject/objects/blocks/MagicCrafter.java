@@ -44,7 +44,6 @@ public class MagicCrafter extends MagicaBlock implements Saveable, Listener {
 
 	final int MAX_ITEMS = 16;
 	private Location l;
-	private boolean isActive;
 
 	private MagicCrafter instance;
 	private STATE state = STATE.WAITING;
@@ -70,10 +69,12 @@ public class MagicCrafter extends MagicaBlock implements Saveable, Listener {
 		super.setLocation(l);
 		super.setActive(true);
 		super.setDisplayedItem(getStaticCraftedItem());
+		super.updateBlock();
 		l.getWorld().playSound(l, Sound.ENTITY_WITHER_SPAWN, 1, 1);
 		Bukkit.getPluginManager().registerEvents(this, MagicaMain.getMagicaMain());
 		this.instance = this;
 		runItemSpinner();
+		MagicaMain.getMagicaMain().getBlockManager().registerBlock(this);
 	}
 
 	public MagicCrafter(JsonObject object){
@@ -99,25 +100,10 @@ public class MagicCrafter extends MagicaBlock implements Saveable, Listener {
 		super.setDisplayedItem(getStaticCraftedItem());
 		Bukkit.getPluginManager().registerEvents(this, MagicaMain.getMagicaMain());
 		this.instance = this;
+		super.updateBlock();
 		MagicaMain.getMagicaMain().getBlockManager().registerBlock(this);
 		runItemSpinner();
 	}
-
-	public static void registerListener() {
-		Bukkit.getPluginManager().registerEvents(new Listener() {
-			@EventHandler
-			public void onPlace(BlockPlaceEvent e) {
-				if (e.getBlockPlaced().getType() == Material.ENCHANTMENT_TABLE) {
-					ItemStack is = getStaticCraftedItem();
-					if (BaseUtils.matchItem(e.getItemInHand(), is)) {
-						MagicCrafter mc = new MagicCrafter(e.getBlock().getLocation());
-						MagicaMain.getMagicaMain().getBlockManager().registerBlock(mc);
-					}
-				}
-			}
-		}, MagicaMain.getMagicaMain());
-	}
-
 	BukkitTask craftingTask;
 
 	public boolean beginCrafting(ItemStack resultItem, final float timeInTicks, float manaPerTick, Player p){
@@ -278,7 +264,6 @@ public class MagicCrafter extends MagicaBlock implements Saveable, Listener {
 		ItemStack magicCrafter = MagicaMain.getBaseStack();
 		magicCrafter.setDurability((short)1);
 		ItemMeta im = magicCrafter.getItemMeta();
-		im.addEnchant(Enchantment.DURABILITY, 1, true);
 		im.setDisplayName(BaseUtils.colorString("&b&lMagica Crafter"));
 		im.addItemFlags(ItemFlag.values());
 		im.setUnbreakable(true);
@@ -311,7 +296,8 @@ public class MagicCrafter extends MagicaBlock implements Saveable, Listener {
 			}
 			e.getBlock().setType(Material.AIR);
 			e.getBlock().getWorld().dropItem(e.getBlock().getLocation(), getStaticCraftedItem());
-			isActive = false;
+			super.setActive(false);
+			e.getBlock().getWorld().playEffect(e.getBlock().getLocation(), Effect.STEP_SOUND, new MaterialData(Material.IRON_BLOCK).getItemTypeId());
 			e.getBlock().getWorld().createExplosion(l.clone().add(0.5, 0.5, 0.5), 0);
 			spinnerTask.cancel();
 		}
@@ -356,10 +342,7 @@ public class MagicCrafter extends MagicaBlock implements Saveable, Listener {
 				wandSpinnerLocation = 0;
 			}
 			if (hasWand()){
-				Vector from = getWand().getLocation().toVector();
-				Vector to = wandSpinnerLocations.get(wandSpinnerLocation).clone().add(0, 0.5, 0).toVector();
-				Vector vector = to.subtract(from).normalize();
-				getWand().setVelocity(vector);
+				getWand().teleport(wandSpinnerLocations.get(wandSpinnerLocation).clone().add(0, 0.5, 0));
 				getWand().setPickupDelay(99999);
 				getWand().setTicksLived(1);
 				getWand().setGravity(false);
@@ -477,7 +460,7 @@ public class MagicCrafter extends MagicaBlock implements Saveable, Listener {
 
 	@Override
 	public boolean isActive() {
-		return isActive;
+		return super.isActive();
 	}
 
 	public static String getStaticSaveFileName(){
@@ -510,7 +493,7 @@ public class MagicCrafter extends MagicaBlock implements Saveable, Listener {
 			l.getWorld().dropItemNaturally(l.clone().add(0.5, 2, 0.5), getWand().getItemStack());
 			getWand().remove();
 		}
-		MagicaMain.getMagicaMain().getStorageManager().save(this, "isActive", isActive);
+		MagicaMain.getMagicaMain().getStorageManager().save(this, "isActive", super.isActive());
 		MagicaMain.getMagicaMain().getStorageManager().save(this, "location-x", l.getX());
 		MagicaMain.getMagicaMain().getStorageManager().save(this, "location-y", l.getY());
 		MagicaMain.getMagicaMain().getStorageManager().save(this, "location-z", l.getZ());
