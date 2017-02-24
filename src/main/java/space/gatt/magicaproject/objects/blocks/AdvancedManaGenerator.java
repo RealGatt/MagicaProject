@@ -19,8 +19,9 @@ import space.gatt.magicaproject.utilities.BaseUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.UUID;
 
-public class AdvancedManaGenerator extends MagicaBlock implements Craftable, Saveable, ManaStorable {
+public class AdvancedManaGenerator extends MagicaBlock implements Craftable, Saveable, ManaStorable, Listener {
 	private Location l;
 	private OfflinePlayer playerPlaced;
 	private float storedMana;
@@ -38,6 +39,32 @@ public class AdvancedManaGenerator extends MagicaBlock implements Craftable, Sav
 	public AdvancedManaGenerator(JsonObject object){
 		super(object);
 
+		double x = 0, y = 0, z = 0;
+		World world = Bukkit.getWorlds().get(0);
+		if (object.has("location-x")){
+			x = object.get("location-x").getAsDouble();
+		}
+		if (object.has("location-y")){
+			y = object.get("location-y").getAsDouble();
+		}
+		if (object.has("location-z")){
+			z = object.get("location-z").getAsDouble();
+		}
+		if (object.has("location-world")){
+			world = Bukkit.getWorld(object.get("location-world").getAsString());
+		}
+		OfflinePlayer of;
+		if (object.has("player-uuid")){
+			of = Bukkit.getOfflinePlayer(UUID.fromString(object.get("player-uuid").getAsString()));
+			this.playerPlaced = of;
+		}
+		this.l = new Location(world, x, y, z);
+		super.setLocation(l);
+		super.setActive(true);
+		super.setDisplayedItem(getStaticCraftedItem());
+		Bukkit.getPluginManager().registerEvents(this, MagicaMain.getMagicaMain());
+		super.updateBlock();
+		MagicaMain.getMagicaMain().getBlockManager().registerBlock(this);
 	}
 
 	public static ArrayList<MagicaRecipe> getStaticRecipes(){
@@ -68,7 +95,7 @@ public class AdvancedManaGenerator extends MagicaBlock implements Craftable, Sav
 
 	@Override
 	public boolean isActive() {
-		return false;
+		return super.isActive();
 	}
 
 	@Override

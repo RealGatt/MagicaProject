@@ -297,7 +297,6 @@ public class MagicCrafter extends MagicaBlock implements Saveable, Listener {
 			e.getBlock().setType(Material.AIR);
 			e.getBlock().getWorld().dropItem(e.getBlock().getLocation(), getStaticCraftedItem());
 			super.setActive(false);
-			e.getBlock().getWorld().playEffect(e.getBlock().getLocation(), Effect.STEP_SOUND, new MaterialData(Material.IRON_BLOCK).getItemTypeId());
 			e.getBlock().getWorld().createExplosion(l.clone().add(0.5, 0.5, 0.5), 0);
 			spinnerTask.cancel();
 		}
@@ -415,7 +414,7 @@ public class MagicCrafter extends MagicaBlock implements Saveable, Listener {
 								i.setAmount(1);
 								copy.setAmount(copy.getAmount() - 1);
 								e.setItemStack(i);
-								Item i2 = l.getWorld().dropItem(e.getLocation().getBlock().getLocation().add(0.5, 1, 0.5), copy);
+								Item i2 = l.getWorld().dropItem(e.getLocation().getBlock().getLocation().add(0.5, 0.2, 0.5), copy);
 								trackItem(i2, p);
 								i2.setVelocity(new Vector(0, 0, 0));
 								i2.setPickupDelay(e.getPickupDelay());

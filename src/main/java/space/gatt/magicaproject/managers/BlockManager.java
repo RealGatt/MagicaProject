@@ -3,11 +3,15 @@ package space.gatt.magicaproject.managers;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Item;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.MaterialData;
 import org.bukkit.metadata.FixedMetadataValue;
@@ -61,6 +65,7 @@ public class BlockManager implements Listener{
 		if (mb instanceof EntityBlock){
 			((EntityBlock)mb).destroyExtra();
 		}
+		mb.getLocation().getWorld().playEffect(mb.getLocation(), Effect.STEP_SOUND, new MaterialData(Material.IRON_BLOCK).getItemTypeId());
 		mb.getLocation().getBlock().removeMetadata("IsMagicaBlock", MagicaMain.getMagicaMain());
 	}
 
@@ -90,8 +95,10 @@ public class BlockManager implements Listener{
 				if (isItem){
 					e.setUseItemInHand(Event.Result.DENY);
 					boolean placed = false;
+					ItemStack itemCopy = e.getItem().clone();
+					itemCopy.setAmount(1);
 					try {
-						placeCheck : for (Constructor m : itemToClass.get(e.getItem()).getConstructors()){
+						placeCheck : for (Constructor m : itemToClass.get(itemCopy).getConstructors()){
 							if (m.getParameterCount() == 1){
 								for (Class typeParameter : m.getParameterTypes()){
 									if (typeParameter == Location.class){
@@ -122,18 +129,63 @@ public class BlockManager implements Listener{
 							}
 						}
 						if (placed) {
-							b.getWorld().playEffect(b.getLocation(), Effect.STEP_SOUND, new MaterialData(Material.PORTAL).getItemTypeId());
-
 							if (e.getPlayer().getGameMode() != GameMode.CREATIVE) {
 								if (e.getItem().getAmount() > 1) {
 									e.getItem().setAmount(e.getItem().getAmount() - 1);
 								} else {
-									e.getItem().setType(Material.AIR);
+									e.getItem().setAmount(0);
+									if (e.getPlayer().getInventory().getItemInMainHand().isSimilar(e.getItem())){
+										e.getPlayer().getInventory().setItemInMainHand(new ItemStack(Material.AIR));
+									}else if (e.getPlayer().getInventory().getItemInOffHand().isSimilar(e.getItem())){
+										e.getPlayer().getInventory().setItemInOffHand(new ItemStack(Material.AIR));
+									}
 								}
 							}
 						}
 					}catch (Exception exp){
 						exp.printStackTrace();
+					}
+				}
+			}
+		}
+	}
+
+	@EventHandler
+	public void onDrop(ItemSpawnEvent e){
+		if (e.getEntity().getItemStack().hasItemMeta() &&
+
+				e.getEntity().getItemStack().getItemMeta().hasLore() &&
+				e.getEntity().getItemStack().getItemMeta().getLore().contains(MagicaMain.getLoreLine().get(0)) && e.getEntity().getItemStack().getMaxStackSize() == 1){
+			for (Entity ent : e.getEntity().getNearbyEntities(3, 2, 3)){
+				if (ent instanceof Item){
+					Item i = (Item)ent;
+					if (BaseUtils.matchItem(i.getItemStack(), e.getEntity().getItemStack()) && i.getCustomName() == null && e.getEntity().getCustomName() == null){
+						if (i.getItemStack().getAmount() + e.getEntity().getItemStack().getAmount() <= 64){
+							e.getEntity().getItemStack().setAmount(e.getEntity().getItemStack().getAmount() + i.getItemStack().getAmount());
+							i.remove();
+						}
+					}
+				}
+			}
+		}
+	}
+
+	@EventHandler
+	public void onPickup(PlayerPickupItemEvent e){
+		if (e.getItem().getItemStack().getItemMeta().getLore().contains(MagicaMain.getLoreLine().get(0))){
+			for (int amount = e.getItem().getItemStack().getAmount(); amount >= 0; amount--) {
+				if (!e.getItem().isDead() && e.getItem().getItemStack() != null && e.getItem() != null) {
+					itemcheck:
+					for (ItemStack is : e.getPlayer().getInventory()) {
+						if (BaseUtils.matchItem(is, e.getItem().getItemStack()) && is.getAmount() < 64) {
+							e.getItem().getItemStack().setAmount(e.getItem().getItemStack().getAmount() - 1);
+							if (e.getItem().getItemStack().getAmount() == 0) {
+								e.getItem().remove();
+							}
+							is.setAmount(is.getAmount() + 1);
+							e.setCancelled(true);
+							break itemcheck;
+						}
 					}
 				}
 			}

@@ -1,8 +1,10 @@
 package space.gatt.magicaproject.objects.blocks;
 
 import com.google.gson.JsonObject;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -18,7 +20,7 @@ import space.gatt.magicaproject.utilities.BaseUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class MagicWorkbench extends MagicaBlock implements EntityBlock, Craftable, Saveable{
+public class MagicWorkbench extends MagicaBlock implements EntityBlock, Craftable, Saveable, Listener{
 	private Location l;
 
 	public MagicWorkbench(Location l) {
@@ -26,8 +28,10 @@ public class MagicWorkbench extends MagicaBlock implements EntityBlock, Craftabl
 		super.setLocation(l);
 		super.setActive(true);
 		super.setDisplayedItem(getStaticCraftedItem());
+		super.updateBlock();
 		this.l = l;
-		shutdownCall();
+		Bukkit.getPluginManager().registerEvents(this, MagicaMain.getMagicaMain());
+		MagicaMain.getMagicaMain().getBlockManager().registerBlock(this);
 	}
 
 	public MagicWorkbench(JsonObject object){
