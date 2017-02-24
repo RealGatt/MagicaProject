@@ -18,8 +18,22 @@ import space.gatt.magicaproject.utilities.BaseUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class MagicWorkbench extends Craftable implements EntityBlock, MagicaBlock, Saveable{
+public class MagicWorkbench extends MagicaBlock implements EntityBlock, Craftable, Saveable{
+	private Location l;
 
+	public MagicWorkbench(Location l) {
+		super(l);
+		super.setLocation(l);
+		super.setActive(true);
+		super.setDisplayedItem(getStaticCraftedItem());
+		this.l = l;
+		shutdownCall();
+	}
+
+	public MagicWorkbench(JsonObject object){
+		super(object);
+
+	}
 
 	public static ItemStack getStaticCraftedItem() {
 		ItemStack bench = new ItemStack(Material.WORKBENCH);

@@ -4,13 +4,9 @@ import space.gatt.magicaproject.extra.MagicaRecipe;
 
 import java.util.ArrayList;
 
-public class Craftable {
+public interface Craftable {
 
-	public String getItemName(){
-		return "MagicaProjectCraftable";
-	}
+	public String getItemName();
 
-	public ArrayList<MagicaRecipe> getRecipes(){
-		return null;
-	}
+	public ArrayList<MagicaRecipe> getRecipes();
 }

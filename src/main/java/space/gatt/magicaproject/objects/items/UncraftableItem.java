@@ -13,7 +13,7 @@ import space.gatt.magicaproject.utilities.BaseUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class UncraftableItem extends Craftable {
+public class UncraftableItem implements Craftable {
 
 	public static ItemStack getStaticCraftedItem() {
 		ItemStack manaGenerator = new ItemStack(Material.DIRT);

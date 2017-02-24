@@ -24,7 +24,7 @@ import space.gatt.magicaproject.utilities.BaseUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class Wrench extends Craftable {
+public class Wrench implements Craftable {
 
 	public static void registerItemListener(){
 		Bukkit.broadcastMessage("Registered Wrench Listener");

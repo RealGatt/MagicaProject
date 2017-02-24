@@ -15,7 +15,7 @@ import space.gatt.magicaproject.utilities.BaseUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class WandHilt extends Craftable {
+public class WandHilt implements Craftable {
 
 	public static ItemStack getBasicHilt() {
 		ItemStack manaGenerator = new ItemStack(Material.STICK);

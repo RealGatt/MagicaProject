@@ -14,7 +14,7 @@ import space.gatt.magicaproject.utilities.BaseUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class MagicaEssence extends Craftable{
+public class MagicaEssence implements Craftable{
 
 	public static ItemStack getStaticCraftedItem() {
 		ItemStack manaGenerator = new ItemStack(Material.PRISMARINE_CRYSTALS);

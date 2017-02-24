@@ -13,7 +13,7 @@ import space.gatt.magicaproject.utilities.BaseUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class OrbOfCorruption extends Craftable{
+public class OrbOfCorruption implements Craftable{
 
 	public static ItemStack getStaticCraftedItem() {
 		ItemStack corruptionOrb = new ItemStack(Material.FIREWORK_CHARGE);

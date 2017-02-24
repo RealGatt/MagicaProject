@@ -4,11 +4,15 @@ import com.sun.org.apache.xpath.internal.operations.Mod;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.ItemDespawnEvent;
 import org.bukkit.event.inventory.*;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
@@ -42,6 +46,7 @@ public class MagicaMain extends JavaPlugin implements Listener{
 	private ManaManager manaManager;
 	private BlockManager blockManager;
 	private RecipeManager recipeManager;
+	private String resourcePack = "https://dev.gatt.space/resources/MagicaProject.zip";
 
 	public static MagicaMain getMagicaMain() {
 		return magicaMain;
@@ -128,6 +133,12 @@ public class MagicaMain extends JavaPlugin implements Listener{
 						m.invoke(this);
 						System.out.println("Registered listeners for " + c.getSimpleName());
 					}
+
+					if (m.getReturnType() == ItemStack.class){
+						ItemStack craftedItem = (ItemStack)m.invoke(this);
+						blockManager.registerItem(craftedItem, c);
+					}
+
 				}
 
 			} catch (Exception e) {
@@ -140,6 +151,20 @@ public class MagicaMain extends JavaPlugin implements Listener{
 		return Arrays.asList(BaseUtils.colorString("&9MagicaProject"));
 	}
 
+
+	public static ItemStack getBaseStack(){
+		ItemStack is = new ItemStack(Material.DIAMOND_HOE);
+		ItemMeta im = is.getItemMeta();
+		im.setUnbreakable(true);
+		im.addItemFlags(ItemFlag.values());
+		is.setItemMeta(im);
+		return is;
+	}
+
+	@EventHandler
+	public void onPlayerJoin(PlayerJoinEvent e){
+		e.getPlayer().setResourcePack(resourcePack);
+	}
 
 	@EventHandler
 	public void onHopperPickup(InventoryPickupItemEvent e){

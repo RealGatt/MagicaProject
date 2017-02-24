@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
-public class MagicCrafter implements MagicaBlock, Saveable, Listener {
+public class MagicCrafter extends MagicaBlock implements Saveable, Listener {
 
 	private enum STATE{
 		CRAFTING, WAITING
@@ -65,15 +65,20 @@ public class MagicCrafter implements MagicaBlock, Saveable, Listener {
 	}
 
 	public MagicCrafter(Location l) {
+		super(l);
 		this.l = l;
+		super.setLocation(l);
+		super.setActive(true);
+		super.setDisplayedItem(getStaticCraftedItem());
 		l.getWorld().playSound(l, Sound.ENTITY_WITHER_SPAWN, 1, 1);
 		Bukkit.getPluginManager().registerEvents(this, MagicaMain.getMagicaMain());
 		this.instance = this;
-		isActive = true;
 		runItemSpinner();
 	}
 
 	public MagicCrafter(JsonObject object){
+		super(object);
+
 		double x = 0, y = 0, z = 0;
 		World world = Bukkit.getWorlds().get(0);
 		if (object.has("location-x")){
@@ -89,9 +94,11 @@ public class MagicCrafter implements MagicaBlock, Saveable, Listener {
 			world = Bukkit.getWorld(object.get("location-world").getAsString());
 		}
 		this.l = new Location(world, x, y, z);
+		super.setLocation(l);
+		super.setActive(true);
+		super.setDisplayedItem(getStaticCraftedItem());
 		Bukkit.getPluginManager().registerEvents(this, MagicaMain.getMagicaMain());
 		this.instance = this;
-		isActive = true;
 		MagicaMain.getMagicaMain().getBlockManager().registerBlock(this);
 		runItemSpinner();
 	}
@@ -268,7 +275,8 @@ public class MagicCrafter implements MagicaBlock, Saveable, Listener {
 	}
 
 	public static ItemStack getStaticCraftedItem() {
-		ItemStack magicCrafter = new ItemStack(Material.ENCHANTMENT_TABLE);
+		ItemStack magicCrafter = MagicaMain.getBaseStack();
+		magicCrafter.setDurability((short)1);
 		ItemMeta im = magicCrafter.getItemMeta();
 		im.addEnchant(Enchantment.DURABILITY, 1, true);
 		im.setDisplayName(BaseUtils.colorString("&b&lMagica Crafter"));

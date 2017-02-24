@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class Wand extends Craftable{
+public class Wand implements Craftable{
 
 	@Override
 	public String getItemName() {

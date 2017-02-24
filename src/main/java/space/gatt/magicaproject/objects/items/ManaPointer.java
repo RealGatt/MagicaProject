@@ -13,7 +13,7 @@ import space.gatt.magicaproject.utilities.BaseUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class ManaPointer extends Craftable {
+public class ManaPointer implements Craftable {
 
 	public static ItemStack getStaticCraftedItem() {
 		ItemStack manaGenerator = new ItemStack(Material.REDSTONE_TORCH_ON);

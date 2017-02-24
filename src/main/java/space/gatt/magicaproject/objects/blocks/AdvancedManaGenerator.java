@@ -20,17 +20,22 @@ import space.gatt.magicaproject.utilities.BaseUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class AdvancedManaGenerator extends Craftable implements MagicaBlock, Saveable, ManaStorable {
+public class AdvancedManaGenerator extends MagicaBlock implements Craftable, Saveable, ManaStorable {
 	private Location l;
 	private OfflinePlayer playerPlaced;
 	private float storedMana;
 	public AdvancedManaGenerator(Location l, OfflinePlayer playerPlaced) {
+		super(l);
+		super.setLocation(l);
+		super.setActive(true);
+		super.setDisplayedItem(getStaticCraftedItem());
 		this.l = l;
 		this.playerPlaced = playerPlaced;
 		shutdownCall();
 	}
 
 	public AdvancedManaGenerator(JsonObject object){
+		super(object);
 
 	}
 
@@ -77,12 +82,11 @@ public class AdvancedManaGenerator extends Craftable implements MagicaBlock, Sav
 	}
 
 	public static ItemStack getStaticCraftedItem() {
-		ItemStack manaGenerator = new ItemStack(Material.WHITE_SHULKER_BOX);
+		ItemStack manaGenerator = MagicaMain.getBaseStack();
+		manaGenerator.setDurability((short)3);
 		ItemMeta im = manaGenerator.getItemMeta();
 		im.setDisplayName(BaseUtils.colorString("&aAdvanced Mana Generator"));
-		im.addItemFlags(ItemFlag.values());
 		im.setLore(MagicaMain.getLoreLine());
-		im.setUnbreakable(true);
 		manaGenerator.setItemMeta(im);
 		return manaGenerator;
 	}

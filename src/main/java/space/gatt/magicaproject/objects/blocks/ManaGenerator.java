@@ -26,14 +26,18 @@ import space.gatt.magicaproject.utilities.BaseUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class ManaGenerator extends Craftable implements MagicaBlock, Saveable, ManaStorable, Listener {
+public class ManaGenerator extends MagicaBlock implements Craftable, Saveable, ManaStorable, Listener {
 	private Location l;
 	private OfflinePlayer playerPlaced;
 	private float storedMana;
 	private boolean isActive;
 
 	public ManaGenerator(Location l, OfflinePlayer playerPlaced) {
+		super(l);
+		super.setLocation(l);
+		super.setActive(true);
 		this.l = l;
+		super.setDisplayedItem(getStaticCraftedItem());
 		this.playerPlaced = playerPlaced;
 		Bukkit.getPluginManager().registerEvents(this, MagicaMain.getMagicaMain());
 		isActive = true;
@@ -41,7 +45,7 @@ public class ManaGenerator extends Craftable implements MagicaBlock, Saveable, M
 	}
 
 	public ManaGenerator(JsonObject object){
-
+		super(object);
 	}
 
 	@EventHandler
@@ -103,12 +107,11 @@ public class ManaGenerator extends Craftable implements MagicaBlock, Saveable, M
 	}
 
 	public static ItemStack getStaticCraftedItem() {
-		ItemStack manaGenerator = new ItemStack(Material.CYAN_SHULKER_BOX);
+		ItemStack manaGenerator = MagicaMain.getBaseStack();
+		manaGenerator.setDurability((short)2);
 		ItemMeta im = manaGenerator.getItemMeta();
 		im.setDisplayName(BaseUtils.colorString("&bMana Generator"));
-		im.addItemFlags(ItemFlag.values());
 		im.setLore(MagicaMain.getLoreLine());
-		im.setUnbreakable(true);
 		manaGenerator.setItemMeta(im);
 		return manaGenerator;
 	}

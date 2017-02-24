@@ -17,7 +17,7 @@ import space.gatt.magicaproject.utilities.BaseUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class MagicaShard extends Craftable{
+public class MagicaShard implements Craftable{
 
 	public static ItemStack getStaticCraftedItem() {
 		ItemStack manaGenerator = new ItemStack(Material.PRISMARINE_SHARD);

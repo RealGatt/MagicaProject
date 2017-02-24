@@ -14,7 +14,7 @@ import space.gatt.magicaproject.utilities.BaseUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class WandCore extends Craftable{
+public class WandCore implements Craftable{
 
 	public static ItemStack getPureMagicaCore() {
 		ItemStack manaGenerator = new ItemStack(Material.NETHER_STAR);
