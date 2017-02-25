@@ -1,6 +1,13 @@
 package space.gatt.magicaproject.utilities;
 
-import java.awt.Color;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
+import space.gatt.magicaproject.utilities.ReflectionUtils.PackageType;
+
+import java.awt.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -9,14 +16,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.entity.Player;
-import org.bukkit.util.Vector;
-
-import space.gatt.magicaproject.utilities.ReflectionUtils.PackageType;
 
 /**
  * <b>ParticleEffect Library</b>

@@ -32,6 +32,7 @@ public class RecipeManager implements Listener{
 			if (BaseUtils.isSameListItems(e.getCrafter().getItemsAsStack(), recipe.getRequirements())) {
 				if (recipe.doesRequireWand()){
 					if (e.getCrafter().hasWand()) {
+
 						float time = ((recipe.getTimeInTicks()
 								/ Wand.getRecipeForWand(e.getCrafter().getWand().getItemStack()).getTimeInTicks()
 						) * 1000);

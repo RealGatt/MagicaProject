@@ -1,13 +1,12 @@
 package space.gatt.magicaproject.interfaces;
 
 import com.google.gson.JsonObject;
-import net.minecraft.server.v1_11_R1.*;
-import org.bukkit.Bukkit;
+import net.minecraft.server.v1_11_R1.NBTTagCompound;
+import net.minecraft.server.v1_11_R1.NBTTagList;
+import net.minecraft.server.v1_11_R1.TileEntityMobSpawner;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.CreatureSpawner;
 import org.bukkit.craftbukkit.v1_11_R1.CraftWorld;
-import org.bukkit.entity.Creature;
 import org.bukkit.inventory.ItemStack;
 
 public class MagicaBlock {

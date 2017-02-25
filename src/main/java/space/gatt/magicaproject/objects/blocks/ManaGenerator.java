@@ -2,19 +2,15 @@ package space.gatt.magicaproject.objects.blocks;
 
 import com.google.gson.JsonObject;
 import org.bukkit.*;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import space.gatt.magicaproject.MagicaMain;
-import space.gatt.magicaproject.events.EventAddItemToRecipe;
 import space.gatt.magicaproject.extra.MagicaRecipe;
 import space.gatt.magicaproject.interfaces.Craftable;
 import space.gatt.magicaproject.interfaces.MagicaBlock;
@@ -136,6 +132,7 @@ public class ManaGenerator extends MagicaBlock implements Craftable, Saveable, M
 	@Override
 	public void runParticles() {
 		l.getWorld().spawnParticle(Particle.DRAGON_BREATH, l.clone().add(0.5, 0.5, 0.5), 5, 0.4, 0.4, 0.4, 0);
+		increaseMana(1);
 	}
 
 	@Override

@@ -4,7 +4,6 @@ import org.apache.commons.lang.StringUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Item;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import space.gatt.magicaproject.MagicaMain;
 import space.gatt.magicaproject.extra.MagicaRecipe;
@@ -12,7 +11,6 @@ import space.gatt.magicaproject.interfaces.Craftable;
 import space.gatt.magicaproject.objects.items.MagicaShard;
 import space.gatt.magicaproject.utilities.BaseUtils;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

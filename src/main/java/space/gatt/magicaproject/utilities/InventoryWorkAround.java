@@ -1,6 +1,5 @@
 package space.gatt.magicaproject.utilities;
 
-import org.bukkit.Bukkit;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 

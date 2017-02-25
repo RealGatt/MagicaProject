@@ -10,19 +10,20 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.ItemSpawnEvent;
+import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.MaterialData;
 import org.bukkit.metadata.FixedMetadataValue;
 import space.gatt.magicaproject.MagicaMain;
-import space.gatt.magicaproject.interfaces.EntityBlock;
 import space.gatt.magicaproject.interfaces.MagicaBlock;
 import space.gatt.magicaproject.interfaces.Saveable;
 import space.gatt.magicaproject.utilities.BaseUtils;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -51,9 +52,6 @@ public class BlockManager implements Listener{
 	public void registerBlock(MagicaBlock mb) {
 		if (!runningBlocks.contains(mb)) {
 			runningBlocks.add(mb);
-			if (mb instanceof EntityBlock){
-				((EntityBlock)mb).spawnExtra();
-			}
 		}
 		mb.getLocation().getBlock().setMetadata("IsMagicaBlock", new FixedMetadataValue(MagicaMain.getMagicaMain(), true));
 	}
@@ -61,9 +59,6 @@ public class BlockManager implements Listener{
 	public void removeBlock(MagicaBlock mb) {
 		if (runningBlocks.contains(mb)) {
 			runningBlocks.remove(mb);
-		}
-		if (mb instanceof EntityBlock){
-			((EntityBlock)mb).destroyExtra();
 		}
 		mb.getLocation().getWorld().playEffect(mb.getLocation(), Effect.STEP_SOUND, new MaterialData(Material.IRON_BLOCK).getItemTypeId());
 		mb.getLocation().getBlock().removeMetadata("IsMagicaBlock", MagicaMain.getMagicaMain());
@@ -81,7 +76,7 @@ public class BlockManager implements Listener{
 
 	@EventHandler
 	public void onPlace(PlayerInteractEvent e){
-		if (e.getAction() == Action.RIGHT_CLICK_BLOCK && e.hasItem()){
+		if (e.getAction() == Action.RIGHT_CLICK_BLOCK && e.hasItem() && !e.isCancelled()){
 			BlockFace face = e.getBlockFace();
 			Block b = e.getClickedBlock().getRelative(face);
 			if (b.isEmpty() || b.isLiquid()){
@@ -94,6 +89,7 @@ public class BlockManager implements Listener{
 				}
 				if (isItem){
 					e.setUseItemInHand(Event.Result.DENY);
+					e.setUseInteractedBlock(Event.Result.DENY);
 					boolean placed = false;
 					ItemStack itemCopy = e.getItem().clone();
 					itemCopy.setAmount(1);
@@ -129,6 +125,7 @@ public class BlockManager implements Listener{
 							}
 						}
 						if (placed) {
+							b.getWorld().playSound(b.getLocation(), Sound.BLOCK_METAL_PLACE, 1, 1);
 							if (e.getPlayer().getGameMode() != GameMode.CREATIVE) {
 								if (e.getItem().getAmount() > 1) {
 									e.getItem().setAmount(e.getItem().getAmount() - 1);
@@ -151,11 +148,42 @@ public class BlockManager implements Listener{
 	}
 
 	@EventHandler
+	public void onInventoryClick(InventoryClickEvent e){
+		if (!e.isCancelled()) {
+			if (e.getClickedInventory().getType() == InventoryType.CREATIVE
+					|| e.getClickedInventory().getType() == InventoryType.PLAYER
+					|| e.getClickedInventory().getType() == InventoryType.ENDER_CHEST
+					|| e.getClickedInventory().getType() == InventoryType.CHEST) {
+				if (e.getClick() == ClickType.LEFT) {
+					if (e.getCursor() != null && e.getCurrentItem() != null) {
+						if (BaseUtils.matchItem(e.getCurrentItem(), e.getCursor())
+								&& e.getCurrentItem().getMaxStackSize() == 1
+								&& e.getCurrentItem().hasItemMeta()
+								&& e.getCurrentItem().getItemMeta().hasLore()) {
+							e.setCancelled(true);
+							int total = e.getCurrentItem().getAmount() + e.getCursor().getAmount();
+							if (total > 64) {
+								e.getCurrentItem().setAmount(64);
+								total -= 64;
+								e.getCursor().setAmount(total);
+								return;
+							} else {
+								e.getCurrentItem().setAmount(total);
+								e.setCursor(new ItemStack(Material.AIR));
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	@EventHandler
 	public void onDrop(ItemSpawnEvent e){
 		if (e.getEntity().getItemStack().hasItemMeta() &&
-
 				e.getEntity().getItemStack().getItemMeta().hasLore() &&
-				e.getEntity().getItemStack().getItemMeta().getLore().contains(MagicaMain.getLoreLine().get(0)) && e.getEntity().getItemStack().getMaxStackSize() == 1){
+				e.getEntity().getItemStack().getItemMeta().getLore().contains(MagicaMain.getLoreLine().get(0))
+				&& e.getEntity().getItemStack().getMaxStackSize() == 1){
 			for (Entity ent : e.getEntity().getNearbyEntities(3, 2, 3)){
 				if (ent instanceof Item){
 					Item i = (Item)ent;
@@ -163,6 +191,7 @@ public class BlockManager implements Listener{
 						if (i.getItemStack().getAmount() + e.getEntity().getItemStack().getAmount() <= 64){
 							e.getEntity().getItemStack().setAmount(e.getEntity().getItemStack().getAmount() + i.getItemStack().getAmount());
 							i.remove();
+							e.setCancelled(true);
 						}
 					}
 				}
@@ -172,12 +201,14 @@ public class BlockManager implements Listener{
 
 	@EventHandler
 	public void onPickup(PlayerPickupItemEvent e){
-		if (e.getItem().getItemStack().getItemMeta().getLore().contains(MagicaMain.getLoreLine().get(0))){
+		if (e.getItem().getItemStack().hasItemMeta() &&
+
+				e.getItem().getItemStack().getItemMeta().getLore().contains(MagicaMain.getLoreLine().get(0))){
 			for (int amount = e.getItem().getItemStack().getAmount(); amount >= 0; amount--) {
 				if (!e.getItem().isDead() && e.getItem().getItemStack() != null && e.getItem() != null) {
 					itemcheck:
 					for (ItemStack is : e.getPlayer().getInventory()) {
-						if (BaseUtils.matchItem(is, e.getItem().getItemStack()) && is.getAmount() < 64) {
+						if (BaseUtils.matchItem(is, e.getItem().getItemStack()) && is.getAmount() < 64 && is.getMaxStackSize() == 1) {
 							e.getItem().getItemStack().setAmount(e.getItem().getItemStack().getAmount() - 1);
 							if (e.getItem().getItemStack().getAmount() == 0) {
 								e.getItem().remove();

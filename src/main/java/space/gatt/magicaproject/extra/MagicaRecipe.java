@@ -1,7 +1,6 @@
 package space.gatt.magicaproject.extra;
 
 import org.bukkit.inventory.ItemStack;
-import space.gatt.magicaproject.objects.items.wand.Wand;
 
 import java.util.ArrayList;
 
@@ -63,4 +62,10 @@ public class MagicaRecipe {
 	public ItemStack getCraftedItem() {
 		return craftedItem;
 	}
+
+	@Override
+	public String toString(){
+		return "MagicaRecipe: {\"" + getCraftedItem().toString() + "\", requiresWand: " + requiresWand + "}";
+	}
+
 }

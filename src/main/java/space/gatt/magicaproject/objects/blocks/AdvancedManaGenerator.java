@@ -2,14 +2,12 @@ package space.gatt.magicaproject.objects.blocks;
 
 import com.google.gson.JsonObject;
 import org.bukkit.*;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.inventory.ItemFlag;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import space.gatt.magicaproject.MagicaMain;
-import space.gatt.magicaproject.events.EventAddItemToRecipe;
 import space.gatt.magicaproject.extra.MagicaRecipe;
 import space.gatt.magicaproject.interfaces.Craftable;
 import space.gatt.magicaproject.interfaces.MagicaBlock;
@@ -78,6 +76,21 @@ public class AdvancedManaGenerator extends MagicaBlock implements Craftable, Sav
 		return recipes;
 	}
 
+	@EventHandler
+	public void onBreak(BlockBreakEvent e) {
+		if (isActive())
+			if (e.getBlock().getLocation().toString().equalsIgnoreCase(l.toString())) {
+				if (e.getPlayer().getUniqueId() != playerPlaced.getUniqueId()){
+					e.setCancelled(true);
+					e.getPlayer().sendMessage(BaseUtils.colorString("&cThis isn't your Mana Generator!"));
+					return;
+				}
+				MagicaMain.getMagicaMain().getBlockManager().removeBlock(this);
+				MagicaMain.getMagicaMain().getStorageManager().removeFromSave(this);
+				super.setActive(false);
+			}
+	}
+
 	@Override
 	public ArrayList<MagicaRecipe> getRecipes() {
 		return getStaticRecipes();
@@ -91,6 +104,7 @@ public class AdvancedManaGenerator extends MagicaBlock implements Craftable, Sav
 	@Override
 	public void runParticles() {
 		l.getWorld().spawnParticle(Particle.DRAGON_BREATH, l.clone().add(0.5, 0.5, 0.5), 7, 0.4, 0.4, 0.4, 0);
+		increaseMana(100);
 	}
 
 	@Override

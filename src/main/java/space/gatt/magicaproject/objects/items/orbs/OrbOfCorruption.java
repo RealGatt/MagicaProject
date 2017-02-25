@@ -1,7 +1,8 @@
 package space.gatt.magicaproject.objects.items.orbs;
 
-import org.bukkit.*;
 import org.bukkit.Color;
+import org.bukkit.FireworkEffect;
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkEffectMeta;

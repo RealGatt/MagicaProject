@@ -5,7 +5,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.bukkit.Bukkit;
 import space.gatt.magicaproject.MagicaMain;
-import space.gatt.magicaproject.interfaces.MagicaBlock;
 import space.gatt.magicaproject.interfaces.Saveable;
 
 import java.io.*;
