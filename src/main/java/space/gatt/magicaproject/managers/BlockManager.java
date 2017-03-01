@@ -150,7 +150,8 @@ public class BlockManager implements Listener{
 	@EventHandler
 	public void onInventoryClick(InventoryClickEvent e){
 		if (!e.isCancelled()) {
-			if (e.getClickedInventory().getType() == InventoryType.CREATIVE
+			if (e.getClickedInventory() != null &&
+					e.getClickedInventory().getType() == InventoryType.CREATIVE
 					|| e.getClickedInventory().getType() == InventoryType.PLAYER
 					|| e.getClickedInventory().getType() == InventoryType.ENDER_CHEST
 					|| e.getClickedInventory().getType() == InventoryType.CHEST) {
