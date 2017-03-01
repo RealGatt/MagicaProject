@@ -36,12 +36,12 @@ public class MagicaBlock {
 		}
 		location.getBlock().setType(Material.MOB_SPAWNER);
 
-		CraftWorld ws = (CraftWorld)location.getWorld(); //W is your normal bukkit world . . . I'm using player.getWorld()
+		CraftWorld ws = (CraftWorld)location.getWorld(); 
 		NBTTagCompound ntc = null;
 		TileEntityMobSpawner te = (TileEntityMobSpawner)ws.getTileEntityAt(location.getBlockX(), location.getBlockY(), location.getBlockZ());
 		if (te != null)
 		{
-			ntc = te.d();
+			ntc = te.d(); // Adding specific entities to the Mob Spawner. In this case; an inviisble armor stand with a modelled Diamond Hoe. All of this was trial and error, feel free to copy if needed.
 			ntc.setShort("RequiredPlayerRange", (short)0);
 			ntc.getCompound("SpawnData").setString("id", "minecraft:armor_stand");
 			ntc.getCompound("SpawnData").setShort("Invisible", (short)1);
