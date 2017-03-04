@@ -12,8 +12,8 @@ import org.bukkit.inventory.meta.FireworkEffectMeta;
 import org.bukkit.util.Vector;
 import space.gatt.magicaproject.CancellableBukkitTask;
 import space.gatt.magicaproject.MagicaMain;
-import space.gatt.magicaproject.extra.ItemProjectile;
 import space.gatt.magicaproject.events.ItemProjectileLandEvent;
+import space.gatt.magicaproject.extra.ItemProjectile;
 import space.gatt.magicaproject.extra.MagicaRecipe;
 import space.gatt.magicaproject.extra.ParticleTrail;
 import space.gatt.magicaproject.interfaces.Craftable;
@@ -25,27 +25,39 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-public class OrbOfCorruption implements Craftable{
+public class OrbOfLife implements Craftable{
 
 
 	public static void registerItemListener(){
 		Bukkit.getPluginManager().registerEvents(new Listener() {
 
-			List<Material> natural = Arrays.asList(Material.GRASS, Material.DIRT, Material.GRASS_PATH,
-					Material.HUGE_MUSHROOM_1, Material.HUGE_MUSHROOM_2);
-			List<Material> destroy = Arrays.asList(Material.RED_MUSHROOM, Material.RED_ROSE, Material.YELLOW_FLOWER,
-					Material.LOG, Material.LOG_2, Material.LONG_GRASS, Material.DEAD_BUSH, Material.LEAVES, Material.LEAVES_2, Material.VINE);
-
+			List<Material> changeFrom = Arrays.asList(Material.STONE, Material.NETHERRACK, Material.SOUL_SAND,
+					Material.MYCEL, Material.SAND, Material.GRAVEL);
 			ItemStack[] changeTo = new ItemStack[]{
-					new ItemStack(Material.SOUL_SAND),
-					new ItemStack(Material.NETHERRACK),
-					new ItemStack(Material.MYCEL),
+					new ItemStack(Material.GRASS),
 					new ItemStack(Material.DIRT, 1, (byte)1)
+			};
+			ItemStack[] plants = new ItemStack[]{
+					new ItemStack(Material.LONG_GRASS, 1, (byte)0),
+					new ItemStack(Material.LONG_GRASS, 1, (byte)1),
+					new ItemStack(Material.LONG_GRASS, 1, (byte)2),
+					new ItemStack(Material.YELLOW_FLOWER),
+					new ItemStack(Material.RED_ROSE),
+					new ItemStack(Material.RED_ROSE, 1, (byte)1),
+					new ItemStack(Material.RED_ROSE, 1, (byte)2),
+					new ItemStack(Material.RED_ROSE, 1, (byte)3),
+					new ItemStack(Material.RED_ROSE, 1, (byte)4),
+					new ItemStack(Material.RED_ROSE, 1, (byte)5),
+					new ItemStack(Material.RED_ROSE, 1, (byte)6),
+					new ItemStack(Material.RED_ROSE, 1, (byte)7),
+					new ItemStack(Material.RED_ROSE, 1, (byte)8),
+					new ItemStack(Material.BROWN_MUSHROOM),
+					new ItemStack(Material.RED_MUSHROOM)
 			};
 
 			Random rnd = new Random();
 
-			private void markForDestroy(final Block b){
+			private void markForTree(final Block b){
 				int time = (rnd.nextInt(100) / 2 * 20) / 10;
 				final Material type = b.getType();
 				CancellableBukkitTask task = new CancellableBukkitTask() {
@@ -55,15 +67,15 @@ public class OrbOfCorruption implements Craftable{
 						timeTaken++;
 
 						if (rnd.nextBoolean()) {
-							b.getWorld().spawnParticle(Particle.SMOKE_NORMAL,
+							b.getWorld().spawnParticle(Particle.VILLAGER_HAPPY,
 									b.getLocation().clone().add(0.5, 0.5, 0.5), 1, 0.3, 0.3, 0.3, 0);
 						}
 						if (b.getType() != type){
 							cancel();
 						}
 						if ((time - timeTaken) <= 1){
-							b.getWorld().playEffect(b.getLocation(), Effect.STEP_SOUND, b.getTypeId());
-							b.setType(Material.AIR);
+							TreeType[] types = new TreeType[]{TreeType.TREE, TreeType.BIRCH, TreeType.TALL_BIRCH, TreeType.JUNGLE_BUSH};
+							b.getWorld().generateTree(b.getLocation().add(0, 1, 0), types[rnd.nextInt(types.length - 1)]);
 							cancel();
 							return;
 						}
@@ -82,7 +94,7 @@ public class OrbOfCorruption implements Craftable{
 					public void run() {
 						timeTaken++;
 						if (rnd.nextBoolean()) {
-							b.getWorld().spawnParticle(Particle.SMOKE_NORMAL,
+							b.getWorld().spawnParticle(Particle.VILLAGER_HAPPY,
 									b.getLocation().clone().add(0.5, 0.5, 0.5), 1, 0.3, 0.3, 0.3, 0);
 						}
 						if (b.getType() != type){
@@ -92,6 +104,13 @@ public class OrbOfCorruption implements Craftable{
 							b.getWorld().playEffect(b.getLocation(), Effect.STEP_SOUND, b.getTypeId());
 							b.setType(is.getType());
 							b.setData(is.getData().getData());
+							if (b.getRelative(0, 1, 0).getType() == Material.AIR){
+								if (rnd.nextBoolean()){
+									ItemStack flower = plants[rnd.nextInt(plants.length - 1)];
+									b.getRelative(0, 1, 0).setType(flower.getType(), false);
+									b.getRelative(0, 1, 0).setData(flower.getData().getData());
+								}
+							}
 							cancel();
 							return;
 						}
@@ -119,30 +138,29 @@ public class OrbOfCorruption implements Craftable{
 						}
 					}
 					BaseUtils.addCooldownToItem(e.getItem(), e.getPlayer(), 20);
-					ItemProjectile pro = new ItemProjectile(item, e.getPlayer().getEyeLocation(), "orbofcorruption").
+					ItemProjectile pro = new ItemProjectile(item, e.getPlayer().getEyeLocation(), "orboflife").
 							shoot(e.getPlayer().getEyeLocation().getDirection().multiply(1).add(new Vector(0, 0.2, 0)));
-					new ParticleTrail(pro.getEntity(), Particle.SMOKE_NORMAL, 0).startTrail();
+					new ParticleTrail(pro.getEntity(), Particle.VILLAGER_HAPPY, 0).startTrail();
 				}
 			}
 
 			@EventHandler
 			public void onItemLand(ItemProjectileLandEvent e){
-				if (e.getProjectile().getData().equalsIgnoreCase("orbofcorruption")){
+				if (e.getProjectile().getData().equalsIgnoreCase("orboflife")){
 					e.removeEntity();
-					e.getLocation().getWorld().playSound(e.getLocation(), Sound.ENTITY_FIREWORK_BLAST, 1, 1);
-					ArrayList<Block> blocks = BlockLooping.loopSphere(e.getLocation().clone().add(0, 1, 0), 8, true);
-					e.getLocation().getWorld().playSound(e.getLocation(), Sound.ENTITY_ENDERDRAGON_DEATH, 1, 1.5f);
+					ArrayList<Block> blocks = BlockLooping.loopSphere(e.getLocation().clone().add(0, 1, 0), 10, true);
 					for (Block b : blocks){
-						if (rnd.nextBoolean()) {
-							if (destroy.contains(b.getType())) {
-								markForDestroy(b);
-							} else {
-								if (natural.contains(b.getType())) {
-									markForChange(b, changeTo[rnd.nextInt(changeTo.length - 1)]);
-								}
+						if (changeFrom.contains(b.getType())) {
+							if (rnd.nextBoolean() && rnd.nextBoolean()){
+								markForTree(b);
+							}
+							markForChange(b, changeTo[rnd.nextInt(changeTo.length - 1)]);
+						}
+						if (b.getType() == Material.GRASS){
+							if (rnd.nextBoolean() && rnd.nextBoolean() && rnd.nextBoolean() && rnd.nextBoolean() && rnd.nextBoolean()){
+								markForTree(b);
 							}
 						}
-
 					}
 				}
 			}
@@ -153,10 +171,10 @@ public class OrbOfCorruption implements Craftable{
 	public static ItemStack getStaticCraftedItem() {
 		ItemStack corruptionOrb = new ItemStack(Material.FIREWORK_CHARGE);
 		FireworkEffectMeta im = (FireworkEffectMeta)corruptionOrb.getItemMeta();
-		im.setEffect(FireworkEffect.builder().withColor(Color.BLACK).build());
-		im.setDisplayName(BaseUtils.colorString("&0Orb of Corruption"));
+		im.setEffect(FireworkEffect.builder().withColor(Color.LIME).build());
+		im.setDisplayName(BaseUtils.colorString("&aOrb of Life"));
 		im.addItemFlags(ItemFlag.values());
-		im.setLore(Arrays.asList(BaseUtils.colorString("&7Throw me to corrupt an area"), MagicaMain.getLoreLine().get(0)));
+		im.setLore(Arrays.asList(BaseUtils.colorString("&7Throw me to give life to an area"), MagicaMain.getLoreLine().get(0)));
 		im.setUnbreakable(true);
 		corruptionOrb.setItemMeta(im);
 		return corruptionOrb;
@@ -164,17 +182,17 @@ public class OrbOfCorruption implements Craftable{
 
 	@Override
 	public String getItemName() {
-		return "Orb of Corruption";
+		return "Orb of Life";
 	}
 
 	public static ArrayList<MagicaRecipe> getStaticRecipes(){
 		ArrayList<MagicaRecipe> recipes = new ArrayList<>();
 		MagicaRecipe rec1 = new MagicaRecipe(new ArrayList<>(
-				Arrays.asList(new ItemStack(Material.NETHER_WART_BLOCK),
-						new ItemStack(Material.EYE_OF_ENDER),
-						new ItemStack(Material.FERMENTED_SPIDER_EYE),
-						new ItemStack(Material.BEETROOT_SEEDS),
-						new ItemStack(Material.ROTTEN_FLESH))),
+				Arrays.asList(new ItemStack(Material.RED_ROSE),
+						new ItemStack(Material.YELLOW_FLOWER),
+						new ItemStack(Material.SEEDS),
+						new ItemStack(Material.WATER_BUCKET),
+						new ItemStack(Material.GRASS))),
 				getStaticCraftedItem(), 1000, 10, true);
 		recipes.add(rec1);
 		return recipes;

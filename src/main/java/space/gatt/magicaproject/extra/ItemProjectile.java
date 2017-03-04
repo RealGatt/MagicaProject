@@ -7,6 +7,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 import space.gatt.magicaproject.MagicaMain;
+import space.gatt.magicaproject.events.ItemProjectileLandEvent;
 
 public class ItemProjectile {
 

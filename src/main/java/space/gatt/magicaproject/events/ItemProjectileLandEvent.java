@@ -1,8 +1,9 @@
-package space.gatt.magicaproject.extra;
+package space.gatt.magicaproject.events;
 
 import org.bukkit.Location;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import space.gatt.magicaproject.extra.ItemProjectile;
 
 public class ItemProjectileLandEvent extends Event{
 

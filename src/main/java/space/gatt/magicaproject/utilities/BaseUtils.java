@@ -1,7 +1,14 @@
 package space.gatt.magicaproject.utilities;
 
+import net.minecraft.server.v1_11_R1.DataWatcher;
+import net.minecraft.server.v1_11_R1.Item;
+import net.minecraft.server.v1_11_R1.PacketPlayOutSetCooldown;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.craftbukkit.v1_11_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_11_R1.inventory.CraftItemStack;
+import org.bukkit.entity.HumanEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -38,6 +45,12 @@ public class BaseUtils {
 		}
 		return trueCount == stack1.size();
 
+	}
+
+	public static void addCooldownToItem(ItemStack item, Player player, int seconds){
+		Item i = CraftItemStack.asNMSCopy(item).getItem();
+		PacketPlayOutSetCooldown cooldownPacket = new PacketPlayOutSetCooldown(i, ((int)seconds * 20));
+		((CraftPlayer)player).getHandle().playerConnection.sendPacket(cooldownPacket);
 	}
 
 	public static String getStringFromLocation(Location l) {
