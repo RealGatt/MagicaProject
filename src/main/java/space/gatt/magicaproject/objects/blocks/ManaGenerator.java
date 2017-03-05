@@ -60,6 +60,7 @@ public class ManaGenerator extends MagicaBlock implements Craftable, Saveable, M
 		OfflinePlayer of;
 		if (object.has("player-uuid")){
 			of = Bukkit.getOfflinePlayer(UUID.fromString(object.get("player-uuid").getAsString()));
+			Bukkit.broadcastMessage("Got player " + of.getName());
 			this.playerPlaced = of;
 		}
 		this.l = new Location(world, x, y, z);
@@ -69,15 +70,6 @@ public class ManaGenerator extends MagicaBlock implements Craftable, Saveable, M
 		Bukkit.getPluginManager().registerEvents(this, MagicaMain.getMagicaMain());
 		super.updateBlock();
 		MagicaMain.getMagicaMain().getBlockManager().registerBlock(this);
-	}
-
-	@EventHandler
-	public void onClick(PlayerInteractEvent e) {
-		if (isActive())
-			if (e.getAction() == Action.RIGHT_CLICK_BLOCK && e.getClickedBlock().getLocation().toString().equalsIgnoreCase(l.toString())) {
-				e.setUseItemInHand(Event.Result.DENY);
-				e.setUseInteractedBlock(Event.Result.DENY);
-			}
 	}
 
 	@EventHandler
@@ -133,6 +125,9 @@ public class ManaGenerator extends MagicaBlock implements Craftable, Saveable, M
 	public void runParticles() {
 		l.getWorld().spawnParticle(Particle.DRAGON_BREATH, l.clone().add(0.5, 0.5, 0.5), 5, 0.4, 0.4, 0.4, 0);
 		increaseMana(1);
+		if (getManaLevel() > 1000){
+			setManaLevel(1000f);
+		}
 	}
 
 	@Override

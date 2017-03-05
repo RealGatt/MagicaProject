@@ -303,8 +303,6 @@ public class MagicCrafter extends MagicaBlock implements Saveable, Listener {
 	public void onClick(PlayerInteractEvent e) {
 		if (isActive())
 		if (e.getAction() == Action.RIGHT_CLICK_BLOCK && e.getClickedBlock().getLocation().toString().equalsIgnoreCase(l.toString())) {
-			e.setUseItemInHand(Event.Result.DENY);
-			e.setUseInteractedBlock(Event.Result.DENY);
 			if (state == STATE.CRAFTING){
 				e.setCancelled(true);
 				e.getPlayer().sendMessage(BaseUtils.colorString("&cYou must wait until the current item is finished!"));

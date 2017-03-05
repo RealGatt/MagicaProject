@@ -82,12 +82,10 @@ public class MagicWorkbench extends MagicaBlock implements Craftable, Saveable, 
 	public void onClick(PlayerInteractEvent e) {
 		if (isActive())
 			if (e.getAction() == Action.RIGHT_CLICK_BLOCK && e.getClickedBlock().getLocation().toString().equalsIgnoreCase(l.toString())) {
-				e.setUseItemInHand(Event.Result.DENY);
-				e.setUseInteractedBlock(Event.Result.ALLOW);
 				e.setCancelled(true);
 				InventoryView view = e.getPlayer().openWorkbench(e.getClickedBlock().getLocation(), true);
-				ItemStack workBenchHoe = MagicaMain.getBaseStack();
-				workBenchHoe.setDurability((short)1559);
+				ItemStack workBenchHoe = MagicaMain.getBasePick();
+				workBenchHoe.setDurability((short)2);
 				CraftingInventory inv = ((CraftingInventory)view.getTopInventory());
 				inv.setResult(workBenchHoe);
 			}

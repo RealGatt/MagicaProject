@@ -161,6 +161,15 @@ public class MagicaMain extends JavaPlugin implements Listener{
 		return is;
 	}
 
+	public static ItemStack getBasePick(){
+		ItemStack is = new ItemStack(Material.DIAMOND_PICKAXE);
+		ItemMeta im = is.getItemMeta();
+		im.setUnbreakable(true);
+		im.addItemFlags(ItemFlag.values());
+		is.setItemMeta(im);
+		return is;
+	}
+
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent e){
 		e.getPlayer().setResourcePack(resourcePack);

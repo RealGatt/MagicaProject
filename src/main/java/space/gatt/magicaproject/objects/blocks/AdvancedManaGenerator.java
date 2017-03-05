@@ -78,9 +78,9 @@ public class AdvancedManaGenerator extends MagicaBlock implements Craftable, Sav
 
 	@EventHandler
 	public void onBreak(BlockBreakEvent e) {
-		if (isActive())
+		if (isActive()){
 			if (e.getBlock().getLocation().toString().equalsIgnoreCase(l.toString())) {
-				if (e.getPlayer().getUniqueId() != playerPlaced.getUniqueId()){
+				if (e.getPlayer().getUniqueId() != playerPlaced.getUniqueId()) {
 					e.setCancelled(true);
 					e.getPlayer().sendMessage(BaseUtils.colorString("&cThis isn't your Mana Generator!"));
 					return;
@@ -89,6 +89,7 @@ public class AdvancedManaGenerator extends MagicaBlock implements Craftable, Sav
 				MagicaMain.getMagicaMain().getStorageManager().removeFromSave(this);
 				super.setActive(false);
 			}
+		}
 	}
 
 	@Override
@@ -105,6 +106,9 @@ public class AdvancedManaGenerator extends MagicaBlock implements Craftable, Sav
 	public void runParticles() {
 		l.getWorld().spawnParticle(Particle.DRAGON_BREATH, l.clone().add(0.5, 0.5, 0.5), 7, 0.4, 0.4, 0.4, 0);
 		increaseMana(100);
+		if (getManaLevel() > 10000){
+			setManaLevel(10000f);
+		}
 	}
 
 	@Override
