@@ -203,8 +203,8 @@ public class BlockManager implements Listener{
 	@EventHandler
 	public void onPickup(PlayerPickupItemEvent e){
 		if (e.getItem().getItemStack().hasItemMeta() &&
-
-				e.getItem().getItemStack().getItemMeta().getLore().contains(MagicaMain.getLoreLine().get(0))){
+			e.getItem().getItemStack().getItemMeta().hasLore() &&
+			e.getItem().getItemStack().getItemMeta().getLore().contains(MagicaMain.getLoreLine().get(0))){
 			for (int amount = e.getItem().getItemStack().getAmount(); amount >= 0; amount--) {
 				if (!e.getItem().isDead() && e.getItem().getItemStack() != null && e.getItem() != null) {
 					itemcheck:

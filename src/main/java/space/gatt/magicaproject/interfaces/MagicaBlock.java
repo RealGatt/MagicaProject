@@ -86,8 +86,9 @@ public class MagicaBlock {
 		this.displayedItem = displayedItem;
 	}
 
+
 	public Location getLocation(){
-		return null;
+		return location;
 	}
 
 

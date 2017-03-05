@@ -19,7 +19,7 @@ public class Wrench implements Craftable{
 		return "Wrench";
 	}
 
-	private static ItemStack getStaticCraftedItem(){
+	public static ItemStack getStaticCraftedItem(){
 		ItemStack is = MagicaMain.getBaseStack();
 		is.setDurability((short)1560);
 		ItemMeta im = is.getItemMeta();

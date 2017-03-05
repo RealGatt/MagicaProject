@@ -1,4 +1,4 @@
-package space.gatt.magicaproject.objects.blocks;
+package space.gatt.magicaproject.objects.blocks.managenerators;
 
 import com.google.gson.JsonObject;
 import org.bukkit.*;
@@ -60,7 +60,6 @@ public class ManaGenerator extends MagicaBlock implements Craftable, Saveable, M
 		OfflinePlayer of;
 		if (object.has("player-uuid")){
 			of = Bukkit.getOfflinePlayer(UUID.fromString(object.get("player-uuid").getAsString()));
-			Bukkit.broadcastMessage("Got player " + of.getName());
 			this.playerPlaced = of;
 		}
 		this.l = new Location(world, x, y, z);
@@ -123,7 +122,8 @@ public class ManaGenerator extends MagicaBlock implements Craftable, Saveable, M
 
 	@Override
 	public void runParticles() {
-		l.getWorld().spawnParticle(Particle.DRAGON_BREATH, l.clone().add(0.5, 0.5, 0.5), 5, 0.4, 0.4, 0.4, 0);
+		l.getWorld().spawnParticle(Particle.DRAGON_BREATH, l.clone().add(0.5, 0.5, 0.5), 5, 0.25, 0.25, 0.25, 0);
+		l.getWorld().playSound(l, Sound.BLOCK_LAVA_POP, SoundCategory.MASTER, 0.1f, 2);
 		increaseMana(1);
 		if (getManaLevel() > 1000){
 			setManaLevel(1000f);

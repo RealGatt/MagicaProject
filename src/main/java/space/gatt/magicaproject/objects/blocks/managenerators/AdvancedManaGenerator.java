@@ -1,4 +1,4 @@
-package space.gatt.magicaproject.objects.blocks;
+package space.gatt.magicaproject.objects.blocks.managenerators;
 
 import com.google.gson.JsonObject;
 import org.bukkit.*;
@@ -23,14 +23,16 @@ public class AdvancedManaGenerator extends MagicaBlock implements Craftable, Sav
 	private Location l;
 	private OfflinePlayer playerPlaced;
 	private float storedMana;
+
 	public AdvancedManaGenerator(Location l, OfflinePlayer playerPlaced) {
 		super(l);
 		super.setLocation(l);
 		super.setActive(true);
+		this.l = l;
 		super.setDisplayedItem(getStaticCraftedItem());
 		super.updateBlock();
-		this.l = l;
 		this.playerPlaced = playerPlaced;
+		Bukkit.getPluginManager().registerEvents(this, MagicaMain.getMagicaMain());
 		MagicaMain.getMagicaMain().getBlockManager().registerBlock(this);
 	}
 
@@ -104,8 +106,9 @@ public class AdvancedManaGenerator extends MagicaBlock implements Craftable, Sav
 
 	@Override
 	public void runParticles() {
-		l.getWorld().spawnParticle(Particle.DRAGON_BREATH, l.clone().add(0.5, 0.5, 0.5), 7, 0.4, 0.4, 0.4, 0);
+		l.getWorld().spawnParticle(Particle.DRAGON_BREATH, l.clone().add(0.5, 0.5, 0.5), 7, 0.25, 0.25, 0.25, 0);
 		increaseMana(100);
+		l.getWorld().playSound(l, Sound.BLOCK_LAVA_POP, SoundCategory.MASTER, 0.1f, 2);
 		if (getManaLevel() > 10000){
 			setManaLevel(10000f);
 		}
