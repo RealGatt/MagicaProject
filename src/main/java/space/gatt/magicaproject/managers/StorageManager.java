@@ -105,9 +105,13 @@ public class StorageManager {
 
 	public void saveHash(String path, String title, HashMap hash) {
 		File f = new File(MagicaMain.getMagicaMain().getDataFolder() + "/" + path + ".json");
+		File blocksFolder = new File(MagicaMain.getMagicaMain().getDataFolder() + "/blocks");
 		hash.put("Key", title);
 		boolean fileexists = false;
 		try {
+			if (!blocksFolder.exists()){
+				blocksFolder.mkdirs();
+			}
 			if (!MagicaMain.getMagicaMain().getDataFolder().exists()) {
 				MagicaMain.getMagicaMain().getDataFolder().mkdirs();
 			}

@@ -23,7 +23,7 @@ public class BlockDisplayName {
 		this.display = name;
 		this.block = block;
 		this.updateTime = updatetime;
-		stand = block.getLocation().getWorld().spawn(block.getLocation().add(0.5, 1.5, 0.5), ArmorStand.class);
+		stand = block.getLocation().clone().getWorld().spawn(block.getLocation().clone().add(0.5, .75, 0.5), ArmorStand.class);
 		stand.setMarker(true);
 		stand.setVisible(false);
 		stand.setSmall(true);
@@ -40,11 +40,12 @@ public class BlockDisplayName {
 
 	private void startTask(){
 		this.task = Bukkit.getScheduler().runTaskTimer(MagicaMain.getMagicaMain(),()->{
-			if (display.equalsIgnoreCase("")){
+			if (display.equalsIgnoreCase("")) {
 				stand.setCustomNameVisible(false);
-			}else{
+			} else {
 				stand.setCustomNameVisible(true);
 			}
+			stand.setCustomNameVisible(block.getLocation().clone().add(0.5, 1, 0.5).getBlock().getType().isTransparent());
 			stand.setCustomName(cc(display));
 		}, updateTime, updateTime);
 	}

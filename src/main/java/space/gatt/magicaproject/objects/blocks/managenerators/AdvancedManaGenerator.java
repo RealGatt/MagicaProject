@@ -8,6 +8,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import space.gatt.magicaproject.MagicaMain;
+import space.gatt.magicaproject.extra.BlockDisplayName;
 import space.gatt.magicaproject.extra.MagicaRecipe;
 import space.gatt.magicaproject.interfaces.Craftable;
 import space.gatt.magicaproject.interfaces.MagicaBlock;
@@ -24,6 +25,7 @@ public class AdvancedManaGenerator extends MagicaBlock implements Craftable, Sav
 	private Location l;
 	private OfflinePlayer playerPlaced;
 	private float storedMana;
+	private BlockDisplayName blockDisplayName;
 
 	public AdvancedManaGenerator(Location l, OfflinePlayer playerPlaced) {
 		super(l);
@@ -35,6 +37,7 @@ public class AdvancedManaGenerator extends MagicaBlock implements Craftable, Sav
 		this.playerPlaced = playerPlaced;
 		Bukkit.getPluginManager().registerEvents(this, MagicaMain.getMagicaMain());
 		MagicaMain.getMagicaMain().getBlockManager().registerBlock(this);
+		blockDisplayName = new BlockDisplayName(this, "&7Mana Stored: &b0", 20);
 	}
 
 	public AdvancedManaGenerator(JsonObject object){
@@ -69,6 +72,7 @@ public class AdvancedManaGenerator extends MagicaBlock implements Craftable, Sav
 		Bukkit.getPluginManager().registerEvents(this, MagicaMain.getMagicaMain());
 		super.updateBlock();
 		MagicaMain.getMagicaMain().getBlockManager().registerBlock(this);
+		blockDisplayName = new BlockDisplayName(this, "&7Mana Stored: &b0", 1);
 	}
 
 	public static ArrayList<MagicaRecipe> getStaticRecipes(){
@@ -93,6 +97,7 @@ public class AdvancedManaGenerator extends MagicaBlock implements Craftable, Sav
 				MagicaMain.getMagicaMain().getBlockManager().removeBlock(this);
 				MagicaMain.getMagicaMain().getStorageManager().removeFromSave(this);
 				super.setActive(false);
+				blockDisplayName.destroy();
 			}
 		}
 	}
@@ -104,17 +109,14 @@ public class AdvancedManaGenerator extends MagicaBlock implements Craftable, Sav
 
 	@Override
 	public Location getLocation() {
-		return l;
+		return l.clone();
 	}
 
 	@Override
 	public void runParticles() {
-		l.getWorld().spawnParticle(Particle.DRAGON_BREATH, l.clone().add(0.5, 0.5, 0.5), 7, 0.25, 0.25, 0.25, 0);
+		l.getWorld().spawnParticle(Particle.DRAGON_BREATH, l.clone().add(0.5, 0.5, 0.5), 1, 0.25, 0.25, 0.25, 0);
 		increaseMana(5);
-		l.getWorld().playSound(l, Sound.BLOCK_LAVA_POP, SoundCategory.MASTER, 0.1f, 2);
-		if (getManaLevel() > getMaxMana()){
-			setManaLevel(getMaxMana());
-		}
+		blockDisplayName.setDisplay("&7Mana Stored: &b" + getManaLevel() + "/" + getMaxMana());
 	}
 
 	@Override
@@ -149,7 +151,7 @@ public class AdvancedManaGenerator extends MagicaBlock implements Craftable, Sav
 
 	@Override
 	public float getMaxMana() {
-		return 10000;
+		return 100000;
 	}
 
 	@Override
@@ -159,18 +161,28 @@ public class AdvancedManaGenerator extends MagicaBlock implements Craftable, Sav
 
 	@Override
 	public void setManaLevel(float f) {
-		storedMana = f;
+		this.storedMana = f;
+		if (storedMana > getMaxMana()){
+			storedMana = getMaxMana();
+		}
 	}
 
 	@Override
 	public float increaseMana(float f) {
+
 		storedMana += f;
+		if (storedMana > getMaxMana()){
+			storedMana = getMaxMana();
+		}
 		return storedMana;
 	}
 
 	@Override
 	public float decreaseMana(float f) {
 		storedMana -= f;
+		if (storedMana > getMaxMana()){
+			storedMana = getMaxMana();
+		}
 		return storedMana;
 	}
 
@@ -198,6 +210,7 @@ public class AdvancedManaGenerator extends MagicaBlock implements Craftable, Sav
 		MagicaMain.getMagicaMain().getStorageManager().save(this, "player", playerPlaced.getName());
 		MagicaMain.getMagicaMain().getStorageManager().save(this, "player-uuid", playerPlaced.getUniqueId());
 		MagicaMain.getMagicaMain().getStorageManager().save(this, "storedmana", storedMana);
+		blockDisplayName.destroy();
 	}
 
 	@Override

@@ -29,6 +29,7 @@ public class MagicaStorage extends MagicaBlock implements Craftable, Saveable, M
 		super(l);
 		super.setLocation(l);
 		super.setActive(true);
+		super.setActive(true);
 		this.l = l;
 		super.setDisplayedItem(getStaticCraftedItem());
 		super.updateBlock();
@@ -64,7 +65,7 @@ public class MagicaStorage extends MagicaBlock implements Craftable, Saveable, M
 		Bukkit.getPluginManager().registerEvents(this, MagicaMain.getMagicaMain());
 		super.updateBlock();
 		MagicaMain.getMagicaMain().getBlockManager().registerBlock(this);
-		blockDisplayName = new BlockDisplayName(this, "&7Mana Stored: &b" + getManaLevel(), 20);
+		blockDisplayName = new BlockDisplayName(this, "&7Mana Stored: &b" + getManaLevel(), 1);
 	}
 
 	@EventHandler
@@ -73,6 +74,7 @@ public class MagicaStorage extends MagicaBlock implements Craftable, Saveable, M
 			if (e.getBlock().getLocation().toString().equalsIgnoreCase(l.toString())) {
 				MagicaMain.getMagicaMain().getBlockManager().removeBlock(this);
 				MagicaMain.getMagicaMain().getStorageManager().removeFromSave(this);
+				blockDisplayName.destroy();
 				super.setActive(false);
 			}
 		}
@@ -106,7 +108,7 @@ public class MagicaStorage extends MagicaBlock implements Craftable, Saveable, M
 
 	@Override
 	public Location getLocation() {
-		return l;
+		return l.clone();
 	}
 
 	@Override

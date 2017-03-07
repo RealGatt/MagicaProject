@@ -67,8 +67,8 @@ public class MagicaPipe extends MagicaBlock implements Craftable, Saveable, List
 		for (BlockFace bf : checking){
 			Block b = super.getLocation().getBlock().getRelative(bf);
 			if (b.hasMetadata("MagicaObject")){
-				if (b.getMetadata("MagicaObject").get(0).value() instanceof ManaStorable) {
-					locations.add((MagicaBlock)b.getMetadata("MagicaObject").get(0).value());
+				if (b.getMetadata("MagicaObject").get(b.getMetadata("MagicaObject").size() - 1).value() instanceof ManaStorable) {
+					locations.add((MagicaBlock) (b.getMetadata("MagicaObject").get(0).value()));
 				}
 			}
 		}
@@ -140,7 +140,8 @@ public class MagicaPipe extends MagicaBlock implements Craftable, Saveable, List
 		Bukkit.getPluginManager().registerEvents(this, MagicaMain.getMagicaMain());
 		super.updateBlock();
 		MagicaMain.getMagicaMain().getBlockManager().registerBlock(this);
-		super.getLocation().getBlock().setMetadata("isPipe", new FixedMetadataValue(MagicaMain.getMagicaMain(), true));
+		super.getLocation()
+				.getBlock().setMetadata("isPipe", new FixedMetadataValue(MagicaMain.getMagicaMain(), true));
 	}
 
 	@EventHandler
@@ -261,46 +262,31 @@ public class MagicaPipe extends MagicaBlock implements Craftable, Saveable, List
 					MagicaBlock.getMagicaBlockAtLocation(super.getLocation().getBlock().getRelative(opposite));
 			if (blockTouching instanceof ManaStorable) {
 				ManaStorable ms = (ManaStorable) blockTouching;
+				Location inBetween = getLocation().clone().add(0.5, 0.5, 0.5).toVector().
+						midpoint(blockTouching.getLocation().clone().add(0.5, 0.5, 0.5).toVector())
+						.toLocation(getLocation().getWorld());
 				if (ms.allowsOutput()) {
-					if (ms.getManaLevel() > 25) {
-						if (getManaLevel() + 25 <= 300) {
-							ms.decreaseMana(25);
-							increaseMana(25);
-							Bukkit.broadcastMessage(ChatColor.DARK_RED + "Stole 25 mana!  (" + ms.getManaLevel() + " remaining in container) (I now have " + (getManaLevel() + ms.getManaLevel()) + ")");
-						} else {
-							float amt = (getManaLevel() + 25) - 300;
-							ms.decreaseMana(amt);
-							increaseMana(amt);
-						}
-					} else {
-						if (ms.getManaLevel() >= 10 && ms.getManaLevel() < 25 && getManaLevel() + ms.getManaLevel() <= 300) {
-							Bukkit.broadcastMessage(ChatColor.RED + "Stole " + ms.getManaLevel() + " mana! (0 remaining in container) (I now have " + (getManaLevel() + ms.getManaLevel()) + ")");
-							ms.decreaseMana(ms.getManaLevel());
-							increaseMana(ms.getManaLevel());
-						}
+					if (ms.getManaLevel() > 0 && getManaLevel() + 1 <= getMaxMana()) {
+						ms.decreaseMana(1);
+						increaseMana(1);
 					}
+				}else{
+					getLocation().getWorld().spawnParticle(Particle.REDSTONE, inBetween, 1, 0, 0, 0, 0);
 				}
 			}
 			if (blockTouchingOpposite instanceof ManaStorable) {
 				ManaStorable ms = (ManaStorable) blockTouchingOpposite;
+				Location inBetween = getLocation().clone().add(0.5, 0.5, 0.5).toVector().
+						midpoint(blockTouchingOpposite.getLocation().clone().add(0.5, 0.5, 0.5).toVector())
+						.toLocation(getLocation().getWorld());
 				if (ms.acceptsInput()) {
-					if (getManaLevel() > 25) {
-						if (ms.getManaLevel() + 25 <= 300) {
-							ms.increaseMana(25);
-							decreaseMana(25);
-							Bukkit.broadcastMessage(ChatColor.DARK_RED + "Gave 25 mana!  (" + ms.getManaLevel() + " remaining in container) (I now have " + (getManaLevel() + ms.getManaLevel()) + ")");
-						} else {
-							float amt = (getManaLevel() + 25) - 300;
-							ms.increaseMana(amt);
-							decreaseMana(amt);
-						}
-					} else {
-						if (ms.getManaLevel() >= 10 && ms.getManaLevel() < 25 && getManaLevel() + ms.getManaLevel() <= 300) {
-							Bukkit.broadcastMessage(ChatColor.RED + "Gave " + ms.getManaLevel() + " mana! (0 remaining in container) (I now have " + (getManaLevel() + ms.getManaLevel()) + ")");
-							ms.increaseMana(ms.getManaLevel());
-							decreaseMana(ms.getManaLevel());
-						}
+					if (getManaLevel() > 0 && ms.getManaLevel() + 1 <= ms.getMaxMana()) {
+						ms.increaseMana(1);
+						decreaseMana(1);
 					}
+
+				}else{
+					getLocation().getWorld().spawnParticle(Particle.REDSTONE, inBetween, 1, 0, 0, 0, 0);
 				}
 			}
 		}
@@ -397,8 +383,8 @@ public class MagicaPipe extends MagicaBlock implements Craftable, Saveable, List
 	@Override
 	public void setManaLevel(float f) {
 		this.manaStored = f;
-		if (manaStored > 300){
-			manaStored = 300;
+		if (manaStored > getManaLevel()){
+			manaStored = getManaLevel();
 		}
 	}
 
@@ -406,8 +392,8 @@ public class MagicaPipe extends MagicaBlock implements Craftable, Saveable, List
 	public float increaseMana(float f) {
 
 		manaStored += f;
-		if (manaStored > 300){
-			manaStored = 300;
+		if (manaStored > getManaLevel()){
+			manaStored = getManaLevel();
 		}
 		return manaStored;
 	}
@@ -415,8 +401,8 @@ public class MagicaPipe extends MagicaBlock implements Craftable, Saveable, List
 	@Override
 	public float decreaseMana(float f) {
 		manaStored -= f;
-		if (manaStored > 300){
-			manaStored = 300;
+		if (manaStored > getManaLevel()){
+			manaStored = getManaLevel();
 		}
 		return manaStored;
 	}
