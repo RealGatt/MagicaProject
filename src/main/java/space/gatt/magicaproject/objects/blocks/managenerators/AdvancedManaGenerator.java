@@ -37,7 +37,7 @@ public class AdvancedManaGenerator extends MagicaBlock implements Craftable, Sav
 		this.playerPlaced = playerPlaced;
 		Bukkit.getPluginManager().registerEvents(this, MagicaMain.getMagicaMain());
 		MagicaMain.getMagicaMain().getBlockManager().registerBlock(this);
-		blockDisplayName = new BlockDisplayName(this, "&7Mana Stored: &b0", 20);
+		blockDisplayName = new BlockDisplayName(this, "&7Mana Stored: &b0", 1);
 	}
 
 	public AdvancedManaGenerator(JsonObject object){

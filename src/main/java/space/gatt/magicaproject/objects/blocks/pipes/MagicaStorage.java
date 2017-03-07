@@ -35,7 +35,7 @@ public class MagicaStorage extends MagicaBlock implements Craftable, Saveable, M
 		super.updateBlock();
 		Bukkit.getPluginManager().registerEvents(this, MagicaMain.getMagicaMain());
 		MagicaMain.getMagicaMain().getBlockManager().registerBlock(this);
-		blockDisplayName = new BlockDisplayName(this, "&7Mana Stored: &b0", 20);
+		blockDisplayName = new BlockDisplayName(this, "&7Mana Stored: &b0", 1);
 	}
 
 	public MagicaStorage(JsonObject object){
