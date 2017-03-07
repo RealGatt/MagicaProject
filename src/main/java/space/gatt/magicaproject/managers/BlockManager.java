@@ -20,6 +20,7 @@ import org.bukkit.material.MaterialData;
 import org.bukkit.metadata.FixedMetadataValue;
 import space.gatt.magicaproject.MagicaMain;
 import space.gatt.magicaproject.interfaces.MagicaBlock;
+import space.gatt.magicaproject.interfaces.ManaStorable;
 import space.gatt.magicaproject.interfaces.Saveable;
 import space.gatt.magicaproject.utilities.BaseUtils;
 
@@ -53,7 +54,11 @@ public class BlockManager implements Listener{
 		if (!runningBlocks.contains(mb)) {
 			runningBlocks.add(mb);
 		}
+		if (mb instanceof ManaStorable){
+			mb.getLocation().getBlock().setMetadata("isManaStorage", new FixedMetadataValue(MagicaMain.getMagicaMain(), true));
+		}
 		mb.getLocation().getBlock().setMetadata("IsMagicaBlock", new FixedMetadataValue(MagicaMain.getMagicaMain(), true));
+		mb.getLocation().getBlock().setMetadata("MagicaObject", new FixedMetadataValue(MagicaMain.getMagicaMain(), mb));
 	}
 
 	public void removeBlock(MagicaBlock mb) {
@@ -62,6 +67,8 @@ public class BlockManager implements Listener{
 		}
 		mb.getLocation().getWorld().playEffect(mb.getLocation(), Effect.STEP_SOUND, new MaterialData(Material.IRON_BLOCK).getItemTypeId());
 		mb.getLocation().getBlock().removeMetadata("IsMagicaBlock", MagicaMain.getMagicaMain());
+		mb.getLocation().getBlock().removeMetadata("isManaStorage", MagicaMain.getMagicaMain());
+		mb.getLocation().getBlock().removeMetadata("MagicaObject", MagicaMain.getMagicaMain());
 	}
 
 	public void shutdown() {
@@ -71,8 +78,6 @@ public class BlockManager implements Listener{
 			}
 		}
 	}
-
-
 
 	@EventHandler
 	public void onPlace(PlayerInteractEvent e){
@@ -151,12 +156,12 @@ public class BlockManager implements Listener{
 	public void onInventoryClick(InventoryClickEvent e){
 		if (!e.isCancelled()) {
 			if (e.getClickedInventory() != null &&
-					e.getClickedInventory().getType() == InventoryType.CREATIVE
+					(e.getClickedInventory().getType() == InventoryType.CREATIVE
 					|| e.getClickedInventory().getType() == InventoryType.PLAYER
 					|| e.getClickedInventory().getType() == InventoryType.ENDER_CHEST
-					|| e.getClickedInventory().getType() == InventoryType.CHEST) {
+					|| e.getClickedInventory().getType() == InventoryType.CHEST)) {
 				if (e.getClick() == ClickType.LEFT) {
-					if (e.getCursor() != null && e.getCurrentItem() != null) {
+					if (e.getCursor() != null && e.getCurrentItem() != null && e.getCurrentItem().getType() != Material.AIR) {
 						if (BaseUtils.matchItem(e.getCurrentItem(), e.getCursor())
 								&& e.getCurrentItem().getMaxStackSize() == 1
 								&& e.getCurrentItem().hasItemMeta()

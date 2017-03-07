@@ -1,4 +1,4 @@
-package space.gatt.magicaproject.objects.blocks.managenerators;
+package space.gatt.magicaproject.objects.blocks.pipes;
 
 import com.google.gson.JsonObject;
 import org.bukkit.*;
@@ -18,26 +18,23 @@ import space.gatt.magicaproject.utilities.BaseUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.UUID;
 
-public class AdvancedManaGenerator extends MagicaBlock implements Craftable, Saveable, ManaStorable, Listener {
+public class MagicaStorage  extends MagicaBlock implements Craftable, Saveable, ManaStorable, Listener {
 	private Location l;
-	private OfflinePlayer playerPlaced;
 	private float storedMana;
 
-	public AdvancedManaGenerator(Location l, OfflinePlayer playerPlaced) {
+	public MagicaStorage(Location l, OfflinePlayer playerPlaced) {
 		super(l);
 		super.setLocation(l);
 		super.setActive(true);
 		this.l = l;
 		super.setDisplayedItem(getStaticCraftedItem());
 		super.updateBlock();
-		this.playerPlaced = playerPlaced;
 		Bukkit.getPluginManager().registerEvents(this, MagicaMain.getMagicaMain());
 		MagicaMain.getMagicaMain().getBlockManager().registerBlock(this);
 	}
 
-	public AdvancedManaGenerator(JsonObject object){
+	public MagicaStorage(JsonObject object){
 		super(object);
 
 		double x = 0, y = 0, z = 0;
@@ -54,11 +51,6 @@ public class AdvancedManaGenerator extends MagicaBlock implements Craftable, Sav
 		if (object.has("location-world")){
 			world = Bukkit.getWorld(object.get("location-world").getAsString());
 		}
-		OfflinePlayer of;
-		if (object.has("player-uuid")){
-			of = Bukkit.getOfflinePlayer(UUID.fromString(object.get("player-uuid").getAsString()));
-			this.playerPlaced = of;
-		}
 		if (object.has("storedmana")){
 			setManaLevel(object.get("storedmana").getAsFloat());
 		}
@@ -71,25 +63,10 @@ public class AdvancedManaGenerator extends MagicaBlock implements Craftable, Sav
 		MagicaMain.getMagicaMain().getBlockManager().registerBlock(this);
 	}
 
-	public static ArrayList<MagicaRecipe> getStaticRecipes(){
-		ArrayList<MagicaRecipe> recipes = new ArrayList<>();
-		MagicaRecipe rec1 = new MagicaRecipe(new ArrayList<>(Arrays.asList(
-				ManaGenerator.getStaticCraftedItem(),
-				new ItemStack(Material.NETHER_STAR),
-				MagicaShard.getStaticCraftedItem(), MagicaShard.getStaticCraftedItem())), getStaticCraftedItem(), 1000, 2, true);
-		recipes.add(rec1);
-		return recipes;
-	}
-
 	@EventHandler
 	public void onBreak(BlockBreakEvent e) {
-		if (isActive()){
+		if (isActive()) {
 			if (e.getBlock().getLocation().toString().equalsIgnoreCase(l.toString())) {
-				if (e.getPlayer().getUniqueId() != playerPlaced.getUniqueId()) {
-					e.setCancelled(true);
-					e.getPlayer().sendMessage(BaseUtils.colorString("&cThis isn't your Mana Generator!"));
-					return;
-				}
 				MagicaMain.getMagicaMain().getBlockManager().removeBlock(this);
 				MagicaMain.getMagicaMain().getStorageManager().removeFromSave(this);
 				super.setActive(false);
@@ -97,10 +74,32 @@ public class AdvancedManaGenerator extends MagicaBlock implements Craftable, Sav
 		}
 	}
 
+	public static ArrayList<MagicaRecipe> getStaticRecipes(){
+		ArrayList<MagicaRecipe> recipes = new ArrayList<>();
+		MagicaRecipe rec1 = new MagicaRecipe(new ArrayList<>(Arrays.asList(
+				new ItemStack(Material.ENDER_PEARL),
+				new ItemStack(Material.BLAZE_POWDER),
+				new ItemStack(Material.CHEST),
+				MagicaShard.getStaticCraftedItem(), MagicaShard.getStaticCraftedItem())), getStaticCraftedItem(), 100, 0);
+		recipes.add(rec1);
+		return recipes;
+	}
+
 	@Override
 	public ArrayList<MagicaRecipe> getRecipes() {
 		return getStaticRecipes();
 	}
+
+	public static ItemStack getStaticCraftedItem() {
+		ItemStack manaGenerator = MagicaMain.getBaseStack();
+		manaGenerator.setDurability((short)6);
+		ItemMeta im = manaGenerator.getItemMeta();
+		im.setDisplayName(BaseUtils.colorString("&bMana Storage"));
+		im.setLore(MagicaMain.getLoreLine());
+		manaGenerator.setItemMeta(im);
+		return manaGenerator;
+	}
+
 
 	@Override
 	public Location getLocation() {
@@ -109,12 +108,7 @@ public class AdvancedManaGenerator extends MagicaBlock implements Craftable, Sav
 
 	@Override
 	public void runParticles() {
-		l.getWorld().spawnParticle(Particle.DRAGON_BREATH, l.clone().add(0.5, 0.5, 0.5), 7, 0.25, 0.25, 0.25, 0);
-		increaseMana(5);
-		l.getWorld().playSound(l, Sound.BLOCK_LAVA_POP, SoundCategory.MASTER, 0.1f, 2);
-		if (getManaLevel() > 10000){
-			setManaLevel(10000f);
-		}
+		l.getWorld().spawnParticle(Particle.DRAGON_BREATH, l.clone().add(0.5, 0.5, 0.5), 5, 0.15, 0.15, 0.15, 0);
 	}
 
 	@Override
@@ -124,17 +118,7 @@ public class AdvancedManaGenerator extends MagicaBlock implements Craftable, Sav
 
 	@Override
 	public String getItemName() {
-		return "Mana Generator";
-	}
-
-	public static ItemStack getStaticCraftedItem() {
-		ItemStack manaGenerator = MagicaMain.getBaseStack();
-		manaGenerator.setDurability((short)3);
-		ItemMeta im = manaGenerator.getItemMeta();
-		im.setDisplayName(BaseUtils.colorString("&aAdvanced Mana Generator"));
-		im.setLore(MagicaMain.getLoreLine());
-		manaGenerator.setItemMeta(im);
-		return manaGenerator;
+		return "Mana Storage";
 	}
 
 	@Override
@@ -160,7 +144,7 @@ public class AdvancedManaGenerator extends MagicaBlock implements Craftable, Sav
 	}
 
 	public static String getStaticSaveFileName(){
-		return "advancedmanagenerator";
+		return "manastorage";
 	}
 
 	@Override
@@ -180,8 +164,6 @@ public class AdvancedManaGenerator extends MagicaBlock implements Craftable, Sav
 		MagicaMain.getMagicaMain().getStorageManager().save(this, "location-y", l.getY());
 		MagicaMain.getMagicaMain().getStorageManager().save(this, "location-z", l.getZ());
 		MagicaMain.getMagicaMain().getStorageManager().save(this, "location-world", l.getWorld().getName());
-		MagicaMain.getMagicaMain().getStorageManager().save(this, "player", playerPlaced.getName());
-		MagicaMain.getMagicaMain().getStorageManager().save(this, "player-uuid", playerPlaced.getUniqueId());
 		MagicaMain.getMagicaMain().getStorageManager().save(this, "storedmana", storedMana);
 	}
 

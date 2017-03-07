@@ -98,7 +98,7 @@ public class MagicaMain extends JavaPlugin implements Listener{
 					}
 
 
-					if (Modifier.isStatic(m.getModifiers()) && m.getName().toLowerCase().contains("registeritemlistener")){
+					if (Modifier.isStatic(m.getModifiers()) && m.getName().equalsIgnoreCase("registerItemListener")){
 						m.invoke(this);
 					}
 				}

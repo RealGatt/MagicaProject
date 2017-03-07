@@ -40,6 +40,8 @@ public class MagicaPipe extends MagicaBlock implements Craftable, Saveable, List
 		}, MagicaMain.getMagicaMain());
 	}
 
+	private float manaStored = 0;
+
 
 	public Location[] getNearbyPipes(){
 		ArrayList<Location> locations = new ArrayList<>();
@@ -52,15 +54,32 @@ public class MagicaPipe extends MagicaBlock implements Craftable, Saveable, List
 				}
 			}
 		}
-		return locations.toArray(new Location[locations.size() - 1]);
+		if (locations.size() > 0) {
+			return locations.toArray(new Location[locations.size() - 1]);
+		}else{
+			return null;
+		}
 	}
 
-	// 0 = down
-	// 1 = up
-	// 2 = north
-	// 3 = south
-	// 4 = west
-	// 5 = east
+	public MagicaBlock[] getNearbyManaStorages(){
+		ArrayList<MagicaBlock> locations = new ArrayList<>();
+		BlockFace[] checking = new BlockFace[]{BlockFace.UP, BlockFace.DOWN, BlockFace.NORTH, BlockFace.SOUTH, BlockFace.WEST, BlockFace.EAST};
+		for (BlockFace bf : checking){
+			Block b = super.getLocation().getBlock().getRelative(bf);
+			if (b.hasMetadata("MagicaObject")){
+				if (b.getMetadata("MagicaObject").get(0).value() instanceof ManaStorable) {
+					locations.add((MagicaBlock)b.getMetadata("MagicaObject").get(0).value());
+				}
+			}
+		}
+		if (locations.size() > 0) {
+			return locations.toArray(new MagicaBlock[locations.size() - 1]);
+		}else{
+			return null;
+		}
+	}
+
+
 
 	public MagicaPipe(Location l) {
 		super(l);
@@ -112,6 +131,9 @@ public class MagicaPipe extends MagicaBlock implements Craftable, Saveable, List
 		if (object.has("location-world")){
 			world = Bukkit.getWorld(object.get("location-world").getAsString());
 		}
+		if (object.has("storedmana")){
+			setManaLevel(object.get("storedmana").getAsFloat());
+		}
 		super.setLocation(new Location(world, x, y, z));
 		super.setActive(true);
 		super.setDisplayedItem(getStaticCraftedItem());
@@ -128,7 +150,10 @@ public class MagicaPipe extends MagicaBlock implements Craftable, Saveable, List
 				MagicaMain.getMagicaMain().getBlockManager().removeBlock(this);
 				MagicaMain.getMagicaMain().getStorageManager().removeFromSave(this);
 				e.setCancelled(true);
-				e.getBlock().getWorld().dropItemNaturally(e.getBlock().getLocation(), getStaticCraftedItem());
+				e.getBlock().setType(Material.AIR);
+				if (e.getPlayer().getGameMode() != GameMode.CREATIVE) {
+					e.getBlock().getWorld().dropItemNaturally(e.getBlock().getLocation(), getStaticCraftedItem());
+				}
 				super.setActive(false);
 			}
 	}
@@ -198,10 +223,53 @@ public class MagicaPipe extends MagicaBlock implements Craftable, Saveable, List
 			}
 		}
 	}
-
+	// 0 = down
+	// 1 = up
+	// 2 = north
+	// 3 = south
+	// 4 = west
+	// 5 = east
 	@Override
 	public void runParticles() {
 		super.getLocation().getWorld().spawnParticle(Particle.DRAGON_BREATH, super.getLocation().clone().add(0.5, 0.5, 0.5), 1, 0, 0, 0, 0);
+		if (getNearbyManaStorages() != null) {
+			BlockFace touching = BlockFace.DOWN;
+			if (super.getLocation().getBlock().getData() == 0) {
+				touching = BlockFace.UP;
+			}
+			if (super.getLocation().getBlock().getData() == 2) {
+				touching = BlockFace.SOUTH;
+			}
+			if (super.getLocation().getBlock().getData() == 3) {
+				touching = BlockFace.NORTH;
+			}
+			if (super.getLocation().getBlock().getData() == 4) {
+				touching = BlockFace.EAST;
+			}
+			if (super.getLocation().getBlock().getData() == 5) {
+				touching = BlockFace.WEST;
+			}
+			MagicaBlock blockTouching =
+					MagicaBlock.getMagicaBlockAtLocation(super.getLocation().getBlock().getRelative(touching));
+			if (blockTouching instanceof ManaStorable) {
+
+				ManaStorable ms = (ManaStorable) blockTouching;
+				if (ms.getManaLevel() > 50) {
+					if (getManaLevel() + 50 <= 300) {
+						ms.decreaseMana(50);
+						increaseMana(50);
+						Bukkit.broadcastMessage(ChatColor.DARK_RED + "Stole 50 mana!  (" + ms.getManaLevel() + " remaining in container) (I now have " + (getManaLevel() + ms.getManaLevel()) + ")");
+					}
+				} else {
+					if (ms.getManaLevel() >= 15 && ms.getManaLevel() < 50 && getManaLevel() + ms.getManaLevel() <= 300) {
+						Bukkit.broadcastMessage(ChatColor.RED + "Stole " + ms.getManaLevel() + " mana! (0 remaining in container) (I now have " + (getManaLevel() + ms.getManaLevel()) + ")");
+						ms.decreaseMana(ms.getManaLevel());
+						increaseMana(ms.getManaLevel());
+					}
+				}
+
+			}
+		}
 	}
 
 	public static String getStaticSaveFileName(){
@@ -274,21 +342,33 @@ public class MagicaPipe extends MagicaBlock implements Craftable, Saveable, List
 
 	@Override
 	public float getManaLevel() {
-		return 0;
+		return manaStored;
 	}
 
 	@Override
 	public void setManaLevel(float f) {
-
+		this.manaStored = f;
+		if (manaStored > 300){
+			manaStored = 300;
+		}
 	}
 
 	@Override
 	public float increaseMana(float f) {
-		return 0;
+
+		manaStored += f;
+		if (manaStored > 300){
+			manaStored = 300;
+		}
+		return manaStored;
 	}
 
 	@Override
 	public float decreaseMana(float f) {
-		return 0;
+		manaStored -= f;
+		if (manaStored > 300){
+			manaStored = 300;
+		}
+		return manaStored;
 	}
 }

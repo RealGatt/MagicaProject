@@ -6,6 +6,7 @@ import net.minecraft.server.v1_11_R1.NBTTagList;
 import net.minecraft.server.v1_11_R1.TileEntityMobSpawner;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_11_R1.CraftWorld;
 import org.bukkit.inventory.ItemStack;
 
@@ -15,6 +16,17 @@ public class MagicaBlock {
 	private boolean isActive;
 	private ItemStack displayedItem;
 	private boolean displayedInSpawner = true;
+
+	public static MagicaBlock getMagicaBlockAtLocation(Block b){
+		return getMagicaBlockAtLocation(b.getLocation());
+	}
+
+	public static MagicaBlock getMagicaBlockAtLocation(Location l){
+		if (l.getBlock().hasMetadata("MagicaObject")){
+			return l.getBlock().getMetadata("MagicaObject").get(0).value() instanceof MagicaBlock ? (MagicaBlock)l.getBlock().getMetadata("MagicaObject").get(0).value():null;
+		}
+		return null;
+	}
 
 	public MagicaBlock(Location location){
 		this.location = location;

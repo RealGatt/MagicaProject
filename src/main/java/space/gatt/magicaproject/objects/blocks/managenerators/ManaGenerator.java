@@ -62,6 +62,9 @@ public class ManaGenerator extends MagicaBlock implements Craftable, Saveable, M
 			of = Bukkit.getOfflinePlayer(UUID.fromString(object.get("player-uuid").getAsString()));
 			this.playerPlaced = of;
 		}
+		if (object.has("storedmana")){
+			setManaLevel(object.get("storedmana").getAsFloat());
+		}
 		this.l = new Location(world, x, y, z);
 		super.setLocation(l);
 		super.setActive(true);
@@ -88,13 +91,10 @@ public class ManaGenerator extends MagicaBlock implements Craftable, Saveable, M
 
 	public static ArrayList<MagicaRecipe> getStaticRecipes(){
 		ArrayList<MagicaRecipe> recipes = new ArrayList<>();
-		MagicaRecipe rec1 = new MagicaRecipe(new ArrayList<>(Arrays.asList(new ItemStack(Material.DIAMOND),
-				new ItemStack(Material.EMERALD),
-				new ItemStack(Material.ENDER_PEARL),
+		MagicaRecipe rec1 = new MagicaRecipe(new ArrayList<>(Arrays.asList(
 				new ItemStack(Material.ENDER_PEARL),
 				new ItemStack(Material.BLAZE_POWDER),
-				new ItemStack(Material.CHEST),
-				MagicaShard.getStaticCraftedItem())), getStaticCraftedItem(), 100, 0);
+				MagicaShard.getStaticCraftedItem(), MagicaShard.getStaticCraftedItem())), getStaticCraftedItem(), 100, 0);
 		recipes.add(rec1);
 		return recipes;
 	}
