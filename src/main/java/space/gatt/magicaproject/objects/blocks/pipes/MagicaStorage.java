@@ -78,7 +78,6 @@ public class MagicaStorage  extends MagicaBlock implements Craftable, Saveable, 
 		ArrayList<MagicaRecipe> recipes = new ArrayList<>();
 		MagicaRecipe rec1 = new MagicaRecipe(new ArrayList<>(Arrays.asList(
 				new ItemStack(Material.ENDER_PEARL),
-				new ItemStack(Material.BLAZE_POWDER),
 				new ItemStack(Material.CHEST),
 				MagicaShard.getStaticCraftedItem(), MagicaShard.getStaticCraftedItem())), getStaticCraftedItem(), 100, 0);
 		recipes.add(rec1);
