@@ -125,8 +125,8 @@ public class ManaGenerator extends MagicaBlock implements Craftable, Saveable, M
 		l.getWorld().spawnParticle(Particle.DRAGON_BREATH, l.clone().add(0.5, 0.5, 0.5), 5, 0.25, 0.25, 0.25, 0);
 		l.getWorld().playSound(l, Sound.BLOCK_LAVA_POP, SoundCategory.MASTER, 0.1f, 2);
 		increaseMana(1);
-		if (getManaLevel() > 1000){
-			setManaLevel(1000f);
+		if (getManaLevel() > getManaLevel()){
+			setManaLevel(getMaxMana());
 		}
 	}
 
@@ -138,6 +138,21 @@ public class ManaGenerator extends MagicaBlock implements Craftable, Saveable, M
 	@Override
 	public String getItemName() {
 		return "Mana Generator";
+	}
+
+	@Override
+	public float getMaxMana() {
+		return 1000;
+	}
+
+	@Override
+	public boolean acceptsInput() {
+		return false;
+	}
+
+	@Override
+	public boolean allowsOutput() {
+		return true;
 	}
 
 	@Override

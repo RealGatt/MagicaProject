@@ -8,6 +8,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import space.gatt.magicaproject.MagicaMain;
+import space.gatt.magicaproject.extra.BlockDisplayName;
 import space.gatt.magicaproject.extra.MagicaRecipe;
 import space.gatt.magicaproject.interfaces.Craftable;
 import space.gatt.magicaproject.interfaces.MagicaBlock;
@@ -19,9 +20,10 @@ import space.gatt.magicaproject.utilities.BaseUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class MagicaStorage  extends MagicaBlock implements Craftable, Saveable, ManaStorable, Listener {
+public class MagicaStorage extends MagicaBlock implements Craftable, Saveable, ManaStorable, Listener {
 	private Location l;
 	private float storedMana;
+	private BlockDisplayName blockDisplayName;
 
 	public MagicaStorage(Location l, OfflinePlayer playerPlaced) {
 		super(l);
@@ -32,6 +34,7 @@ public class MagicaStorage  extends MagicaBlock implements Craftable, Saveable, 
 		super.updateBlock();
 		Bukkit.getPluginManager().registerEvents(this, MagicaMain.getMagicaMain());
 		MagicaMain.getMagicaMain().getBlockManager().registerBlock(this);
+		blockDisplayName = new BlockDisplayName(this, "&7Mana Stored: &b0", 20);
 	}
 
 	public MagicaStorage(JsonObject object){
@@ -61,6 +64,7 @@ public class MagicaStorage  extends MagicaBlock implements Craftable, Saveable, 
 		Bukkit.getPluginManager().registerEvents(this, MagicaMain.getMagicaMain());
 		super.updateBlock();
 		MagicaMain.getMagicaMain().getBlockManager().registerBlock(this);
+		blockDisplayName = new BlockDisplayName(this, "&7Mana Stored: &b" + getManaLevel(), 20);
 	}
 
 	@EventHandler
@@ -108,7 +112,10 @@ public class MagicaStorage  extends MagicaBlock implements Craftable, Saveable, 
 	@Override
 	public void runParticles() {
 		l.getWorld().spawnParticle(Particle.DRAGON_BREATH, l.clone().add(0.5, 0.5, 0.5), 5, 0.15, 0.15, 0.15, 0);
+		blockDisplayName.setDisplay("&7Mana Stored: &b" + getManaLevel() + "/100000");
 	}
+
+
 
 	@Override
 	public boolean isActive() {
@@ -118,6 +125,21 @@ public class MagicaStorage  extends MagicaBlock implements Craftable, Saveable, 
 	@Override
 	public String getItemName() {
 		return "Mana Storage";
+	}
+
+	@Override
+	public boolean acceptsInput() {
+		return true;
+	}
+
+	@Override
+	public boolean allowsOutput() {
+		return true;
+	}
+
+	@Override
+	public float getMaxMana() {
+		return 100000;
 	}
 
 	@Override
@@ -164,6 +186,7 @@ public class MagicaStorage  extends MagicaBlock implements Craftable, Saveable, 
 		MagicaMain.getMagicaMain().getStorageManager().save(this, "location-z", l.getZ());
 		MagicaMain.getMagicaMain().getStorageManager().save(this, "location-world", l.getWorld().getName());
 		MagicaMain.getMagicaMain().getStorageManager().save(this, "storedmana", storedMana);
+		blockDisplayName.destroy();
 	}
 
 	@Override

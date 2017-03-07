@@ -8,4 +8,9 @@ public interface ManaStorable {
 	float increaseMana(float f);
 
 	float decreaseMana(float f);
+
+	float getMaxMana();
+
+	boolean acceptsInput();
+	boolean allowsOutput();
 }

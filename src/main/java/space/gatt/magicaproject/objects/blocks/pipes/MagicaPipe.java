@@ -234,40 +234,74 @@ public class MagicaPipe extends MagicaBlock implements Craftable, Saveable, List
 		super.getLocation().getWorld().spawnParticle(Particle.DRAGON_BREATH, super.getLocation().clone().add(0.5, 0.5, 0.5), 1, 0, 0, 0, 0);
 		if (getNearbyManaStorages() != null) {
 			BlockFace touching = BlockFace.DOWN;
+			BlockFace opposite = BlockFace.UP;
 			if (super.getLocation().getBlock().getData() == 0) {
 				touching = BlockFace.UP;
+				opposite = BlockFace.DOWN;
 			}
 			if (super.getLocation().getBlock().getData() == 2) {
 				touching = BlockFace.SOUTH;
+				opposite = BlockFace.NORTH;
 			}
 			if (super.getLocation().getBlock().getData() == 3) {
 				touching = BlockFace.NORTH;
+				opposite = BlockFace.SOUTH;
 			}
 			if (super.getLocation().getBlock().getData() == 4) {
 				touching = BlockFace.EAST;
+				opposite = BlockFace.WEST;
 			}
 			if (super.getLocation().getBlock().getData() == 5) {
 				touching = BlockFace.WEST;
+				opposite = BlockFace.EAST;
 			}
 			MagicaBlock blockTouching =
 					MagicaBlock.getMagicaBlockAtLocation(super.getLocation().getBlock().getRelative(touching));
+			MagicaBlock blockTouchingOpposite =
+					MagicaBlock.getMagicaBlockAtLocation(super.getLocation().getBlock().getRelative(opposite));
 			if (blockTouching instanceof ManaStorable) {
-
 				ManaStorable ms = (ManaStorable) blockTouching;
-				if (ms.getManaLevel() > 50) {
-					if (getManaLevel() + 50 <= 300) {
-						ms.decreaseMana(50);
-						increaseMana(50);
-						Bukkit.broadcastMessage(ChatColor.DARK_RED + "Stole 50 mana!  (" + ms.getManaLevel() + " remaining in container) (I now have " + (getManaLevel() + ms.getManaLevel()) + ")");
-					}
-				} else {
-					if (ms.getManaLevel() >= 15 && ms.getManaLevel() < 50 && getManaLevel() + ms.getManaLevel() <= 300) {
-						Bukkit.broadcastMessage(ChatColor.RED + "Stole " + ms.getManaLevel() + " mana! (0 remaining in container) (I now have " + (getManaLevel() + ms.getManaLevel()) + ")");
-						ms.decreaseMana(ms.getManaLevel());
-						increaseMana(ms.getManaLevel());
+				if (ms.allowsOutput()) {
+					if (ms.getManaLevel() > 25) {
+						if (getManaLevel() + 25 <= 300) {
+							ms.decreaseMana(25);
+							increaseMana(25);
+							Bukkit.broadcastMessage(ChatColor.DARK_RED + "Stole 25 mana!  (" + ms.getManaLevel() + " remaining in container) (I now have " + (getManaLevel() + ms.getManaLevel()) + ")");
+						} else {
+							float amt = (getManaLevel() + 25) - 300;
+							ms.decreaseMana(amt);
+							increaseMana(amt);
+						}
+					} else {
+						if (ms.getManaLevel() >= 10 && ms.getManaLevel() < 25 && getManaLevel() + ms.getManaLevel() <= 300) {
+							Bukkit.broadcastMessage(ChatColor.RED + "Stole " + ms.getManaLevel() + " mana! (0 remaining in container) (I now have " + (getManaLevel() + ms.getManaLevel()) + ")");
+							ms.decreaseMana(ms.getManaLevel());
+							increaseMana(ms.getManaLevel());
+						}
 					}
 				}
-
+			}
+			if (blockTouchingOpposite instanceof ManaStorable) {
+				ManaStorable ms = (ManaStorable) blockTouchingOpposite;
+				if (ms.acceptsInput()) {
+					if (getManaLevel() > 25) {
+						if (ms.getManaLevel() + 25 <= 300) {
+							ms.increaseMana(25);
+							decreaseMana(25);
+							Bukkit.broadcastMessage(ChatColor.DARK_RED + "Gave 25 mana!  (" + ms.getManaLevel() + " remaining in container) (I now have " + (getManaLevel() + ms.getManaLevel()) + ")");
+						} else {
+							float amt = (getManaLevel() + 25) - 300;
+							ms.increaseMana(amt);
+							decreaseMana(amt);
+						}
+					} else {
+						if (ms.getManaLevel() >= 10 && ms.getManaLevel() < 25 && getManaLevel() + ms.getManaLevel() <= 300) {
+							Bukkit.broadcastMessage(ChatColor.RED + "Gave " + ms.getManaLevel() + " mana! (0 remaining in container) (I now have " + (getManaLevel() + ms.getManaLevel()) + ")");
+							ms.increaseMana(ms.getManaLevel());
+							decreaseMana(ms.getManaLevel());
+						}
+					}
+				}
 			}
 		}
 	}
@@ -338,6 +372,21 @@ public class MagicaPipe extends MagicaBlock implements Craftable, Saveable, List
 	@Override
 	public ArrayList<MagicaRecipe> getRecipes() {
 		return getStaticRecipes();
+	}
+
+	@Override
+	public float getMaxMana() {
+		return 300;
+	}
+
+	@Override
+	public boolean acceptsInput() {
+		return true;
+	}
+
+	@Override
+	public boolean allowsOutput() {
+		return true;
 	}
 
 	@Override

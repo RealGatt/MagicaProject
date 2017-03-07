@@ -112,8 +112,8 @@ public class AdvancedManaGenerator extends MagicaBlock implements Craftable, Sav
 		l.getWorld().spawnParticle(Particle.DRAGON_BREATH, l.clone().add(0.5, 0.5, 0.5), 7, 0.25, 0.25, 0.25, 0);
 		increaseMana(5);
 		l.getWorld().playSound(l, Sound.BLOCK_LAVA_POP, SoundCategory.MASTER, 0.1f, 2);
-		if (getManaLevel() > 10000){
-			setManaLevel(10000f);
+		if (getManaLevel() > getMaxMana()){
+			setManaLevel(getMaxMana());
 		}
 	}
 
@@ -135,6 +135,21 @@ public class AdvancedManaGenerator extends MagicaBlock implements Craftable, Sav
 		im.setLore(MagicaMain.getLoreLine());
 		manaGenerator.setItemMeta(im);
 		return manaGenerator;
+	}
+
+	@Override
+	public boolean acceptsInput() {
+		return false;
+	}
+
+	@Override
+	public boolean allowsOutput() {
+		return true;
+	}
+
+	@Override
+	public float getMaxMana() {
+		return 10000;
 	}
 
 	@Override
