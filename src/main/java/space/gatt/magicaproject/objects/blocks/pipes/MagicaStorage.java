@@ -5,6 +5,7 @@ import org.bukkit.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import space.gatt.magicaproject.MagicaMain;
@@ -13,6 +14,7 @@ import space.gatt.magicaproject.extra.BlockDisplayName;
 import space.gatt.magicaproject.extra.MagicaRecipe;
 import space.gatt.magicaproject.interfaces.*;
 import space.gatt.magicaproject.objects.items.MagicaShard;
+import space.gatt.magicaproject.objects.items.Wrench;
 import space.gatt.magicaproject.utilities.BaseUtils;
 
 import java.util.ArrayList;
@@ -22,6 +24,7 @@ public class MagicaStorage extends MagicaBlock implements Craftable, Saveable, M
 	private Location l;
 	private float storedMana;
 	private BlockDisplayName blockDisplayName;
+	private boolean displayMana = true;
 
 	public MagicaStorage(Location l, OfflinePlayer playerPlaced) {
 		super(l);
@@ -56,6 +59,9 @@ public class MagicaStorage extends MagicaBlock implements Craftable, Saveable, M
 		if (object.has("storedmana")){
 			setManaLevel(object.get("storedmana").getAsFloat());
 		}
+		if (object.has("displaymana")){
+			displayMana = object.get("displaymana").getAsBoolean();
+		}
 		this.l = new Location(world, x, y, z);
 		super.setLocation(l);
 		super.setActive(true);
@@ -74,6 +80,15 @@ public class MagicaStorage extends MagicaBlock implements Craftable, Saveable, M
 				MagicaMain.getMagicaMain().getStorageManager().removeFromSave(this);
 				blockDisplayName.destroy();
 				super.setActive(false);
+			}
+		}
+	}
+
+	@EventHandler
+	public void onWrench(PlayerInteractEvent e){
+		if(e.getClickedBlock().getLocation().equals(super.getLocation()) && e.hasItem()){
+			if (BaseUtils.matchItem(e.getItem(), Wrench.getStaticCraftedItem())){
+				displayMana = !displayMana;
 			}
 		}
 	}
@@ -111,6 +126,7 @@ public class MagicaStorage extends MagicaBlock implements Craftable, Saveable, M
 
 	@Override
 	public void runParticles() {
+		blockDisplayName.setDoesDisplayName(displayMana);
 		blockDisplayName.setDisplay("&7Mana Stored: &b" + getManaLevel() + "/" + getMaxMana());
 	}
 
@@ -201,6 +217,7 @@ public class MagicaStorage extends MagicaBlock implements Craftable, Saveable, M
 		MagicaMain.getMagicaMain().getStorageManager().save(this, "location-z", l.getZ());
 		MagicaMain.getMagicaMain().getStorageManager().save(this, "location-world", l.getWorld().getName());
 		MagicaMain.getMagicaMain().getStorageManager().save(this, "storedmana", storedMana);
+		MagicaMain.getMagicaMain().getStorageManager().save(this, "displaymana", displayMana);
 		blockDisplayName.destroy();
 	}
 

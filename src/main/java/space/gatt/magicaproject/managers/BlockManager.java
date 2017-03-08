@@ -1,8 +1,6 @@
 package space.gatt.magicaproject.managers;
 
-import io.netty.util.internal.StringUtil;
 import org.apache.commons.lang.WordUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -29,11 +27,10 @@ import space.gatt.magicaproject.interfaces.Saveable;
 import space.gatt.magicaproject.utilities.BaseUtils;
 
 import java.lang.reflect.Constructor;
-import java.util.ArrayList;
 import java.util.HashMap;
 public class BlockManager implements Listener{
 
-	private ArrayList<MagicaBlock> runningBlocks = new ArrayList<>();
+	private HashMap<String, MagicaBlock> runningBlocks = new HashMap<>();
 	private HashMap<ItemStack, Class> itemToClass = new HashMap<>();
 
 	public BlockManager() {
@@ -41,7 +38,7 @@ public class BlockManager implements Listener{
 		Bukkit.getPluginManager().registerEvents(this, MagicaMain.getMagicaMain());
 
 		Bukkit.getScheduler().runTaskTimer(MagicaMain.getMagicaMain(), () -> {
-			for (MagicaBlock mb : runningBlocks) {
+			for (MagicaBlock mb : runningBlocks.values()) {
 				if (mb.isActive()) {
 					mb.runParticles();
 				}
@@ -54,10 +51,8 @@ public class BlockManager implements Listener{
 	}
 
 	public void registerBlock(MagicaBlock mb) {
-		if (!runningBlocks.contains(mb)) {
-			runningBlocks.add(mb);
-			mb.setActive(true);
-		}
+		runningBlocks.put(mb.getLocation().toString(), mb);
+		mb.setActive(true);
 		if (mb instanceof ManaStorable){
 			mb.getLocation().getBlock().setMetadata("isManaStorage", new FixedMetadataValue(MagicaMain.getMagicaMain(), true));
 		}
@@ -74,7 +69,7 @@ public class BlockManager implements Listener{
 	}
 
 	public void shutdown() {
-		for (MagicaBlock mb : runningBlocks) {
+		for (MagicaBlock mb : runningBlocks.values()) {
 			if (mb instanceof Saveable) {
 				MagicaMain.getMagicaMain().getStorageManager().registerSaveable(((Saveable) mb));
 			}

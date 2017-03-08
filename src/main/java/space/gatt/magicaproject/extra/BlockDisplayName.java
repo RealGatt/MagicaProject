@@ -16,9 +16,8 @@ public class BlockDisplayName {
 	private long updateTime;
 
 	private BukkitTask task;
-
 	private ArmorStand stand;
-
+	private boolean displayName = true;
 
 	public BlockDisplayName(MagicaBlock block, String name, long updatetime){
 		this.display = name;
@@ -41,13 +40,26 @@ public class BlockDisplayName {
 
 	private void startTask(){
 		this.task = Bukkit.getScheduler().runTaskTimer(MagicaMain.getMagicaMain(),()->{
-			if (display.equalsIgnoreCase("")) {
+			if (!displayName){
 				stand.setCustomNameVisible(false);
-			} else {
-				stand.setCustomNameVisible(true);
+			}else {
+				if (display.equalsIgnoreCase("")) {
+					stand.setCustomNameVisible(false);
+				} else {
+					stand.setCustomNameVisible(true);
+				}
+				stand.setCustomNameVisible(block.getLocation().clone().getBlock().getRelative(BlockFace.UP).getType().isTransparent());
 			}
 			stand.setCustomName(cc(display));
 		}, updateTime, updateTime);
+	}
+
+	public boolean isDisplayingName() {
+		return displayName;
+	}
+
+	public void setDoesDisplayName(boolean displayName) {
+		this.displayName = displayName;
 	}
 
 	public void restartTask(){

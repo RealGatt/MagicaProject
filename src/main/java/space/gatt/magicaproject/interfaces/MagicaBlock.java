@@ -48,7 +48,19 @@ public class MagicaBlock implements Listener{
 	}
 
 	public MagicaBlock(JsonObject jsonObject){
+		if (jsonObject.has("upgrades")){
+			JsonObject upObjs = jsonObject.get("upgrades").getAsJsonObject();
+			for (UpgradeType upd : UpgradeType.values()){
+				if (upObjs.has(upd.name())){
+					if (acceptsUpgrade(upd)){
 
+						for (int cnt = 0; cnt < upObjs.get(upd.name()).getAsInt(); cnt++){
+							applyUpgrade(upd);
+						}
+					}
+				}
+			}
+		}
 	}
 
 	public MagicaBlock(Location location, ItemStack itemStack) {
@@ -58,8 +70,9 @@ public class MagicaBlock implements Listener{
 
 	@EventHandler
 	public void onBreak(BlockBreakEvent e) {
+		Bukkit.broadcastMessage("MagicaBlock test");
 		if (isActive()) {
-			Bukkit.broadcastMessage("MagicaBlock active");
+
 			if (e.getBlock().getLocation().equals(getLocation())) {
 				for (UpgradeInstance upgrades : getUpgrades()){
 					ItemStack drop = upgrades.getType().getUpgradeItem().clone();

@@ -23,6 +23,7 @@ import space.gatt.magicaproject.utilities.BaseUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Random;
 
 public class MagicaPipe extends MagicaBlock implements Craftable, Saveable, Listener, ManaStorable {
@@ -53,7 +54,9 @@ public class MagicaPipe extends MagicaBlock implements Craftable, Saveable, List
 				}
 			}
 		}
+
 		if (locations.size() > 0) {
+			Collections.shuffle(locations);
 			return locations.toArray(new Location[locations.size()]);
 		}else{
 			return null;
@@ -71,7 +74,9 @@ public class MagicaPipe extends MagicaBlock implements Craftable, Saveable, List
 				}
 			}
 		}
+
 		if (locations.size() > 0) {
+			Collections.shuffle(locations);
 			return locations.toArray(new MagicaBlock[locations.size()]);
 		}else{
 			return null;
@@ -144,6 +149,7 @@ public class MagicaPipe extends MagicaBlock implements Craftable, Saveable, List
 		MagicaMain.getMagicaMain().getBlockManager().registerBlock(this);
 		super.getLocation()
 				.getBlock().setMetadata("isPipe", new FixedMetadataValue(MagicaMain.getMagicaMain(), true));
+		updateUpgrades();
 	}
 
 	@EventHandler
@@ -166,62 +172,13 @@ public class MagicaPipe extends MagicaBlock implements Craftable, Saveable, List
 		if (e.getAction() == Action.RIGHT_CLICK_BLOCK && super.isActive()){
 			if (e.getClickedBlock().getLocation().equals(super.getLocation())){
 				if (BaseUtils.matchItem(e.getItem(), Wrench.getStaticCraftedItem())){
-					if (e.getPlayer().isSneaking()){
-						Location[] nearbyPipes = getNearbyPipes();
-						if (nearbyPipes != null && nearbyPipes.length > 0){
-							Location first = nearbyPipes[new Random().nextInt(nearbyPipes.length) - 1];
-							BlockFace touching = first.getBlock().getFace(super.getLocation().getBlock());
-							byte face = (byte)1;
-							if (touching == BlockFace.DOWN){
-								face = 0;
-							}
-							if (touching == BlockFace.NORTH){
-								face = 2;
-							}
-							if (touching == BlockFace.SOUTH){
-								face = 3;
-							}
-							if (touching == BlockFace.WEST){
-								face = 4;
-							}
-							if (touching == BlockFace.EAST){
-								face = 5;
-							}
-							super.getLocation().getBlock().setData(face);
-						}
-						return;
+					if (e.getClickedBlock().getData() < 6){
+						byte next = (byte)(e.getClickedBlock().getData() + 1);
+						e.getClickedBlock().setData(next);
+					}else{
+						e.getClickedBlock().setData((byte)0);
 					}
-					if (e.getClickedBlock().getData() < 7){
-						byte current = e.getClickedBlock().getData();
-						if (current == (byte)0){
-							e.getClickedBlock().setData((byte)1);
-							return;
-						}
-						if (current == (byte)1){
-							e.getClickedBlock().setData((byte)2);
-							return;
-						}
-						if (current == (byte)2){
-							e.getClickedBlock().setData((byte)3);
-							return;
-						}
-						if (current == (byte)3){
-							e.getClickedBlock().setData((byte)4);
-							return;
-						}
-						if (current == (byte)4){
-							e.getClickedBlock().setData((byte)5);
-							return;
-						}
-						if (current == (byte)5){
-							e.getClickedBlock().setData((byte)6);
-							return;
-						}
-						if (current == (byte)6){
-							e.getClickedBlock().setData((byte)0);
-							return;
-						}
-					}
+					e.getClickedBlock().getState().update();
 				}
 			}
 		}
@@ -415,11 +372,18 @@ public class MagicaPipe extends MagicaBlock implements Craftable, Saveable, List
 	public void applyUpgrade(UpgradeType upgrade) {
 		if (acceptsUpgrade(upgrade)) {
 			super.applyUpgrade(upgrade);
-			UpgradeInstance upI = super.getUpgrade(upgrade);
+			updateUpgrades();
+		}
+	}
+
+	private void updateUpgrades(){
+		for (UpgradeType upgrade : super.getAppliedUpgrades()) {
 			if (upgrade == UpgradeType.SPEED_UPGRADE) {
+				UpgradeInstance upI = super.getUpgrade(upgrade);
 				setTransferSpeed((upI.getLevel() * 10) + 20);
 			}
 			if (upgrade == UpgradeType.CAPACITY_UPGRADE){
+				UpgradeInstance upI = super.getUpgrade(upgrade);
 				setMaxMana((upI.getLevel() * 25) + 300);
 			}
 		}

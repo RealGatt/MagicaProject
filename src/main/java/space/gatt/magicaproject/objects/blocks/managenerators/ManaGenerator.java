@@ -16,6 +16,7 @@ import space.gatt.magicaproject.extra.BlockDisplayName;
 import space.gatt.magicaproject.extra.MagicaRecipe;
 import space.gatt.magicaproject.interfaces.*;
 import space.gatt.magicaproject.objects.items.MagicaShard;
+import space.gatt.magicaproject.objects.items.Wrench;
 import space.gatt.magicaproject.utilities.BaseUtils;
 
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ public class ManaGenerator extends MagicaBlock implements Craftable, Saveable, M
 	private OfflinePlayer playerPlaced;
 	private float storedMana;
 	private BlockDisplayName blockDisplayName;
+	private boolean displayMana = true;
 
 	public ManaGenerator(Location l, OfflinePlayer playerPlaced) {
 		super(l);
@@ -66,6 +68,9 @@ public class ManaGenerator extends MagicaBlock implements Craftable, Saveable, M
 		if (object.has("storedmana")){
 			setManaLevel(object.get("storedmana").getAsFloat());
 		}
+		if (object.has("displaymana")){
+			displayMana = object.get("displaymana").getAsBoolean();
+		}
 		this.l = new Location(world, x, y, z);
 		super.setLocation(l);
 		super.setActive(true);
@@ -74,6 +79,7 @@ public class ManaGenerator extends MagicaBlock implements Craftable, Saveable, M
 		super.updateBlock();
 		MagicaMain.getMagicaMain().getBlockManager().registerBlock(this);
 		blockDisplayName = new BlockDisplayName(this, "&7Mana Stored: &b0", 1);
+		updateUpgrades();
 	}
 
 	@EventHandler
@@ -90,6 +96,15 @@ public class ManaGenerator extends MagicaBlock implements Craftable, Saveable, M
 				super.setActive(false);
 				blockDisplayName.destroy();
 			}
+	}
+
+	@EventHandler
+	public void onWrench(PlayerInteractEvent e){
+		if(e.getClickedBlock().getLocation().equals(super.getLocation()) && e.hasItem()){
+			if (BaseUtils.matchItem(e.getItem(), Wrench.getStaticCraftedItem())){
+				displayMana = !displayMana;
+			}
+		}
 	}
 
 	public static ArrayList<MagicaRecipe> getStaticRecipes(){
@@ -126,6 +141,7 @@ public class ManaGenerator extends MagicaBlock implements Craftable, Saveable, M
 	@Override
 	public void runParticles() {
 		increaseMana(1);
+		blockDisplayName.setDoesDisplayName(displayMana);
 		blockDisplayName.setDisplay("&7Mana Stored: &b" + getManaLevel() + "/" + getMaxMana());
 	}
 
@@ -134,7 +150,7 @@ public class ManaGenerator extends MagicaBlock implements Craftable, Saveable, M
 		return "Mana Generator";
 	}
 
-	private float maxMana = 1000;
+	private float maxMana = 500;
 
 	@Override
 	public float getMaxMana() {
@@ -197,6 +213,12 @@ public class ManaGenerator extends MagicaBlock implements Craftable, Saveable, M
 	public void applyUpgrade(UpgradeType upgrade) {
 		if (acceptsUpgrade(upgrade)){
 			super.applyUpgrade(upgrade);
+			updateUpgrades();
+		}
+	}
+
+	private void updateUpgrades(){
+		for (UpgradeType upgrade : super.getAppliedUpgrades()) {
 			if (upgrade == UpgradeType.CAPACITY_UPGRADE){
 				UpgradeInstance upI = super.getUpgrade(upgrade);
 				setMaxMana((upI.getLevel() * 25) + 100000);
@@ -228,6 +250,7 @@ public class ManaGenerator extends MagicaBlock implements Craftable, Saveable, M
 		MagicaMain.getMagicaMain().getStorageManager().save(this, "player", playerPlaced.getName());
 		MagicaMain.getMagicaMain().getStorageManager().save(this, "player-uuid", playerPlaced.getUniqueId());
 		MagicaMain.getMagicaMain().getStorageManager().save(this, "storedmana", storedMana);
+		MagicaMain.getMagicaMain().getStorageManager().save(this, "displaymana", displayMana);
 		blockDisplayName.destroy();
 	}
 

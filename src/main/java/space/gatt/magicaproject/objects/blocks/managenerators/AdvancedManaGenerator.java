@@ -5,6 +5,7 @@ import org.bukkit.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import space.gatt.magicaproject.MagicaMain;
@@ -13,6 +14,7 @@ import space.gatt.magicaproject.extra.BlockDisplayName;
 import space.gatt.magicaproject.extra.MagicaRecipe;
 import space.gatt.magicaproject.interfaces.*;
 import space.gatt.magicaproject.objects.items.MagicaShard;
+import space.gatt.magicaproject.objects.items.Wrench;
 import space.gatt.magicaproject.utilities.BaseUtils;
 
 import java.util.ArrayList;
@@ -24,6 +26,7 @@ public class AdvancedManaGenerator extends MagicaBlock implements Craftable, Sav
 	private OfflinePlayer playerPlaced;
 	private float storedMana;
 	private BlockDisplayName blockDisplayName;
+	private boolean displayMana = true;
 
 	public AdvancedManaGenerator(Location l, OfflinePlayer playerPlaced) {
 		super(l);
@@ -63,6 +66,9 @@ public class AdvancedManaGenerator extends MagicaBlock implements Craftable, Sav
 		if (object.has("storedmana")){
 			setManaLevel(object.get("storedmana").getAsFloat());
 		}
+		if (object.has("displaymana")){
+			displayMana = object.get("displaymana").getAsBoolean();
+		}
 		this.l = new Location(world, x, y, z);
 		super.setLocation(l);
 		super.setActive(true);
@@ -71,6 +77,7 @@ public class AdvancedManaGenerator extends MagicaBlock implements Craftable, Sav
 		super.updateBlock();
 		MagicaMain.getMagicaMain().getBlockManager().registerBlock(this);
 		blockDisplayName = new BlockDisplayName(this, "&7Mana Stored: &b0", 1);
+		updateUpgrades();
 	}
 
 	public static ArrayList<MagicaRecipe> getStaticRecipes(){
@@ -100,6 +107,15 @@ public class AdvancedManaGenerator extends MagicaBlock implements Craftable, Sav
 		}
 	}
 
+	@EventHandler
+	public void onWrench(PlayerInteractEvent e){
+		if(e.getClickedBlock().getLocation().equals(super.getLocation()) && e.hasItem()){
+			if (BaseUtils.matchItem(e.getItem(), Wrench.getStaticCraftedItem())){
+				displayMana = !displayMana;
+			}
+		}
+	}
+
 	@Override
 	public ArrayList<MagicaRecipe> getRecipes() {
 		return getStaticRecipes();
@@ -110,9 +126,12 @@ public class AdvancedManaGenerator extends MagicaBlock implements Craftable, Sav
 		return l.clone();
 	}
 
+	private float manaPerTick = 5;
+
 	@Override
 	public void runParticles() {
-		increaseMana(5);
+		increaseMana(manaPerTick);
+		blockDisplayName.setDoesDisplayName(displayMana);
 		blockDisplayName.setDisplay("&7Mana Stored: &b" + getManaLevel() + "/" + getMaxMana());
 	}
 
@@ -147,7 +166,7 @@ public class AdvancedManaGenerator extends MagicaBlock implements Craftable, Sav
 	}
 
 
-	private float maxMana = 100000;
+	private float maxMana = 1000;
 
 	@Override
 	public float getMaxMana() {
@@ -215,6 +234,7 @@ public class AdvancedManaGenerator extends MagicaBlock implements Craftable, Sav
 		MagicaMain.getMagicaMain().getStorageManager().save(this, "player", playerPlaced.getName());
 		MagicaMain.getMagicaMain().getStorageManager().save(this, "player-uuid", playerPlaced.getUniqueId());
 		MagicaMain.getMagicaMain().getStorageManager().save(this, "storedmana", storedMana);
+		MagicaMain.getMagicaMain().getStorageManager().save(this, "displaymana", displayMana);
 		blockDisplayName.destroy();
 	}
 
@@ -223,18 +243,32 @@ public class AdvancedManaGenerator extends MagicaBlock implements Craftable, Sav
 
 	}
 
+	public void setManaPerTick(float manaPerTick) {
+		this.manaPerTick = manaPerTick;
+	}
+
 	@Override
 	public boolean acceptsUpgrade(UpgradeType type) {
-		return (type == UpgradeType.CAPACITY_UPGRADE);
+		return (type == UpgradeType.CAPACITY_UPGRADE) || (type == UpgradeType.SPEED_UPGRADE);
 	}
 
 	@Override
 	public void applyUpgrade(UpgradeType upgrade) {
 		if (acceptsUpgrade(upgrade)){
 			super.applyUpgrade(upgrade);
-			if (upgrade == UpgradeType.CAPACITY_UPGRADE){
+			updateUpgrades();
+		}
+	}
+
+	private void updateUpgrades(){
+		for (UpgradeType upgrade : super.getAppliedUpgrades()) {
+			if (upgrade == UpgradeType.CAPACITY_UPGRADE) {
 				UpgradeInstance upI = super.getUpgrade(upgrade);
-				setMaxMana((upI.getLevel() * 25) + 100000);
+				setMaxMana((upI.getLevel() * 25) + 1000);
+			}
+			if (upgrade == UpgradeType.SPEED_UPGRADE) {
+				UpgradeInstance upI = super.getUpgrade(upgrade);
+				setManaPerTick((upI.getLevel() * 10) + 5);
 			}
 		}
 	}

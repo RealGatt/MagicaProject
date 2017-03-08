@@ -73,7 +73,8 @@ public class OrbOfLife implements Craftable{
 							cancel();
 						}
 						if ((time - timeTaken) <= 1){
-							TreeType[] types = new TreeType[]{TreeType.TREE, TreeType.BIRCH, TreeType.TALL_BIRCH, TreeType.JUNGLE_BUSH};
+							TreeType[] types = new TreeType[]{TreeType.TREE,TreeType.TREE,TreeType.TREE,
+									TreeType.BIRCH, TreeType.TALL_BIRCH, TreeType.SMALL_JUNGLE, TreeType.JUNGLE_BUSH, TreeType.SMALL_JUNGLE};
 							b.getWorld().generateTree(b.getLocation().add(0, 1, 0), types[rnd.nextInt(types.length - 1)]);
 							cancel();
 							return;
