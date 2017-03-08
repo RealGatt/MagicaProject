@@ -52,7 +52,7 @@ public class Wrench implements Craftable{
 									}
 								}
 								itemsSorted.sort(new ItemComparator());
-								ItemStack[] sorted = itemsSorted.toArray(new ItemStack[itemsSorted.size() - 1]);
+								ItemStack[] sorted = itemsSorted.toArray(new ItemStack[itemsSorted.size()]);
 								holder.getInventory().clear();
 								holder.getInventory().setContents(sorted);
 								e.setCancelled(true);
@@ -74,8 +74,8 @@ public class Wrench implements Craftable{
 	}
 
 	public static ItemStack getStaticCraftedItem(){
-		ItemStack is = MagicaMain.getBaseStack();
-		is.setDurability((short)1560);
+		ItemStack is = MagicaMain.getBaseItem();
+		is.setDurability((short)1);
 		ItemMeta im = is.getItemMeta();
 		im.setDisplayName(BaseUtils.colorString("&bMagic Wrench"));
 		im.addItemFlags(ItemFlag.values());
@@ -90,6 +90,7 @@ public class Wrench implements Craftable{
 		MagicaRecipe recipe = new MagicaRecipe(new ArrayList<>(Arrays.asList(
 				new ItemStack(Material.IRON_INGOT),
 				new ItemStack(Material.IRON_INGOT),
+				new ItemStack(Material.REDSTONE),
 				new ItemStack(Material.LEVER)
 		)), getStaticCraftedItem(), 100, 0, true);
 		recipes.add(recipe);

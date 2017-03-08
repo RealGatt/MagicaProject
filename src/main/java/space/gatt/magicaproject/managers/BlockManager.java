@@ -1,5 +1,8 @@
 package space.gatt.magicaproject.managers;
 
+import io.netty.util.internal.StringUtil;
+import org.apache.commons.lang.WordUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -19,6 +22,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.MaterialData;
 import org.bukkit.metadata.FixedMetadataValue;
 import space.gatt.magicaproject.MagicaMain;
+import space.gatt.magicaproject.enums.UpgradeType;
 import space.gatt.magicaproject.interfaces.MagicaBlock;
 import space.gatt.magicaproject.interfaces.ManaStorable;
 import space.gatt.magicaproject.interfaces.Saveable;
@@ -27,7 +31,6 @@ import space.gatt.magicaproject.utilities.BaseUtils;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
-
 public class BlockManager implements Listener{
 
 	private ArrayList<MagicaBlock> runningBlocks = new ArrayList<>();
@@ -53,6 +56,7 @@ public class BlockManager implements Listener{
 	public void registerBlock(MagicaBlock mb) {
 		if (!runningBlocks.contains(mb)) {
 			runningBlocks.add(mb);
+			mb.setActive(true);
 		}
 		if (mb instanceof ManaStorable){
 			mb.getLocation().getBlock().setMetadata("isManaStorage", new FixedMetadataValue(MagicaMain.getMagicaMain(), true));
@@ -62,9 +66,7 @@ public class BlockManager implements Listener{
 	}
 
 	public void removeBlock(MagicaBlock mb) {
-		if (runningBlocks.contains(mb)) {
-			runningBlocks.remove(mb);
-		}
+		mb.setActive(false);
 		mb.getLocation().getWorld().playEffect(mb.getLocation(), Effect.STEP_SOUND, new MaterialData(Material.IRON_BLOCK).getItemTypeId());
 		mb.getLocation().getBlock().removeMetadata("IsMagicaBlock", MagicaMain.getMagicaMain());
 		mb.getLocation().getBlock().removeMetadata("isManaStorage", MagicaMain.getMagicaMain());
@@ -80,50 +82,51 @@ public class BlockManager implements Listener{
 	}
 
 	@EventHandler
-	public void onPlace(PlayerInteractEvent e){
-		if (e.getAction() == Action.RIGHT_CLICK_BLOCK && e.hasItem() && !e.isCancelled()){
+	public void onPlace(PlayerInteractEvent e) {
+		if (e.getAction() == Action.RIGHT_CLICK_BLOCK && e.hasItem()) {
 			BlockFace face = e.getBlockFace();
 			Block b = e.getClickedBlock().getRelative(face);
-			if (b.isEmpty() || b.isLiquid()){
+			if (b.isEmpty() || b.isLiquid() && !e.isCancelled()) {
 				boolean isItem = false;
-				for (ItemStack i : itemToClass.keySet()){
-					if (BaseUtils.matchItem(i, e.getItem())){
+				for (ItemStack i : itemToClass.keySet()) {
+					if (BaseUtils.matchItem(i, e.getItem())) {
 						isItem = true;
 						break;
 					}
 				}
-				if (isItem){
+				if (isItem) {
 					e.setUseItemInHand(Event.Result.DENY);
 					e.setUseInteractedBlock(Event.Result.DENY);
 					boolean placed = false;
 					ItemStack itemCopy = e.getItem().clone();
 					itemCopy.setAmount(1);
 					try {
-						placeCheck : for (Constructor m : itemToClass.get(itemCopy).getConstructors()){
-							if (m.getParameterCount() == 1){
-								for (Class typeParameter : m.getParameterTypes()){
-									if (typeParameter == Location.class){
+						placeCheck:
+						for (Constructor m : itemToClass.get(itemCopy).getConstructors()) {
+							if (m.getParameterCount() == 1) {
+								for (Class typeParameter : m.getParameterTypes()) {
+									if (typeParameter == Location.class) {
 										m.newInstance(b.getLocation());
 										placed = true;
 										break placeCheck;
-									}else if (typeParameter == OfflinePlayer.class){
+									} else if (typeParameter == OfflinePlayer.class) {
 										placed = true;
-										m.newInstance((OfflinePlayer)e.getPlayer());
+										m.newInstance((OfflinePlayer) e.getPlayer());
 										break placeCheck;
 									}
 								}
 							}
-							if (m.getParameterCount() == 2){
+							if (m.getParameterCount() == 2) {
 								int correct = 0;
-								for (Class typeParameter : m.getParameterTypes()){
-									if (typeParameter == Location.class){
+								for (Class typeParameter : m.getParameterTypes()) {
+									if (typeParameter == Location.class) {
 										correct++;
-									}else if (typeParameter == OfflinePlayer.class){
+									} else if (typeParameter == OfflinePlayer.class) {
 										correct++;
 									}
-									if (correct == 2){
+									if (correct == 2) {
 										placed = true;
-										m.newInstance(b.getLocation(), (OfflinePlayer)e.getPlayer());
+										m.newInstance(b.getLocation(), (OfflinePlayer) e.getPlayer());
 										break placeCheck;
 									}
 								}
@@ -136,16 +139,54 @@ public class BlockManager implements Listener{
 									e.getItem().setAmount(e.getItem().getAmount() - 1);
 								} else {
 									e.getItem().setAmount(0);
-									if (e.getPlayer().getInventory().getItemInMainHand().isSimilar(e.getItem())){
+									if (e.getPlayer().getInventory().getItemInMainHand().isSimilar(e.getItem())) {
 										e.getPlayer().getInventory().setItemInMainHand(new ItemStack(Material.AIR));
-									}else if (e.getPlayer().getInventory().getItemInOffHand().isSimilar(e.getItem())){
+									} else if (e.getPlayer().getInventory().getItemInOffHand().isSimilar(e.getItem())) {
 										e.getPlayer().getInventory().setItemInOffHand(new ItemStack(Material.AIR));
 									}
 								}
 							}
 						}
-					}catch (Exception exp){
+					} catch (Exception exp) {
 						exp.printStackTrace();
+					}
+				}
+				return;
+			}
+		}
+	}
+	@EventHandler
+	public void onPlaceUpgrade(PlayerInteractEvent e){
+		if (e.getAction() == Action.RIGHT_CLICK_BLOCK && e.hasItem()){
+			if (e.getItem().getType() == MagicaMain.getBaseItem().getType()){
+				MagicaBlock mb = MagicaBlock.getMagicaBlockAtLocation(e.getClickedBlock().getLocation());
+				if (mb != null){
+					for (UpgradeType upgrades : UpgradeType.values()){
+						if (BaseUtils.matchItem(upgrades.getUpgradeItem(), e.getItem())){
+							if (mb.acceptsUpgrade(upgrades)){
+								mb.applyUpgrade(upgrades);
+								e.getClickedBlock().getWorld().playSound(e.getClickedBlock().getLocation(), Sound.BLOCK_ANVIL_USE, 1, 1);
+								e.getPlayer().sendMessage(BaseUtils.colorString("&aUpgrade &6" +
+										WordUtils.capitalizeFully(upgrades.name().toLowerCase().replaceAll("_", " ")) + "&a added!" +
+										"\n &cUpgrade Level: &b" + mb.getUpgrade(upgrades).getLevel() + "&c!"));
+								if (e.getPlayer().getGameMode() != GameMode.CREATIVE) {
+									if (e.getItem().getAmount() > 1) {
+										e.getItem().setAmount(e.getItem().getAmount() - 1);
+									} else {
+										e.getItem().setAmount(0);
+										if (e.getPlayer().getInventory().getItemInMainHand().isSimilar(e.getItem())){
+											e.getPlayer().getInventory().setItemInMainHand(new ItemStack(Material.AIR));
+										}else if (e.getPlayer().getInventory().getItemInOffHand().isSimilar(e.getItem())){
+											e.getPlayer().getInventory().setItemInOffHand(new ItemStack(Material.AIR));
+										}
+									}
+								}
+								return;
+							}else{
+								e.getClickedBlock().getWorld().playSound(e.getClickedBlock().getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
+								e.getPlayer().sendMessage(BaseUtils.colorString("&cThis upgrade cannot be applied to this block!"));
+							}
+						}
 					}
 				}
 			}

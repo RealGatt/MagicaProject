@@ -15,11 +15,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import space.gatt.magicaproject.MagicaMain;
+import space.gatt.magicaproject.enums.UpgradeType;
 import space.gatt.magicaproject.extra.MagicaRecipe;
-import space.gatt.magicaproject.interfaces.Craftable;
-import space.gatt.magicaproject.interfaces.MagicaBlock;
-import space.gatt.magicaproject.interfaces.ManaStorable;
-import space.gatt.magicaproject.interfaces.Saveable;
+import space.gatt.magicaproject.interfaces.*;
 import space.gatt.magicaproject.objects.items.Wrench;
 import space.gatt.magicaproject.utilities.BaseUtils;
 
@@ -41,6 +39,7 @@ public class MagicaPipe extends MagicaBlock implements Craftable, Saveable, List
 	}
 
 	private float manaStored = 0;
+	private float transferSpeed = 1;
 
 
 	public Location[] getNearbyPipes(){
@@ -55,7 +54,7 @@ public class MagicaPipe extends MagicaBlock implements Craftable, Saveable, List
 			}
 		}
 		if (locations.size() > 0) {
-			return locations.toArray(new Location[locations.size() - 1]);
+			return locations.toArray(new Location[locations.size()]);
 		}else{
 			return null;
 		}
@@ -73,7 +72,7 @@ public class MagicaPipe extends MagicaBlock implements Craftable, Saveable, List
 			}
 		}
 		if (locations.size() > 0) {
-			return locations.toArray(new MagicaBlock[locations.size() - 1]);
+			return locations.toArray(new MagicaBlock[locations.size()]);
 		}else{
 			return null;
 		}
@@ -134,6 +133,9 @@ public class MagicaPipe extends MagicaBlock implements Craftable, Saveable, List
 		if (object.has("storedmana")){
 			setManaLevel(object.get("storedmana").getAsFloat());
 		}
+		if (object.has("transferspeed")){
+			setTransferSpeed(object.get("transferspeed").getAsFloat());
+		}
 		super.setLocation(new Location(world, x, y, z));
 		super.setActive(true);
 		super.setDisplayedItem(getStaticCraftedItem());
@@ -167,7 +169,7 @@ public class MagicaPipe extends MagicaBlock implements Craftable, Saveable, List
 					if (e.getPlayer().isSneaking()){
 						Location[] nearbyPipes = getNearbyPipes();
 						if (nearbyPipes != null && nearbyPipes.length > 0){
-							Location first = nearbyPipes[new Random().nextInt(nearbyPipes.length - 1)];
+							Location first = nearbyPipes[new Random().nextInt(nearbyPipes.length) - 1];
 							BlockFace touching = first.getBlock().getFace(super.getLocation().getBlock());
 							byte face = (byte)1;
 							if (touching == BlockFace.DOWN){
@@ -261,18 +263,22 @@ public class MagicaPipe extends MagicaBlock implements Craftable, Saveable, List
 			MagicaBlock blockTouchingOpposite =
 					MagicaBlock.getMagicaBlockAtLocation(super.getLocation().getBlock().getRelative(opposite));
 			if (blockTouching instanceof ManaStorable) {
+
 				ManaStorable ms = (ManaStorable) blockTouching;
 				Location inBetween = getLocation().clone().add(0.5, 0.5, 0.5).toVector().
 						midpoint(blockTouching.getLocation().clone().add(0.5, 0.5, 0.5).toVector())
 						.toLocation(getLocation().getWorld());
 				if (ms.allowsOutput()) {
-					if (ms.getManaLevel() > 0 && getManaLevel() + 1 <= getMaxMana()) {
-						ms.decreaseMana(1);
-						increaseMana(1);
+					for (int count = 0; count < getTransferSpeed(); count++) {
+						if (ms.getManaLevel() > 0 && getManaLevel() + 1 <= getMaxMana()) {
+							ms.decreaseMana(1);
+							increaseMana(1);
+						}
 					}
-				}else{
+				} else {
 					getLocation().getWorld().spawnParticle(Particle.REDSTONE, inBetween, 1, 0, 0, 0, 0);
 				}
+
 			}
 			if (blockTouchingOpposite instanceof ManaStorable) {
 				ManaStorable ms = (ManaStorable) blockTouchingOpposite;
@@ -280,11 +286,12 @@ public class MagicaPipe extends MagicaBlock implements Craftable, Saveable, List
 						midpoint(blockTouchingOpposite.getLocation().clone().add(0.5, 0.5, 0.5).toVector())
 						.toLocation(getLocation().getWorld());
 				if (ms.acceptsInput()) {
-					if (getManaLevel() > 0 && ms.getManaLevel() + 1 <= ms.getMaxMana()) {
-						ms.increaseMana(1);
-						decreaseMana(1);
+					for (int count = 0; count < getTransferSpeed(); count++) {
+						if (getManaLevel() > 0 && ms.getManaLevel() + 1 <= ms.getMaxMana()) {
+							ms.increaseMana(1);
+							decreaseMana(1);
+						}
 					}
-
 				}else{
 					getLocation().getWorld().spawnParticle(Particle.REDSTONE, inBetween, 1, 0, 0, 0, 0);
 				}
@@ -314,7 +321,24 @@ public class MagicaPipe extends MagicaBlock implements Craftable, Saveable, List
 		MagicaMain.getMagicaMain().getStorageManager().save(this, "location-y", super.getLocation().getY());
 		MagicaMain.getMagicaMain().getStorageManager().save(this, "location-z", super.getLocation().getZ());
 		MagicaMain.getMagicaMain().getStorageManager().save(this, "storedmana", getManaLevel());
+		MagicaMain.getMagicaMain().getStorageManager().save(this, "transferspeed", getTransferSpeed());
 		MagicaMain.getMagicaMain().getStorageManager().save(this, "location-world", super.getLocation().getWorld().getName());
+	}
+
+	public float getTransferSpeed() {
+		return transferSpeed;
+	}
+
+	public void setTransferSpeed(float transferSpeed) {
+		this.transferSpeed = transferSpeed;
+	}
+
+	public void increaseTransferSpeed(float amount) {
+		this.transferSpeed += amount;
+	}
+
+	public void decreaseTransferSpeed(float amount) {
+		this.transferSpeed -= amount;
 	}
 
 	@Override
@@ -360,9 +384,16 @@ public class MagicaPipe extends MagicaBlock implements Craftable, Saveable, List
 		return getStaticRecipes();
 	}
 
+	private float maxMana = 300;
+
 	@Override
 	public float getMaxMana() {
-		return 300;
+		return maxMana;
+	}
+
+	@Override
+	public void setMaxMana(float amt) {
+		maxMana = amt;
 	}
 
 	@Override
@@ -373,6 +404,25 @@ public class MagicaPipe extends MagicaBlock implements Craftable, Saveable, List
 	@Override
 	public boolean allowsOutput() {
 		return true;
+	}
+
+	@Override
+	public boolean acceptsUpgrade(UpgradeType type) {
+		return type == UpgradeType.SPEED_UPGRADE || type == UpgradeType.CAPACITY_UPGRADE;
+	}
+
+	@Override
+	public void applyUpgrade(UpgradeType upgrade) {
+		if (acceptsUpgrade(upgrade)) {
+			super.applyUpgrade(upgrade);
+			UpgradeInstance upI = super.getUpgrade(upgrade);
+			if (upgrade == UpgradeType.SPEED_UPGRADE) {
+				setTransferSpeed((upI.getLevel() * 10) + 20);
+			}
+			if (upgrade == UpgradeType.CAPACITY_UPGRADE){
+				setMaxMana((upI.getLevel() * 25) + 300);
+			}
+		}
 	}
 
 	@Override

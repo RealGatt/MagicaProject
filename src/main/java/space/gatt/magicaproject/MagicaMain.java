@@ -152,7 +152,7 @@ public class MagicaMain extends JavaPlugin implements Listener{
 	}
 
 
-	public static ItemStack getBaseStack(){
+	public static ItemStack getBaseBlockStack(){
 		ItemStack is = new ItemStack(Material.DIAMOND_HOE);
 		ItemMeta im = is.getItemMeta();
 		im.setUnbreakable(true);
@@ -161,9 +161,19 @@ public class MagicaMain extends JavaPlugin implements Listener{
 		return is;
 	}
 
-	public static ItemStack getBasePick(){
+	public static ItemStack getBaseGUI(){
 		ItemStack is = new ItemStack(Material.DIAMOND_PICKAXE);
 		ItemMeta im = is.getItemMeta();
+		im.setUnbreakable(true);
+		im.addItemFlags(ItemFlag.values());
+		is.setItemMeta(im);
+		return is;
+	}
+
+	public static ItemStack getBaseItem(){
+		ItemStack is = new ItemStack(Material.DIAMOND_SPADE);
+		ItemMeta im = is.getItemMeta();
+
 		im.setUnbreakable(true);
 		im.addItemFlags(ItemFlag.values());
 		is.setItemMeta(im);

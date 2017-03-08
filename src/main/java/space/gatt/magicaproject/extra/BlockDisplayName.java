@@ -2,6 +2,7 @@ package space.gatt.magicaproject.extra;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.scheduler.BukkitTask;
 import space.gatt.magicaproject.MagicaMain;
@@ -45,7 +46,6 @@ public class BlockDisplayName {
 			} else {
 				stand.setCustomNameVisible(true);
 			}
-			stand.setCustomNameVisible(block.getLocation().clone().add(0.5, 1, 0.5).getBlock().getType().isTransparent());
 			stand.setCustomName(cc(display));
 		}, updateTime, updateTime);
 	}

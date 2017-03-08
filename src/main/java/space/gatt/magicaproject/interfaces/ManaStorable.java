@@ -10,6 +10,7 @@ public interface ManaStorable {
 	float decreaseMana(float f);
 
 	float getMaxMana();
+	void setMaxMana(float amount);
 
 	boolean acceptsInput();
 	boolean allowsOutput();

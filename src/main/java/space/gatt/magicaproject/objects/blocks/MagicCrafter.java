@@ -258,7 +258,7 @@ public class MagicCrafter extends MagicaBlock implements Saveable, Listener {
 	}
 
 	public static ItemStack getStaticCraftedItem() {
-		ItemStack magicCrafter = MagicaMain.getBaseStack();
+		ItemStack magicCrafter = MagicaMain.getBaseBlockStack();
 		magicCrafter.setDurability((short)1);
 		ItemMeta im = magicCrafter.getItemMeta();
 		im.setDisplayName(BaseUtils.colorString("&b&lMagica Crafter"));

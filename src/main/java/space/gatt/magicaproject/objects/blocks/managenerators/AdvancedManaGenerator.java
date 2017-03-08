@@ -8,12 +8,10 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import space.gatt.magicaproject.MagicaMain;
+import space.gatt.magicaproject.enums.UpgradeType;
 import space.gatt.magicaproject.extra.BlockDisplayName;
 import space.gatt.magicaproject.extra.MagicaRecipe;
-import space.gatt.magicaproject.interfaces.Craftable;
-import space.gatt.magicaproject.interfaces.MagicaBlock;
-import space.gatt.magicaproject.interfaces.ManaStorable;
-import space.gatt.magicaproject.interfaces.Saveable;
+import space.gatt.magicaproject.interfaces.*;
 import space.gatt.magicaproject.objects.items.MagicaShard;
 import space.gatt.magicaproject.utilities.BaseUtils;
 
@@ -114,7 +112,6 @@ public class AdvancedManaGenerator extends MagicaBlock implements Craftable, Sav
 
 	@Override
 	public void runParticles() {
-		l.getWorld().spawnParticle(Particle.DRAGON_BREATH, l.clone().add(0.5, 0.5, 0.5), 1, 0.25, 0.25, 0.25, 0);
 		increaseMana(5);
 		blockDisplayName.setDisplay("&7Mana Stored: &b" + getManaLevel() + "/" + getMaxMana());
 	}
@@ -130,7 +127,7 @@ public class AdvancedManaGenerator extends MagicaBlock implements Craftable, Sav
 	}
 
 	public static ItemStack getStaticCraftedItem() {
-		ItemStack manaGenerator = MagicaMain.getBaseStack();
+		ItemStack manaGenerator = MagicaMain.getBaseBlockStack();
 		manaGenerator.setDurability((short)3);
 		ItemMeta im = manaGenerator.getItemMeta();
 		im.setDisplayName(BaseUtils.colorString("&aAdvanced Mana Generator"));
@@ -149,9 +146,17 @@ public class AdvancedManaGenerator extends MagicaBlock implements Craftable, Sav
 		return true;
 	}
 
+
+	private float maxMana = 100000;
+
 	@Override
 	public float getMaxMana() {
-		return 100000;
+		return maxMana;
+	}
+
+	@Override
+	public void setMaxMana(float amt) {
+		maxMana = amt;
 	}
 
 	@Override
@@ -216,5 +221,21 @@ public class AdvancedManaGenerator extends MagicaBlock implements Craftable, Sav
 	@Override
 	public void loadCall(JsonObject loadedObject) {
 
+	}
+
+	@Override
+	public boolean acceptsUpgrade(UpgradeType type) {
+		return (type == UpgradeType.CAPACITY_UPGRADE);
+	}
+
+	@Override
+	public void applyUpgrade(UpgradeType upgrade) {
+		if (acceptsUpgrade(upgrade)){
+			super.applyUpgrade(upgrade);
+			if (upgrade == UpgradeType.CAPACITY_UPGRADE){
+				UpgradeInstance upI = super.getUpgrade(upgrade);
+				setMaxMana((upI.getLevel() * 25) + 100000);
+			}
+		}
 	}
 }

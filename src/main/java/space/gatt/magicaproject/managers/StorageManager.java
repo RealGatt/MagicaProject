@@ -1,10 +1,12 @@
 package space.gatt.magicaproject.managers;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.bukkit.Bukkit;
 import space.gatt.magicaproject.MagicaMain;
+import space.gatt.magicaproject.interfaces.MagicaBlock;
 import space.gatt.magicaproject.interfaces.Saveable;
 
 import java.io.*;
@@ -41,9 +43,10 @@ public class StorageManager {
 	}
 
 	public boolean removeFromSave(Saveable saveable) {
+		/*
 		if (storage.containsKey(saveable)) {
 			storage.remove(saveable);
-		}
+		}*/
 		return true;
 	}
 
@@ -92,10 +95,18 @@ public class StorageManager {
 
 	public void shutdown() {
 		for (File f : scannedfiles){
-			Bukkit.getLogger().info(f.delete() ? "Deleted file " + f.getName() + "!":"Could not delete file " + f.getName());
+			//Bukkit.getLogger().info(f.delete() ? "Deleted file " + f.getName() + "!":"Could not delete file " + f.getName());
+			//f.delete();
 		}
 		for (Saveable saveable : storage.keySet()) {
-			Bukkit.getLogger().info("Saving data for an " + saveable.getSaveFileName() + " instance.");
+			//Bukkit.getLogger().info("Saving data for an " + saveable.getSaveFileName() + " instance.");
+			if (saveable instanceof MagicaBlock){
+				MagicaBlock mb = (MagicaBlock)saveable;
+				JsonObject ja = mb.saveUpgrades();
+				HashMap hash = storage.get(saveable);
+				hash.put("upgrades", ja);
+				hash.put("isActive", mb.isActive());
+			}
 			saveable.shutdownCall();
 			if (storage.get(saveable) != null && !storage.get(saveable).isEmpty() && storage.get(saveable).size() > 0) {
 				saveHash(saveable.getSaveFileFolder(), saveable.getSaveFileName(), storage.get(saveable));
@@ -116,7 +127,7 @@ public class StorageManager {
 				MagicaMain.getMagicaMain().getDataFolder().mkdirs();
 			}
 			if (!f.exists()) {
-				Bukkit.getLogger().info("File doesn't exist!");
+				//Bukkit.getLogger().info("File doesn't exist!");
 				fileexists = f.createNewFile();
 			}else{
 				f.delete();
@@ -127,16 +138,16 @@ public class StorageManager {
 
 		if (fileexists) {
 			Gson gson = new Gson();
-			System.out.println("Preparing to create JSON Magic for " + title + ".");
+			//System.out.println("Preparing to create JSON Magic for " + title + ".");
 			String json = gson.toJson(hash);
 			try {
-				FileWriter fileWriter = new FileWriter(f);
+				FileWriter fileWriter = new FileWriter(f, false);
 				fileWriter.write(json);
 				fileWriter.close();
 			} catch (IOException fileE) {
 			}
 		} else {
-			System.out.println("The file didn't get created! Aborting!");
+			//System.out.println("The file didn't get created! Aborting!");
 		}
 	}
 

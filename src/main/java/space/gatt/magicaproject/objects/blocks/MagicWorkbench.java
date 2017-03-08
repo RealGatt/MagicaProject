@@ -84,7 +84,7 @@ public class MagicWorkbench extends MagicaBlock implements Craftable, Saveable, 
 			if (e.getAction() == Action.RIGHT_CLICK_BLOCK && e.getClickedBlock().getLocation().toString().equalsIgnoreCase(l.toString())) {
 				e.setCancelled(true);
 				InventoryView view = e.getPlayer().openWorkbench(e.getClickedBlock().getLocation(), true);
-				ItemStack workBenchHoe = MagicaMain.getBasePick();
+				ItemStack workBenchHoe = MagicaMain.getBaseGUI();
 				workBenchHoe.setDurability((short)2);
 				CraftingInventory inv = ((CraftingInventory)view.getTopInventory());
 				inv.setResult(workBenchHoe);
@@ -93,7 +93,7 @@ public class MagicWorkbench extends MagicaBlock implements Craftable, Saveable, 
 
 	public static ItemStack getStaticCraftedItem() {
 
-		ItemStack bench = MagicaMain.getBaseStack();
+		ItemStack bench = MagicaMain.getBaseBlockStack();
 		bench.setDurability((short)5);
 		ItemMeta im = bench.getItemMeta();
 		im.setDisplayName(BaseUtils.colorString("&eWorkbench of Magica"));

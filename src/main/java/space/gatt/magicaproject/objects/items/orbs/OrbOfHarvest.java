@@ -17,6 +17,7 @@ import space.gatt.magicaproject.extra.ItemProjectile;
 import space.gatt.magicaproject.extra.MagicaRecipe;
 import space.gatt.magicaproject.extra.ParticleTrail;
 import space.gatt.magicaproject.interfaces.Craftable;
+import space.gatt.magicaproject.objects.items.wand.WandCore;
 import space.gatt.magicaproject.utilities.BaseUtils;
 import space.gatt.magicaproject.utilities.BlockLooping;
 
@@ -25,38 +26,29 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-public class OrbOfLife implements Craftable{
+public class OrbOfHarvest implements Craftable{
 
 
 	public static void registerItemListener(){
 		Bukkit.getPluginManager().registerEvents(new Listener() {
 
-			List<Material> changeFrom = Arrays.asList(Material.STONE, Material.NETHERRACK, Material.SOUL_SAND,
-					Material.MYCEL, Material.SAND, Material.GRAVEL);
-			ItemStack[] changeTo = new ItemStack[]{
-					new ItemStack(Material.GRASS),
-					new ItemStack(Material.DIRT, 1, (byte)1)
-			};
+			List<Material> always = Arrays.asList(Material.LOG, Material.LOG_2,
+					Material.LEAVES, Material.LEAVES_2,
+					Material.RED_ROSE, Material.LONG_GRASS, Material.DEAD_BUSH, Material.YELLOW_FLOWER,
+					Material.BROWN_MUSHROOM, Material.RED_MUSHROOM, Material.HUGE_MUSHROOM_2, Material.HUGE_MUSHROOM_1);
+
 			ItemStack[] plants = new ItemStack[]{
-					new ItemStack(Material.LONG_GRASS, 1, (byte)0),
-					new ItemStack(Material.LONG_GRASS, 1, (byte)1),
-					new ItemStack(Material.YELLOW_FLOWER),
-					new ItemStack(Material.RED_ROSE),
-					new ItemStack(Material.RED_ROSE, 1, (byte)1),
-					new ItemStack(Material.RED_ROSE, 1, (byte)2),
-					new ItemStack(Material.RED_ROSE, 1, (byte)3),
-					new ItemStack(Material.RED_ROSE, 1, (byte)4),
-					new ItemStack(Material.RED_ROSE, 1, (byte)5),
-					new ItemStack(Material.RED_ROSE, 1, (byte)6),
-					new ItemStack(Material.RED_ROSE, 1, (byte)7),
-					new ItemStack(Material.RED_ROSE, 1, (byte)8),
-					new ItemStack(Material.BROWN_MUSHROOM),
-					new ItemStack(Material.RED_MUSHROOM)
+
+					new ItemStack(Material.CROPS, 1, (byte)7),
+					new ItemStack(Material.POTATO, 1, (byte)7),
+					new ItemStack(Material.CARROT, 1, (byte)7),
+					new ItemStack(Material.BEETROOT_BLOCK, 1, (byte)3),
+
 			};
 
 			Random rnd = new Random();
 
-			private void markForTree(final Block b){
+			private void markForHarvest(final Block b, Location l){
 				int time = (rnd.nextInt(100) / 2 * 20) / 10;
 				final Material type = b.getType();
 				CancellableBukkitTask task = new CancellableBukkitTask() {
@@ -73,8 +65,11 @@ public class OrbOfLife implements Craftable{
 							cancel();
 						}
 						if ((time - timeTaken) <= 1){
-							TreeType[] types = new TreeType[]{TreeType.TREE, TreeType.BIRCH, TreeType.TALL_BIRCH, TreeType.JUNGLE_BUSH};
-							b.getWorld().generateTree(b.getLocation().add(0, 1, 0), types[rnd.nextInt(types.length - 1)]);
+							for (ItemStack drop : b.getDrops()){
+								l.getWorld().dropItemNaturally(l, drop);
+							}
+							b.getWorld().playEffect(b.getLocation(), Effect.STEP_SOUND, b.getTypeId());
+							b.setType(Material.AIR);
 							cancel();
 							return;
 						}
@@ -82,42 +77,6 @@ public class OrbOfLife implements Craftable{
 				};
 				task.setTaskId(Bukkit.getScheduler().runTaskTimer(MagicaMain.getMagicaMain(), task
 				, 1, 10).getTaskId());
-			}
-
-			private void markForChange(Block b, ItemStack is){
-				int time = (rnd.nextInt(100) / 2 * 20) / 10;
-				final Material type = b.getType();
-				CancellableBukkitTask task = new CancellableBukkitTask() {
-					private int timeTaken = 0;
-					@Override
-					public void run() {
-						timeTaken++;
-						if (rnd.nextBoolean()) {
-							b.getWorld().spawnParticle(Particle.VILLAGER_HAPPY,
-									b.getLocation().clone().add(0.5, 0.5, 0.5), 1, 0.3, 0.3, 0.3, 0);
-						}
-						if (b.getType() != type){
-							cancel();
-						}
-						if ((time - timeTaken) <= 1){
-							b.getWorld().playEffect(b.getLocation(), Effect.STEP_SOUND, b.getTypeId());
-							b.setType(is.getType());
-							b.setData(is.getData().getData());
-							if (b.getRelative(0, 1, 0).getType() == Material.AIR){
-								if (rnd.nextBoolean()){
-									ItemStack flower = plants[rnd.nextInt(plants.length - 1)];
-									b.getRelative(0, 1, 0).setType(flower.getType(), false);
-									b.getRelative(0, 1, 0).setData(flower.getData().getData());
-								}
-							}
-							cancel();
-							return;
-						}
-					}
-				};
-				task.setTaskId(Bukkit.getScheduler().runTaskTimer(MagicaMain.getMagicaMain(), task
-						, 1, 10).getTaskId());
-
 			}
 
 			@EventHandler
@@ -137,7 +96,7 @@ public class OrbOfLife implements Craftable{
 						}
 					}
 					BaseUtils.addCooldownToItem(e.getItem(), e.getPlayer(), 20);
-					ItemProjectile pro = new ItemProjectile(item, e.getPlayer().getEyeLocation(), "orboflife").
+					ItemProjectile pro = new ItemProjectile(item, e.getPlayer().getEyeLocation(), "orbofharvest").
 							shoot(e.getPlayer().getEyeLocation().getDirection().multiply(1).add(new Vector(0, 0.2, 0)));
 					new ParticleTrail(pro.getEntity(), Particle.VILLAGER_HAPPY, 0).startTrail();
 				}
@@ -145,19 +104,17 @@ public class OrbOfLife implements Craftable{
 
 			@EventHandler
 			public void onItemLand(ItemProjectileLandEvent e){
-				if (e.getProjectile().getData().equalsIgnoreCase("orboflife")){
+				if (e.getProjectile().getData().equalsIgnoreCase("orbofharvest")){
 					e.removeEntity();
-					ArrayList<Block> blocks = BlockLooping.loopSphere(e.getLocation().clone().add(0, 1, 0), 10, true);
+					ArrayList<Block> blocks = BlockLooping.loopSphere(e.getLocation().clone().add(0, 1, 0), 15, true);
 					for (Block b : blocks){
-						if (changeFrom.contains(b.getType())) {
-							if (rnd.nextBoolean() && rnd.nextBoolean()){
-								markForTree(b);
-							}
-							markForChange(b, changeTo[rnd.nextInt(changeTo.length - 1)]);
-						}
-						if (b.getType() == Material.GRASS){
-							if (rnd.nextBoolean() && rnd.nextBoolean() && rnd.nextBoolean() && rnd.nextBoolean() && rnd.nextBoolean()){
-								markForTree(b);
+						if (always.contains(b.getType())){
+							markForHarvest(b, e.getLocation());
+						}else {
+							for (ItemStack is : plants) {
+								if (b.getType() == is.getType() && b.getData() == is.getData().getData()) {
+									markForHarvest(b, e.getLocation());
+								}
 							}
 						}
 					}
@@ -170,10 +127,10 @@ public class OrbOfLife implements Craftable{
 	public static ItemStack getStaticCraftedItem() {
 		ItemStack corruptionOrb = new ItemStack(Material.FIREWORK_CHARGE);
 		FireworkEffectMeta im = (FireworkEffectMeta)corruptionOrb.getItemMeta();
-		im.setEffect(FireworkEffect.builder().withColor(Color.LIME).build());
-		im.setDisplayName(BaseUtils.colorString("&aOrb of Life"));
+		im.setEffect(FireworkEffect.builder().withColor(Color.GREEN).build());
+		im.setDisplayName(BaseUtils.colorString("&aOrb of Harvest"));
 		im.addItemFlags(ItemFlag.values());
-		im.setLore(Arrays.asList(BaseUtils.colorString("&7Throw me to give life to an area"), MagicaMain.getLoreLine().get(0)));
+		im.setLore(Arrays.asList(BaseUtils.colorString("&7Throw me to harvest an area"), MagicaMain.getLoreLine().get(0)));
 		im.setUnbreakable(true);
 		corruptionOrb.setItemMeta(im);
 		return corruptionOrb;
@@ -187,11 +144,9 @@ public class OrbOfLife implements Craftable{
 	public static ArrayList<MagicaRecipe> getStaticRecipes(){
 		ArrayList<MagicaRecipe> recipes = new ArrayList<>();
 		MagicaRecipe rec1 = new MagicaRecipe(new ArrayList<>(
-				Arrays.asList(new ItemStack(Material.RED_ROSE),
-						new ItemStack(Material.YELLOW_FLOWER),
-						new ItemStack(Material.SEEDS),
-						new ItemStack(Material.WATER_BUCKET),
-						new ItemStack(Material.GRASS))),
+				Arrays.asList(new ItemStack(Material.IRON_AXE),
+						WandCore.getWoodCore(),
+						new ItemStack(Material.WATER_BUCKET))),
 				getStaticCraftedItem(), 1000, 10, true);
 		recipes.add(rec1);
 		return recipes;

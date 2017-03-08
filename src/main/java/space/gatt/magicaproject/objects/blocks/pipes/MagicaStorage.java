@@ -8,12 +8,10 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import space.gatt.magicaproject.MagicaMain;
+import space.gatt.magicaproject.enums.UpgradeType;
 import space.gatt.magicaproject.extra.BlockDisplayName;
 import space.gatt.magicaproject.extra.MagicaRecipe;
-import space.gatt.magicaproject.interfaces.Craftable;
-import space.gatt.magicaproject.interfaces.MagicaBlock;
-import space.gatt.magicaproject.interfaces.ManaStorable;
-import space.gatt.magicaproject.interfaces.Saveable;
+import space.gatt.magicaproject.interfaces.*;
 import space.gatt.magicaproject.objects.items.MagicaShard;
 import space.gatt.magicaproject.utilities.BaseUtils;
 
@@ -96,7 +94,7 @@ public class MagicaStorage extends MagicaBlock implements Craftable, Saveable, M
 	}
 
 	public static ItemStack getStaticCraftedItem() {
-		ItemStack manaGenerator = MagicaMain.getBaseStack();
+		ItemStack manaGenerator = MagicaMain.getBaseBlockStack();
 		manaGenerator.setDurability((short)6);
 		ItemMeta im = manaGenerator.getItemMeta();
 		im.setDisplayName(BaseUtils.colorString("&bMana Storage"));
@@ -113,15 +111,7 @@ public class MagicaStorage extends MagicaBlock implements Craftable, Saveable, M
 
 	@Override
 	public void runParticles() {
-		l.getWorld().spawnParticle(Particle.DRAGON_BREATH, l.clone().add(0.5, 0.5, 0.5), 5, 0.15, 0.15, 0.15, 0);
-		blockDisplayName.setDisplay("&7Mana Stored: &b" + getManaLevel() + "/100000");
-	}
-
-
-
-	@Override
-	public boolean isActive() {
-		return super.isActive();
+		blockDisplayName.setDisplay("&7Mana Stored: &b" + getManaLevel() + "/" + getMaxMana());
 	}
 
 	@Override
@@ -139,9 +129,16 @@ public class MagicaStorage extends MagicaBlock implements Craftable, Saveable, M
 		return true;
 	}
 
+	private float maxMana = 100000;
+
 	@Override
 	public float getMaxMana() {
-		return 100000;
+		return maxMana;
+	}
+
+	@Override
+	public void setMaxMana(float amt) {
+		maxMana = amt;
 	}
 
 	@Override
@@ -164,6 +161,22 @@ public class MagicaStorage extends MagicaBlock implements Craftable, Saveable, M
 	public float decreaseMana(float f) {
 		storedMana -= f;
 		return storedMana;
+	}
+
+	@Override
+	public boolean acceptsUpgrade(UpgradeType type) {
+		return type == UpgradeType.CAPACITY_UPGRADE;
+	}
+
+	@Override
+	public void applyUpgrade(UpgradeType upgrade) {
+		if (acceptsUpgrade(upgrade)) {
+			super.applyUpgrade(upgrade);
+			UpgradeInstance upI = super.getUpgrade(upgrade);
+			if (upgrade == UpgradeType.CAPACITY_UPGRADE){
+				setMaxMana((upI.getLevel() * 25) + 100000);
+			}
+		}
 	}
 
 	public static String getStaticSaveFileName(){
