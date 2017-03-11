@@ -159,6 +159,10 @@ public class OrbOfLife implements Craftable{
 						if (b.getType() == Material.GRASS){
 							if (rnd.nextBoolean() && rnd.nextBoolean() && rnd.nextBoolean() && rnd.nextBoolean() && rnd.nextBoolean()){
 								markForTree(b);
+							}else{
+								if (rnd.nextBoolean() && rnd.nextBoolean() && rnd.nextBoolean() && rnd.nextBoolean() && rnd.nextBoolean()){
+									markForChange(b, new ItemStack(Material.GRASS));
+								}
 							}
 						}
 					}
