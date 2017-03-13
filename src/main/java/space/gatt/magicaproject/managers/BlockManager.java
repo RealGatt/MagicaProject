@@ -24,6 +24,7 @@ import space.gatt.magicaproject.enums.UpgradeType;
 import space.gatt.magicaproject.interfaces.MagicaBlock;
 import space.gatt.magicaproject.interfaces.ManaStorable;
 import space.gatt.magicaproject.interfaces.Saveable;
+import space.gatt.magicaproject.objects.blocks.pipes.MagicaPipe;
 import space.gatt.magicaproject.utilities.BaseUtils;
 
 import java.lang.reflect.Constructor;
@@ -216,6 +217,13 @@ public class BlockManager implements Listener{
 						}
 					}
 				}
+				if (e.getClick() == ClickType.MIDDLE && e.getWhoClicked().getGameMode() == GameMode.CREATIVE){
+					if (e.getCurrentItem().getItemMeta().hasLore() && e.getCurrentItem().getItemMeta().getLore().contains(MagicaMain.getLoreLine().get(0))){
+						ItemStack copy = e.getCurrentItem().clone();
+						copy.setAmount(64);
+						e.setCurrentItem(copy);
+					}
+				}
 			}
 		}
 	}
@@ -225,13 +233,18 @@ public class BlockManager implements Listener{
 		if (e.getEntity().getItemStack().hasItemMeta() &&
 				e.getEntity().getItemStack().getItemMeta().hasLore() &&
 				e.getEntity().getItemStack().getItemMeta().getLore().contains(MagicaMain.getLoreLine().get(0))
-				&& e.getEntity().getItemStack().getMaxStackSize() == 1){
+				&& e.getEntity().getItemStack().getMaxStackSize() == 1
+				&& (e.getEntity().getItemStack().getType() == MagicaMain.getBaseBlockStack().getType() ||
+				e.getEntity().getItemStack().getType() == MagicaMain.getBaseItemStackable().getType())){
 			for (Entity ent : e.getEntity().getNearbyEntities(3, 2, 3)){
 				if (ent instanceof Item){
 					Item i = (Item)ent;
-					if (BaseUtils.matchItem(i.getItemStack(), e.getEntity().getItemStack()) && i.getCustomName() == null && e.getEntity().getCustomName() == null){
+					if (BaseUtils.matchItem(i.getItemStack(), e.getEntity().getItemStack())
+							&& i.getCustomName() == null
+							&& e.getEntity().getCustomName() == null){
 						if (i.getItemStack().getAmount() + e.getEntity().getItemStack().getAmount() <= 64){
-							e.getEntity().getItemStack().setAmount(e.getEntity().getItemStack().getAmount() + i.getItemStack().getAmount());
+							e.getEntity().getItemStack().setAmount(
+									e.getEntity().getItemStack().getAmount() + i.getItemStack().getAmount());
 							i.remove();
 							e.setCancelled(true);
 						}
@@ -245,7 +258,9 @@ public class BlockManager implements Listener{
 	public void onPickup(PlayerPickupItemEvent e){
 		if (e.getItem().getItemStack().hasItemMeta() &&
 			e.getItem().getItemStack().getItemMeta().hasLore() &&
-			e.getItem().getItemStack().getItemMeta().getLore().contains(MagicaMain.getLoreLine().get(0))){
+			e.getItem().getItemStack().getItemMeta().getLore().contains(MagicaMain.getLoreLine().get(0)) &&
+				(e.getItem().getItemStack().getType() == MagicaMain.getBaseBlockStack().getType() ||
+						e.getItem().getItemStack().getType() == MagicaMain.getBaseItemStackable().getType())){
 			for (int amount = e.getItem().getItemStack().getAmount(); amount >= 0; amount--) {
 				if (!e.getItem().isDead() && e.getItem().getItemStack() != null && e.getItem() != null) {
 					itemcheck:
@@ -257,6 +272,7 @@ public class BlockManager implements Listener{
 							}
 							is.setAmount(is.getAmount() + 1);
 							e.setCancelled(true);
+							e.getPlayer().playSound(e.getPlayer().getLocation(), Sound.ENTITY_ITEM_PICKUP, 1, 1);
 							break itemcheck;
 						}
 					}

@@ -94,27 +94,6 @@ public class MagicaPipe extends MagicaBlock implements Craftable, Saveable, List
 		MagicaMain.getMagicaMain().getBlockManager().registerBlock(this);
 		l.getBlock().setMetadata("isPipe", new FixedMetadataValue(MagicaMain.getMagicaMain(), true));
 		Location[] nearbyPipes = getNearbyPipes();
-		if (nearbyPipes != null && nearbyPipes.length > 0){
-			Location first = nearbyPipes[0];
-			BlockFace touching = first.getBlock().getFace(l.getBlock());
-			byte face = (byte)1;
-			if (touching == BlockFace.DOWN){
-				face = 0;
-			}
-			if (touching == BlockFace.NORTH){
-				face = 2;
-			}
-			if (touching == BlockFace.SOUTH){
-				face = 3;
-			}
-			if (touching == BlockFace.WEST){
-				face = 4;
-			}
-			if (touching == BlockFace.EAST){
-				face = 5;
-			}
-			l.getBlock().setData(face);
-		}
 	}
 
 	public MagicaPipe(JsonObject object) {

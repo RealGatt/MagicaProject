@@ -73,6 +73,9 @@ public class BaseUtils {
 			i2.setItemMeta(i2.getItemMeta());
 			ItemMeta im1 = i1.getItemMeta();
 			ItemMeta im2 = i2.getItemMeta();
+			if (!i1.hasItemMeta() || !i2.hasItemMeta()){
+				return i1.isSimilar(i2);
+			}
 			boolean nameMatch = true, loreMatch = true, enchantMatch = true, materialMatch;
 			materialMatch = (i1.getType() == i2.getType());
 			if (im1.hasDisplayName() && im2.hasDisplayName()){

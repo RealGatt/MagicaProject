@@ -38,12 +38,14 @@ public class BlockDisplayName {
 		this.task.cancel();
 	}
 
+
+
 	private void startTask(){
 		this.task = Bukkit.getScheduler().runTaskTimer(MagicaMain.getMagicaMain(),()->{
 			if (!displayName){
 				stand.setCustomNameVisible(false);
 			}else {
-				if (display.equalsIgnoreCase("")) {
+				if (display.equalsIgnoreCase("") || display.equalsIgnoreCase("&f-")) {
 					stand.setCustomNameVisible(false);
 				} else {
 					stand.setCustomNameVisible(true);

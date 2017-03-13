@@ -26,10 +26,14 @@ import java.util.List;
 import java.util.Random;
 
 public class OrbOfLife implements Craftable{
+	private static Listener listener;
 
+	public static Listener getListener() {
+		return listener;
+	}
 
 	public static void registerItemListener(){
-		Bukkit.getPluginManager().registerEvents(new Listener() {
+		Bukkit.getPluginManager().registerEvents(listener = new Listener() {
 
 			List<Material> changeFrom = Arrays.asList(Material.STONE, Material.NETHERRACK, Material.SOUL_SAND,
 					Material.MYCEL, Material.SAND, Material.GRAVEL);
@@ -122,7 +126,7 @@ public class OrbOfLife implements Craftable{
 			}
 
 			@EventHandler
-			public void onRightClick(PlayerInteractEvent e){
+			private void onRightClick(PlayerInteractEvent e){
 				if (e.hasItem() && (e.getAction() == Action.RIGHT_CLICK_BLOCK || e.getAction() == Action.RIGHT_CLICK_AIR) &&
 						BaseUtils.matchItem(e.getItem(), getStaticCraftedItem())){
 					ItemStack item = e.getItem().clone();
@@ -144,28 +148,32 @@ public class OrbOfLife implements Craftable{
 				}
 			}
 
-			@EventHandler
-			public void onItemLand(ItemProjectileLandEvent e){
-				if (e.getProjectile().getData().equalsIgnoreCase("orboflife")){
-					e.removeEntity();
-					ArrayList<Block> blocks = BlockLooping.loopSphere(e.getLocation().clone().add(0, 1, 0), 10, true);
-					for (Block b : blocks){
-						if (changeFrom.contains(b.getType())) {
-							if (rnd.nextBoolean() && rnd.nextBoolean()){
-								markForTree(b);
-							}
-							markForChange(b, changeTo[rnd.nextInt(changeTo.length - 1)]);
+			public void orbFunction(Location location){
+				ArrayList<Block> blocks = BlockLooping.loopSphere(location.clone().add(0, 1, 0), 10, true);
+				for (Block b : blocks){
+					if (changeFrom.contains(b.getType())) {
+						if (rnd.nextBoolean() && rnd.nextBoolean()){
+							markForTree(b);
 						}
-						if (b.getType() == Material.GRASS){
+						markForChange(b, changeTo[rnd.nextInt(changeTo.length - 1)]);
+					}
+					if (b.getType() == Material.GRASS){
+						if (rnd.nextBoolean() && rnd.nextBoolean() && rnd.nextBoolean() && rnd.nextBoolean() && rnd.nextBoolean()){
+							markForTree(b);
+						}else{
 							if (rnd.nextBoolean() && rnd.nextBoolean() && rnd.nextBoolean() && rnd.nextBoolean() && rnd.nextBoolean()){
-								markForTree(b);
-							}else{
-								if (rnd.nextBoolean() && rnd.nextBoolean() && rnd.nextBoolean() && rnd.nextBoolean() && rnd.nextBoolean()){
-									markForChange(b, new ItemStack(Material.GRASS));
-								}
+								markForChange(b, new ItemStack(Material.GRASS));
 							}
 						}
 					}
+				}
+			}
+
+			@EventHandler
+			private void onItemLand(ItemProjectileLandEvent e){
+				if (e.getProjectile().getData().equalsIgnoreCase("orboflife")){
+					e.removeEntity();
+					orbFunction(e.getLocation());
 				}
 			}
 

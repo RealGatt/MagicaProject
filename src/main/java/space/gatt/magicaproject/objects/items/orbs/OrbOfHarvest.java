@@ -28,9 +28,13 @@ import java.util.Random;
 
 public class OrbOfHarvest implements Craftable{
 
+	private static Listener listener;
 
+	public static Listener getListener() {
+		return listener;
+	}
 	public static void registerItemListener(){
-		Bukkit.getPluginManager().registerEvents(new Listener() {
+		Bukkit.getPluginManager().registerEvents(listener = new Listener() {
 
 			List<Material> always = Arrays.asList(Material.LOG, Material.LOG_2,
 					Material.LEAVES, Material.LEAVES_2,
@@ -80,7 +84,7 @@ public class OrbOfHarvest implements Craftable{
 			}
 
 			@EventHandler
-			public void onRightClick(PlayerInteractEvent e){
+			private void onRightClick(PlayerInteractEvent e){
 				if (e.hasItem() && (e.getAction() == Action.RIGHT_CLICK_BLOCK || e.getAction() == Action.RIGHT_CLICK_AIR) &&
 						BaseUtils.matchItem(e.getItem(), getStaticCraftedItem())){
 					ItemStack item = e.getItem().clone();
@@ -102,22 +106,26 @@ public class OrbOfHarvest implements Craftable{
 				}
 			}
 
-			@EventHandler
-			public void onItemLand(ItemProjectileLandEvent e){
-				if (e.getProjectile().getData().equalsIgnoreCase("orbofharvest")){
-					e.removeEntity();
-					ArrayList<Block> blocks = BlockLooping.loopSphere(e.getLocation().clone().add(0, 1, 0), 15, true);
-					for (Block b : blocks){
-						if (always.contains(b.getType())){
-							markForHarvest(b, e.getLocation());
-						}else {
-							for (ItemStack is : plants) {
-								if (b.getType() == is.getType() && b.getData() == is.getData().getData()) {
-									markForHarvest(b, e.getLocation());
-								}
+			public void orbFunction(Location location){
+				ArrayList<Block> blocks = BlockLooping.loopSphere(location.clone().add(0, 1, 0), 15, true);
+				for (Block b : blocks){
+					if (always.contains(b.getType())){
+						markForHarvest(b, location);
+					}else {
+						for (ItemStack is : plants) {
+							if (b.getType() == is.getType() && b.getData() == is.getData().getData()) {
+								markForHarvest(b, location);
 							}
 						}
 					}
+				}
+			}
+
+			@EventHandler
+			private void onItemLand(ItemProjectileLandEvent e){
+				if (e.getProjectile().getData().equalsIgnoreCase("orbofharvest")){
+					e.removeEntity();
+					orbFunction(e.getLocation());
 				}
 			}
 

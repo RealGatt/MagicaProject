@@ -21,6 +21,8 @@ import org.bukkit.util.Vector;
 import space.gatt.magicaproject.CancellableBukkitTask;
 import space.gatt.magicaproject.MagicaMain;
 import space.gatt.magicaproject.events.EventAddItemToRecipe;
+import space.gatt.magicaproject.extra.BlockDisplayName;
+import space.gatt.magicaproject.extra.MagicaRecipe;
 import space.gatt.magicaproject.interfaces.MagicaBlock;
 import space.gatt.magicaproject.interfaces.Saveable;
 import space.gatt.magicaproject.objects.items.wand.Wand;
@@ -51,6 +53,25 @@ public class MagicCrafter extends MagicaBlock implements Saveable, Listener {
 
 	private ArrayList<Location> spinnerLocations;
 	private ArrayList<Location> wandSpinnerLocations;
+	private BlockDisplayName blockDisplayName;
+	private MagicaRecipe recipeCanCraft = null;
+	private float recipeCraftTime = -1;
+
+	public MagicaRecipe getRecipeCanCraft() {
+		return recipeCanCraft;
+	}
+
+	public void setRecipeCanCraft(MagicaRecipe recipeCanCraft) {
+		this.recipeCanCraft = recipeCanCraft;
+	}
+
+	public float getRecipeCraftTime() {
+		return recipeCraftTime;
+	}
+
+	public void setRecipeCraftTime(float recipeCraftTime) {
+		this.recipeCraftTime = recipeCraftTime;
+	}
 
 	public boolean hasWand(){
 		return wand != null;
@@ -72,11 +93,12 @@ public class MagicCrafter extends MagicaBlock implements Saveable, Listener {
 		this.instance = this;
 		runItemSpinner();
 		MagicaMain.getMagicaMain().getBlockManager().registerBlock(this);
+		blockDisplayName = new BlockDisplayName(this, "&f-", 1);
+		blockDisplayName.setDoesDisplayName(false);
 	}
 
 	public MagicCrafter(JsonObject object){
 		super(object);
-
 		double x = 0, y = 0, z = 0;
 		World world = Bukkit.getWorlds().get(0);
 		if (object.has("location-x")){
@@ -100,10 +122,16 @@ public class MagicCrafter extends MagicaBlock implements Saveable, Listener {
 		super.updateBlock();
 		MagicaMain.getMagicaMain().getBlockManager().registerBlock(this);
 		runItemSpinner();
+		blockDisplayName = new BlockDisplayName(this, "&f-", 1);
+		blockDisplayName.setDoesDisplayName(false);
 	}
 	BukkitTask craftingTask;
 
-	public boolean beginCrafting(ItemStack resultItem, final float timeInTicks, float manaPerTick, Player p){
+	public BlockDisplayName getBlockDisplayName() {
+		return blockDisplayName;
+	}
+
+	public boolean beginCrafting(ItemStack resultItem, final float timeInTicks){
 		if (state == STATE.WAITING){
 			ItemStack is = resultItem;
 			state = STATE.CRAFTING;
@@ -296,6 +324,7 @@ public class MagicCrafter extends MagicaBlock implements Saveable, Listener {
 			super.setActive(false);
 			e.getBlock().getWorld().createExplosion(l.clone().add(0.5, 0.5, 0.5), 0);
 			spinnerTask.cancel();
+			blockDisplayName.destroy();
 		}
 	}
 
@@ -306,6 +335,13 @@ public class MagicCrafter extends MagicaBlock implements Saveable, Listener {
 			if (state == STATE.CRAFTING){
 				e.setCancelled(true);
 				e.getPlayer().sendMessage(BaseUtils.colorString("&cYou must wait until the current item is finished!"));
+				return;
+			}
+			if (recipeCanCraft != null && recipeCraftTime >= 0){
+				beginCrafting(recipeCanCraft.getCraftedItem(), recipeCraftTime);
+				recipeCanCraft = null;
+				recipeCraftTime = -1;
+				blockDisplayName.setDoesDisplayName(false);
 				return;
 			}
 			if (items.size() > 0 || hasWand()) {
@@ -369,11 +405,11 @@ public class MagicCrafter extends MagicaBlock implements Saveable, Listener {
 	public void onDrop(PlayerDropItemEvent e) {
 		if (isActive())
 		if (items.size() < MAX_ITEMS && state == STATE.WAITING) {
-			trackItem(e.getItemDrop(), e.getPlayer());
+			trackItem(e.getItemDrop());
 		}
 	}
 
-	private void trackItem(Item e, Player p){
+	private void trackItem(Item e){
 		Bukkit.getScheduler().runTaskTimer(MagicaMain.getMagicaMain(), new CancellableBukkitTask() {
 			@Override
 			public void run() {
@@ -404,21 +440,21 @@ public class MagicCrafter extends MagicaBlock implements Saveable, Listener {
 									return;
 								}
 							}
-
-							if (i.getAmount() > 1) {
-								i.setAmount(1);
-								copy.setAmount(copy.getAmount() - 1);
-								e.setItemStack(i);
-								Item i2 = l.getWorld().dropItem(e.getLocation().getBlock().getLocation().add(0.5, 0.2, 0.5), copy);
-								trackItem(i2, p);
-								i2.setVelocity(new Vector(0, 0, 0));
-								i2.setPickupDelay(e.getPickupDelay());
-							}
 							e.setCustomName(UUID.randomUUID().toString().substring(0, 8));
 							if (i.getItemMeta().getDisplayName() != null) {
 								e.setCustomName(i.getItemMeta().getDisplayName());
 								e.setCustomNameVisible(true);
 							}
+							if (i.getAmount() > 1) {
+								i.setAmount(1);
+								copy.setAmount(copy.getAmount() - 1);
+								e.setItemStack(i);
+								Item i2 = l.getWorld().dropItem(e.getLocation().getBlock().getLocation().add(0.5, 0.2, 0.5), copy);
+								trackItem(i2);
+								i2.setVelocity(new Vector(0, 0, 0));
+								i2.setPickupDelay(e.getPickupDelay());
+							}
+
 							e.setVelocity(new Vector(0, 0, 0));
 							if (!wasWand) {
 								items.add(e);
@@ -426,7 +462,7 @@ public class MagicCrafter extends MagicaBlock implements Saveable, Listener {
 							e.setGravity(false);
 							l.getWorld().spawnParticle(Particle.FIREWORKS_SPARK, e.getLocation(), 5, 0.1, 0.1, 0.1, 0.3);
 							e.setPickupDelay(99999);
-							Bukkit.getPluginManager().callEvent(new EventAddItemToRecipe(instance, i, p));
+							Bukkit.getPluginManager().callEvent(new EventAddItemToRecipe(instance, i));
 							this.cancel();
 							return;
 						}
@@ -492,6 +528,7 @@ public class MagicCrafter extends MagicaBlock implements Saveable, Listener {
 		MagicaMain.getMagicaMain().getStorageManager().save(this, "location-y", l.getY());
 		MagicaMain.getMagicaMain().getStorageManager().save(this, "location-z", l.getZ());
 		MagicaMain.getMagicaMain().getStorageManager().save(this, "location-world", l.getWorld().getName());
+		blockDisplayName.destroy();
 	}
 
 	@Override
@@ -505,6 +542,6 @@ public class MagicCrafter extends MagicaBlock implements Saveable, Listener {
 
 	@Override
 	public void runParticles() {
-		l.getWorld().spawnParticle(Particle.PORTAL, l.clone().add(0.5, 0.5, 0.5), 10, 0, 0, 0, 1);
+		l.getWorld().spawnParticle(Particle.PORTAL, l.clone().add(0.5, 0.5, 0.5), 5, 0, 0, 0, 1);
 	}
 }

@@ -17,7 +17,7 @@ import java.util.Arrays;
 public class WandCore implements Craftable{
 
 	public static ItemStack getPureMagicaCore() {
-		ItemStack manaGenerator = new ItemStack(Material.NETHER_STAR);
+		ItemStack manaGenerator = MagicaMain.getBaseItem((short)16);
 		ItemMeta im = manaGenerator.getItemMeta();
 		im.addEnchant(Enchantment.DURABILITY, 1, true);
 		im.setDisplayName(BaseUtils.colorString("&b&oPure Magica Core"));
@@ -30,7 +30,7 @@ public class WandCore implements Craftable{
 	}
 
 	public static ItemStack getObsidianCore() {
-		ItemStack manaGenerator = new ItemStack(Material.COAL);
+		ItemStack manaGenerator = MagicaMain.getBaseItem((short)15);
 		ItemMeta im = manaGenerator.getItemMeta();
 		im.addEnchant(Enchantment.DURABILITY, 1, true);
 		im.setDisplayName(BaseUtils.colorString("&5Obsidian Core"));
@@ -43,7 +43,7 @@ public class WandCore implements Craftable{
 	}
 
 	public static ItemStack getDiamondCore() {
-		ItemStack manaGenerator = new ItemStack(Material.DIAMOND);
+		ItemStack manaGenerator = MagicaMain.getBaseItem((short)14);
 		ItemMeta im = manaGenerator.getItemMeta();
 		im.addEnchant(Enchantment.DURABILITY, 1, true);
 		im.setDisplayName(BaseUtils.colorString("&9Diamond Core"));
@@ -56,7 +56,7 @@ public class WandCore implements Craftable{
 	}
 
 	public static ItemStack getGoldCore() {
-		ItemStack manaGenerator = new ItemStack(Material.GOLD_INGOT);
+		ItemStack manaGenerator = MagicaMain.getBaseItem((short)13);
 		ItemMeta im = manaGenerator.getItemMeta();
 		im.addEnchant(Enchantment.DURABILITY, 1, true);
 		im.setDisplayName(BaseUtils.colorString("&eGold Core"));
@@ -69,7 +69,7 @@ public class WandCore implements Craftable{
 	}
 
 	public static ItemStack getIronCore() {
-		ItemStack manaGenerator = new ItemStack(Material.IRON_INGOT);
+		ItemStack manaGenerator = MagicaMain.getBaseItem((short)12);
 		ItemMeta im = manaGenerator.getItemMeta();
 		im.addEnchant(Enchantment.DURABILITY, 1, true);
 		im.setDisplayName(BaseUtils.colorString("&fIron Core"));
@@ -82,7 +82,7 @@ public class WandCore implements Craftable{
 	}
 
 	public static ItemStack getStoneCore() {
-		ItemStack manaGenerator = new ItemStack(Material.CLAY_BALL);
+		ItemStack manaGenerator = MagicaMain.getBaseItem((short)11);
 		ItemMeta im = manaGenerator.getItemMeta();
 		im.addEnchant(Enchantment.DURABILITY, 1, true);
 		im.setDisplayName(BaseUtils.colorString("&7Stone Core"));
@@ -95,7 +95,7 @@ public class WandCore implements Craftable{
 	}
 
 	public static ItemStack getWoodCore() {
-		ItemStack manaGenerator = new ItemStack(Material.BOWL);
+		ItemStack manaGenerator = MagicaMain.getBaseItem((short)10);
 		ItemMeta im = manaGenerator.getItemMeta();
 		im.addEnchant(Enchantment.DURABILITY, 1, true);
 		im.setDisplayName(BaseUtils.colorString("&8Wood Core"));

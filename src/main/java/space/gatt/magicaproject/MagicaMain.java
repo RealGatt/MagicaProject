@@ -1,8 +1,10 @@
 package space.gatt.magicaproject;
 
+import net.minecraft.server.v1_11_R1.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.craftbukkit.v1_11_R1.inventory.CraftItemStack;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -158,6 +160,21 @@ public class MagicaMain extends JavaPlugin implements Listener{
 		im.setUnbreakable(true);
 		im.addItemFlags(ItemFlag.values());
 		is.setItemMeta(im);
+		net.minecraft.server.v1_11_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(is);
+		NBTTagCompound compound = (nmsStack.hasTag()) ? nmsStack.getTag() : new NBTTagCompound();
+		NBTTagList modifiers = compound.getList("AttributeModifiers", 10);
+		NBTTagCompound speed = new NBTTagCompound();
+		speed.set("AttributeName", new NBTTagString("generic.attackSpeed"));
+		speed.set("Name", new NBTTagString("generic.attackSpeed"));
+		speed.set("Amount", new NBTTagDouble(0.1));
+		speed.set("Operation", new NBTTagInt(0));
+		speed.set("UUIDLeast", new NBTTagInt(894654));
+		speed.set("UUIDMost", new NBTTagInt(2872));
+		speed.set("Slot", new NBTTagString("mainhand"));
+		modifiers.add(speed);
+		compound.set("AttributeModifiers", modifiers);
+		nmsStack.setTag(compound);
+		is = CraftItemStack.asBukkitCopy(nmsStack);
 		return is;
 	}
 
@@ -167,16 +184,93 @@ public class MagicaMain extends JavaPlugin implements Listener{
 		im.setUnbreakable(true);
 		im.addItemFlags(ItemFlag.values());
 		is.setItemMeta(im);
+		net.minecraft.server.v1_11_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(is);
+		NBTTagCompound compound = (nmsStack.hasTag()) ? nmsStack.getTag() : new NBTTagCompound();
+		NBTTagList modifiers = compound.getList("AttributeModifiers", 10);
+		NBTTagCompound speed = new NBTTagCompound();
+		speed.set("AttributeName", new NBTTagString("generic.attackSpeed"));
+		speed.set("Name", new NBTTagString("generic.attackSpeed"));
+		speed.set("Amount", new NBTTagDouble(0.1));
+		speed.set("Operation", new NBTTagInt(0));
+		speed.set("UUIDLeast", new NBTTagInt(894654));
+		speed.set("UUIDMost", new NBTTagInt(2872));
+		speed.set("Slot", new NBTTagString("mainhand"));
+		modifiers.add(speed);
+		compound.set("AttributeModifiers", modifiers);
+		nmsStack.setTag(compound);
+		is = CraftItemStack.asBukkitCopy(nmsStack);
 		return is;
 	}
 
 	public static ItemStack getBaseItem(){
-		ItemStack is = new ItemStack(Material.DIAMOND_SPADE);
+		ItemStack is = new ItemStack(Material.DIAMOND_AXE);
 		ItemMeta im = is.getItemMeta();
-
 		im.setUnbreakable(true);
 		im.addItemFlags(ItemFlag.values());
 		is.setItemMeta(im);
+		net.minecraft.server.v1_11_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(is);
+		NBTTagCompound compound = (nmsStack.hasTag()) ? nmsStack.getTag() : new NBTTagCompound();
+		NBTTagList modifiers = compound.getList("AttributeModifiers", 10);
+		NBTTagCompound speed = new NBTTagCompound();
+		speed.set("AttributeName", new NBTTagString("generic.attackSpeed"));
+		speed.set("Name", new NBTTagString("generic.attackSpeed"));
+		speed.set("Amount", new NBTTagDouble(0.1));
+		speed.set("Operation", new NBTTagInt(0));
+		speed.set("UUIDLeast", new NBTTagInt(894654));
+		speed.set("UUIDMost", new NBTTagInt(2872));
+		speed.set("Slot", new NBTTagString("mainhand"));
+		modifiers.add(speed);
+		compound.set("AttributeModifiers", modifiers);
+		nmsStack.setTag(compound);
+		is = CraftItemStack.asBukkitCopy(nmsStack);
+		return is;
+	}
+
+	public static ItemStack getBaseBlockStack(short damage){
+		ItemStack is = getBaseBlockStack();
+		is.setDurability(damage);
+		return is;
+	}
+
+	public static ItemStack getBaseGUI(short damage){
+		ItemStack is = getBaseGUI();
+		is.setDurability(damage);
+		return is;
+	}
+
+	public static ItemStack getBaseItem(short damage){
+		ItemStack is = getBaseItem();
+		is.setDurability(damage);
+		return is;
+	}
+
+	public static ItemStack getBaseItemStackable(){
+		ItemStack is = new ItemStack(Material.DIAMOND_SPADE);
+		ItemMeta im = is.getItemMeta();
+		im.setUnbreakable(true);
+		im.addItemFlags(ItemFlag.values());
+		is.setItemMeta(im);
+		net.minecraft.server.v1_11_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(is);
+		NBTTagCompound compound = (nmsStack.hasTag()) ? nmsStack.getTag() : new NBTTagCompound();
+		NBTTagList modifiers = compound.getList("AttributeModifiers", 10);
+		NBTTagCompound speed = new NBTTagCompound();
+		speed.set("AttributeName", new NBTTagString("generic.attackSpeed"));
+		speed.set("Name", new NBTTagString("generic.attackSpeed"));
+		speed.set("Amount", new NBTTagDouble(0.1));
+		speed.set("Operation", new NBTTagInt(0));
+		speed.set("UUIDLeast", new NBTTagInt(894654));
+		speed.set("UUIDMost", new NBTTagInt(2872));
+		speed.set("Slot", new NBTTagString("mainhand"));
+		modifiers.add(speed);
+		compound.set("AttributeModifiers", modifiers);
+		nmsStack.setTag(compound);
+		is = CraftItemStack.asBukkitCopy(nmsStack);
+		return is;
+	}
+
+	public static ItemStack getBaseItemStackable(short damage){
+		ItemStack is = getBaseItemStackable();
+		is.setDurability(damage);
 		return is;
 	}
 
@@ -210,7 +304,9 @@ public class MagicaMain extends JavaPlugin implements Listener{
 		for (ItemStack is : e.getInventory().getMatrix()){
 			if (is.hasItemMeta()) {
 				ItemMeta im = is.getItemMeta();
-				if (im.isUnbreakable() && im.getItemFlags().size() == ItemFlag.values().length && im.getLore().contains(BaseUtils.colorString("&9MagicaProject"))) {
+				if (im.isUnbreakable() && im.getItemFlags().size() == ItemFlag.values().length
+						&& im.hasLore() &&
+						im.getLore().contains(BaseUtils.colorString("&9MagicaProject"))) {
 					e.setCancelled(true);
 					e.setResult(Event.Result.DENY);
 					e.setCurrentItem(new ItemStack(Material.AIR));

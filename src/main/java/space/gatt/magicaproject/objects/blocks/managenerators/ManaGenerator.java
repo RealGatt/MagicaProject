@@ -100,9 +100,11 @@ public class ManaGenerator extends MagicaBlock implements Craftable, Saveable, M
 
 	@EventHandler
 	public void onWrench(PlayerInteractEvent e){
-		if(e.getClickedBlock().getLocation().equals(super.getLocation()) && e.hasItem()){
-			if (BaseUtils.matchItem(e.getItem(), Wrench.getStaticCraftedItem())){
-				displayMana = !displayMana;
+		if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
+			if (e.getClickedBlock().getLocation().equals(super.getLocation()) && e.hasItem()) {
+				if (BaseUtils.matchItem(e.getItem(), Wrench.getStaticCraftedItem())) {
+					displayMana = !displayMana;
+				}
 			}
 		}
 	}

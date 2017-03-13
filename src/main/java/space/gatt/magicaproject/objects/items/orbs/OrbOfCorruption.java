@@ -1,7 +1,10 @@
 package space.gatt.magicaproject.objects.items.orbs;
 
+import com.sun.scenario.effect.impl.prism.PrImage;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.entity.EvokerFangs;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -27,9 +30,14 @@ import java.util.Random;
 
 public class OrbOfCorruption implements Craftable{
 
+	private static Listener listener;
+
+	public static Listener getListener() {
+		return listener;
+	}
 
 	public static void registerItemListener(){
-		Bukkit.getPluginManager().registerEvents(new Listener() {
+		Bukkit.getPluginManager().registerEvents(listener = new Listener() {
 
 			List<Material> natural = Arrays.asList(Material.GRASS, Material.DIRT, Material.GRASS_PATH,
 					Material.HUGE_MUSHROOM_1, Material.HUGE_MUSHROOM_2);
@@ -88,6 +96,11 @@ public class OrbOfCorruption implements Craftable{
 						if (b.getType() != type){
 							cancel();
 						}
+						if (rnd.nextBoolean() && rnd.nextBoolean() && rnd.nextBoolean()){
+							if (b.getRelative(BlockFace.UP).getType() == Material.AIR) {
+								b.getWorld().spawn(b.getLocation().clone().add(0.5, 1, 0.5), EvokerFangs.class);
+							}
+						}
 						if ((time - timeTaken) <= 1){
 							b.getWorld().playEffect(b.getLocation(), Effect.STEP_SOUND, b.getTypeId());
 							b.setType(is.getType());
@@ -103,7 +116,7 @@ public class OrbOfCorruption implements Craftable{
 			}
 
 			@EventHandler
-			public void onRightClick(PlayerInteractEvent e){
+			private void onRightClick(PlayerInteractEvent e){
 				if (e.hasItem() && (e.getAction() == Action.RIGHT_CLICK_BLOCK || e.getAction() == Action.RIGHT_CLICK_AIR) &&
 						BaseUtils.matchItem(e.getItem(), getStaticCraftedItem())){
 					ItemStack item = e.getItem().clone();
@@ -125,25 +138,26 @@ public class OrbOfCorruption implements Craftable{
 				}
 			}
 
-			@EventHandler
-			public void onItemLand(ItemProjectileLandEvent e){
-				if (e.getProjectile().getData().equalsIgnoreCase("orbofcorruption")){
-					e.removeEntity();
-					e.getLocation().getWorld().playSound(e.getLocation(), Sound.ENTITY_FIREWORK_BLAST, 1, 1);
-					ArrayList<Block> blocks = BlockLooping.loopSphere(e.getLocation().clone().add(0, 1, 0), 8, true);
-					e.getLocation().getWorld().playSound(e.getLocation(), Sound.ENTITY_ENDERDRAGON_DEATH, 1, 1.5f);
-					for (Block b : blocks){
-						if (rnd.nextBoolean()) {
-							if (destroy.contains(b.getType())) {
-								markForDestroy(b);
-							} else {
-								if (natural.contains(b.getType())) {
-									markForChange(b, changeTo[rnd.nextInt(changeTo.length - 1)]);
-								}
+			public void orbFunction(Location location){
+				ArrayList<Block> blocks = BlockLooping.loopSphere(location.clone().add(0, 1, 0), 8, true);
+				for (Block b : blocks){
+					if (rnd.nextBoolean()) {
+						if (destroy.contains(b.getType())) {
+							markForDestroy(b);
+						} else {
+							if (natural.contains(b.getType())) {
+								markForChange(b, changeTo[rnd.nextInt(changeTo.length - 1)]);
 							}
 						}
-
 					}
+				}
+			}
+
+			@EventHandler
+			private void onItemLand(ItemProjectileLandEvent e){
+				if (e.getProjectile().getData().equalsIgnoreCase("orbofcorruption")){
+					e.removeEntity();
+					orbFunction(e.getLocation());
 				}
 			}
 

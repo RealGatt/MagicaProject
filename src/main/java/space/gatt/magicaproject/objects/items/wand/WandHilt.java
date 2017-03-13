@@ -8,6 +8,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import space.gatt.magicaproject.MagicaMain;
 import space.gatt.magicaproject.extra.MagicaRecipe;
 import space.gatt.magicaproject.interfaces.Craftable;
+import space.gatt.magicaproject.objects.blocks.pipes.MagicaPipe;
 import space.gatt.magicaproject.objects.items.MagicaEssence;
 import space.gatt.magicaproject.objects.items.MagicaShard;
 import space.gatt.magicaproject.utilities.BaseUtils;
@@ -18,7 +19,7 @@ import java.util.Arrays;
 public class WandHilt implements Craftable {
 
 	public static ItemStack getBasicHilt() {
-		ItemStack manaGenerator = new ItemStack(Material.STICK);
+		ItemStack manaGenerator = MagicaMain.getBaseItem((short)4);
 		ItemMeta im = manaGenerator.getItemMeta();
 		im.addEnchant(Enchantment.DURABILITY, 1, true);
 		im.setDisplayName(BaseUtils.colorString("&bBasic Hilt"));
@@ -31,7 +32,7 @@ public class WandHilt implements Craftable {
 	}
 
 	public static ItemStack getBlazeHilt() {
-		ItemStack manaGenerator = new ItemStack(Material.BLAZE_ROD);
+		ItemStack manaGenerator = MagicaMain.getBaseItem((short)6);
 		ItemMeta im = manaGenerator.getItemMeta();
 		im.addEnchant(Enchantment.DURABILITY, 1, true);
 		im.setDisplayName(BaseUtils.colorString("&cBlazed Hilt"));
@@ -44,7 +45,7 @@ public class WandHilt implements Craftable {
 	}
 
 	public static ItemStack getBoneHilt() {
-		ItemStack manaGenerator = new ItemStack(Material.BONE);
+		ItemStack manaGenerator = MagicaMain.getBaseItem((short)5);
 		ItemMeta im = manaGenerator.getItemMeta();
 		im.addEnchant(Enchantment.DURABILITY, 1, true);
 		im.setDisplayName(BaseUtils.colorString("&7Bone Hilt"));
@@ -70,13 +71,42 @@ public class WandHilt implements Craftable {
 		recipes.add(rec1);
 
 		rec1 = new MagicaRecipe(new ArrayList<>(
-				Arrays.asList(new ItemStack(Material.BLAZE_ROD),
+				Arrays.asList(
+						getBoneHilt(),
+						new ItemStack(Material.BLAZE_POWDER),
+						new ItemStack(Material.BLAZE_POWDER),
+						new ItemStack(Material.BLAZE_POWDER),
+						new ItemStack(Material.BLAZE_POWDER),
+						new ItemStack(Material.BLAZE_POWDER),
+						new ItemStack(Material.BLAZE_POWDER),
+						new ItemStack(Material.BLAZE_POWDER),
+						new ItemStack(Material.BLAZE_POWDER),
+						new ItemStack(Material.BLAZE_POWDER),
+						new ItemStack(Material.BLAZE_POWDER),
+						new ItemStack(Material.BLAZE_POWDER),
+						new ItemStack(Material.BLAZE_POWDER),
+						new ItemStack(Material.BLAZE_POWDER),
+						new ItemStack(Material.BLAZE_POWDER),
 						MagicaShard.getStaticCraftedItem())), getBlazeHilt(), 650, 0);
 
 		recipes.add(rec1);
 
 		rec1 = new MagicaRecipe(new ArrayList<>(
-				Arrays.asList(new ItemStack(Material.BONE),
+				Arrays.asList(getBasicHilt(),
+						new ItemStack(Material.INK_SACK, 0, (byte)15),
+						new ItemStack(Material.INK_SACK, 0, (byte)15),
+						new ItemStack(Material.INK_SACK, 0, (byte)15),
+						new ItemStack(Material.INK_SACK, 0, (byte)15),
+						new ItemStack(Material.INK_SACK, 0, (byte)15),
+						new ItemStack(Material.INK_SACK, 0, (byte)15),
+						new ItemStack(Material.INK_SACK, 0, (byte)15),
+						new ItemStack(Material.INK_SACK, 0, (byte)15),
+						new ItemStack(Material.INK_SACK, 0, (byte)15),
+						new ItemStack(Material.INK_SACK, 0, (byte)15),
+						new ItemStack(Material.INK_SACK, 0, (byte)15),
+						new ItemStack(Material.INK_SACK, 0, (byte)15),
+						new ItemStack(Material.INK_SACK, 0, (byte)15),
+						new ItemStack(Material.INK_SACK, 0, (byte)15),
 						MagicaShard.getStaticCraftedItem())), getBoneHilt(), 450, 0);
 
 		recipes.add(rec1);

@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import org.bukkit.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
@@ -109,9 +110,11 @@ public class AdvancedManaGenerator extends MagicaBlock implements Craftable, Sav
 
 	@EventHandler
 	public void onWrench(PlayerInteractEvent e){
-		if(e.getClickedBlock().getLocation().equals(super.getLocation()) && e.hasItem()){
-			if (BaseUtils.matchItem(e.getItem(), Wrench.getStaticCraftedItem())){
-				displayMana = !displayMana;
+		if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
+			if (e.getClickedBlock().getLocation().equals(super.getLocation()) && e.hasItem()) {
+				if (BaseUtils.matchItem(e.getItem(), Wrench.getStaticCraftedItem())) {
+					displayMana = !displayMana;
+				}
 			}
 		}
 	}

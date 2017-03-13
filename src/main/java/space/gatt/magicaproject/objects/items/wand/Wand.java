@@ -30,7 +30,9 @@ public class Wand implements Craftable{
 		for (MagicaRecipe hilt : WandHilt.getStaticRecipes()){
 			for (MagicaRecipe core : WandCore.getStaticRecipes()){
 
-				ItemStack wand = new ItemStack(hilt.getCraftedItem().getType());
+				short dur = hilt.getCraftedItem().getDurability();
+				dur += 3;
+				ItemStack wand = MagicaMain.getBaseItem(dur);
 				ItemMeta im = wand.getItemMeta();
 				String[] coreType = core.getCraftedItem().getItemMeta().getDisplayName().split(" ");
 				String name = ChatColor.stripColor(StringUtils.join(coreType, " ", 0, coreType.length - 1));

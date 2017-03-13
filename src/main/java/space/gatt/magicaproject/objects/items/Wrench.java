@@ -3,6 +3,7 @@ package space.gatt.magicaproject.objects.items;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.entity.EvokerFangs;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -33,13 +34,7 @@ public class Wrench implements Craftable{
 			private void onRightClickWrench(PlayerInteractEvent e){
 				if (e.hasItem() && (e.getAction() == Action.RIGHT_CLICK_BLOCK || e.getAction() == Action.LEFT_CLICK_BLOCK)
 						&& BaseUtils.matchItem(e.getItem(), getStaticCraftedItem())){
-					if (e.getAction() == Action.RIGHT_CLICK_BLOCK ){
-						if (e.getClickedBlock().getType() == Material.GRASS || e.getClickedBlock().getType() == Material.GRASS_PATH){
-							e.setUseItemInHand(Event.Result.DENY);
-							e.setUseInteractedBlock(Event.Result.DENY);
-							return;
-						}
-					}
+
 					if (e.getClickedBlock().getState() instanceof InventoryHolder) {
 						if (e.getClickedBlock().getType() != Material.FURNACE) {
 							InventoryHolder holder = ((InventoryHolder) e.getClickedBlock().getState());

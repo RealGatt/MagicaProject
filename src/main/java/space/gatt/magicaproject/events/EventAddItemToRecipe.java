@@ -12,10 +12,9 @@ public class EventAddItemToRecipe extends Event {
 	private ItemStack item;
 	private Player p;
 
-	public EventAddItemToRecipe(MagicCrafter crafter, ItemStack item, Player p) {
+	public EventAddItemToRecipe(MagicCrafter crafter, ItemStack item) {
 		this.crafter = crafter;
 		this.item = item;
-		this.p = p;
 	}
 
 	public MagicCrafter getCrafter() {

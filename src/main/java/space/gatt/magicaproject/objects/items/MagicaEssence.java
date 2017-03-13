@@ -17,10 +17,10 @@ import java.util.Arrays;
 public class MagicaEssence implements Craftable{
 
 	public static ItemStack getStaticCraftedItem() {
-		ItemStack manaGenerator = new ItemStack(Material.PRISMARINE_CRYSTALS);
+		ItemStack manaGenerator = MagicaMain.getBaseItemStackable((short)16);
 		ItemMeta im = manaGenerator.getItemMeta();
 		im.addEnchant(Enchantment.DURABILITY, 1, true);
-		im.setDisplayName(BaseUtils.colorString("&bMana Essense"));
+		im.setDisplayName(BaseUtils.colorString("&bMana Essence"));
 		im.addItemFlags(ItemFlag.values());
 		im.setLore(MagicaMain.getLoreLine());
 		im.setUnbreakable(true);
@@ -30,7 +30,7 @@ public class MagicaEssence implements Craftable{
 
 	@Override
 	public String getItemName() {
-		return "Magica Essense";
+		return "Magica Essence";
 	}
 
 	public static ArrayList<MagicaRecipe> getStaticRecipes(){
