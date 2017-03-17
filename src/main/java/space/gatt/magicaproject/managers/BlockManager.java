@@ -19,12 +19,12 @@ import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.MaterialData;
 import org.bukkit.metadata.FixedMetadataValue;
+import space.gatt.magicaproject.CancellableBukkitTask;
 import space.gatt.magicaproject.MagicaMain;
 import space.gatt.magicaproject.enums.UpgradeType;
 import space.gatt.magicaproject.interfaces.MagicaBlock;
 import space.gatt.magicaproject.interfaces.ManaStorable;
 import space.gatt.magicaproject.interfaces.Saveable;
-import space.gatt.magicaproject.objects.blocks.pipes.MagicaPipe;
 import space.gatt.magicaproject.utilities.BaseUtils;
 
 import java.lang.reflect.Constructor;
@@ -236,21 +236,34 @@ public class BlockManager implements Listener{
 				&& e.getEntity().getItemStack().getMaxStackSize() == 1
 				&& (e.getEntity().getItemStack().getType() == MagicaMain.getBaseBlockStack().getType() ||
 				e.getEntity().getItemStack().getType() == MagicaMain.getBaseItemStackable().getType())){
-			for (Entity ent : e.getEntity().getNearbyEntities(3, 2, 3)){
-				if (ent instanceof Item){
-					Item i = (Item)ent;
-					if (BaseUtils.matchItem(i.getItemStack(), e.getEntity().getItemStack())
-							&& i.getCustomName() == null
-							&& e.getEntity().getCustomName() == null){
-						if (i.getItemStack().getAmount() + e.getEntity().getItemStack().getAmount() <= 64){
-							e.getEntity().getItemStack().setAmount(
-									e.getEntity().getItemStack().getAmount() + i.getItemStack().getAmount());
-							i.remove();
-							e.setCancelled(true);
+			final CancellableBukkitTask tk = new CancellableBukkitTask() {
+				@Override
+				public void run() {
+					if (e.getEntity().isOnGround()) {
+						for (Entity ent : e.getEntity().getNearbyEntities(3, 2, 3)) {
+							if (ent instanceof Item) {
+								Item i = (Item) ent;
+								if (BaseUtils.matchItem(i.getItemStack(), e.getEntity().getItemStack())
+										&& i.getCustomName() == null
+										&& e.getEntity().getCustomName() == null) {
+									if (i.getItemStack().getAmount() + e.getEntity().getItemStack().getAmount() <= 64) {
+										e.getEntity().getWorld().playSound(e.getLocation(), Sound.ENTITY_ITEM_PICKUP, 1, 1);
+										i.getItemStack().setAmount(e.getEntity().getItemStack().getAmount()
+												+ i.getItemStack().getAmount());
+										e.getEntity().remove();
+									}
+								}
+							}
 						}
+						cancel();
+					}
+					if (e.getEntity().isDead()){
+						cancel();
 					}
 				}
-			}
+			};
+			tk.setTaskId(Bukkit.getScheduler().runTaskTimer(MagicaMain.getMagicaMain(), tk, 1, 1).getTaskId());
+
 		}
 	}
 
@@ -263,6 +276,7 @@ public class BlockManager implements Listener{
 						e.getItem().getItemStack().getType() == MagicaMain.getBaseItemStackable().getType())){
 			for (int amount = e.getItem().getItemStack().getAmount(); amount >= 0; amount--) {
 				if (!e.getItem().isDead() && e.getItem().getItemStack() != null && e.getItem() != null) {
+					e.getPlayer().playSound(e.getPlayer().getLocation(), Sound.ENTITY_ITEM_PICKUP, 1, 1);
 					itemcheck:
 					for (ItemStack is : e.getPlayer().getInventory()) {
 						if (BaseUtils.matchItem(is, e.getItem().getItemStack()) && is.getAmount() < 64 && is.getMaxStackSize() == 1) {
@@ -272,7 +286,7 @@ public class BlockManager implements Listener{
 							}
 							is.setAmount(is.getAmount() + 1);
 							e.setCancelled(true);
-							e.getPlayer().playSound(e.getPlayer().getLocation(), Sound.ENTITY_ITEM_PICKUP, 1, 1);
+
 							break itemcheck;
 						}
 					}

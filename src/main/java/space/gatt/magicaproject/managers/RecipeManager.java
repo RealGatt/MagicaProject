@@ -1,6 +1,5 @@
 package space.gatt.magicaproject.managers;
 
-import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

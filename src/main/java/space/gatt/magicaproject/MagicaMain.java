@@ -153,6 +153,35 @@ public class MagicaMain extends JavaPlugin implements Listener{
 		return Arrays.asList(BaseUtils.colorString("&9MagicaProject"));
 	}
 
+	public static ItemStack getCustomItem(Material mat){
+		ItemStack is = new ItemStack(mat);
+		ItemMeta im = is.getItemMeta();
+		im.setUnbreakable(true);
+		im.addItemFlags(ItemFlag.values());
+		is.setItemMeta(im);
+		net.minecraft.server.v1_11_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(is);
+		NBTTagCompound compound = (nmsStack.hasTag()) ? nmsStack.getTag() : new NBTTagCompound();
+		NBTTagList modifiers = compound.getList("AttributeModifiers", 10);
+		NBTTagCompound speed = new NBTTagCompound();
+		speed.set("AttributeName", new NBTTagString("generic.attackSpeed"));
+		speed.set("Name", new NBTTagString("generic.attackSpeed"));
+		speed.set("Amount", new NBTTagDouble(0.1));
+		speed.set("Operation", new NBTTagInt(0));
+		speed.set("UUIDLeast", new NBTTagInt(894654));
+		speed.set("UUIDMost", new NBTTagInt(2872));
+		speed.set("Slot", new NBTTagString("mainhand"));
+		modifiers.add(speed);
+		compound.set("AttributeModifiers", modifiers);
+		nmsStack.setTag(compound);
+		is = CraftItemStack.asBukkitCopy(nmsStack);
+		return is;
+	}
+
+	public static ItemStack getCustomItem(Material mat, short dmg){
+		ItemStack is = getCustomItem(mat);
+		is.setDurability(dmg);
+		return is;
+	}
 
 	public static ItemStack getBaseBlockStack(){
 		ItemStack is = new ItemStack(Material.DIAMOND_HOE);

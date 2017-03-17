@@ -1,6 +1,5 @@
 package space.gatt.magicaproject.objects.items.orbs;
 
-import com.sun.scenario.effect.impl.prism.PrImage;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -15,8 +14,8 @@ import org.bukkit.inventory.meta.FireworkEffectMeta;
 import org.bukkit.util.Vector;
 import space.gatt.magicaproject.CancellableBukkitTask;
 import space.gatt.magicaproject.MagicaMain;
-import space.gatt.magicaproject.extra.ItemProjectile;
 import space.gatt.magicaproject.events.ItemProjectileLandEvent;
+import space.gatt.magicaproject.extra.ItemProjectile;
 import space.gatt.magicaproject.extra.MagicaRecipe;
 import space.gatt.magicaproject.extra.ParticleTrail;
 import space.gatt.magicaproject.interfaces.Craftable;

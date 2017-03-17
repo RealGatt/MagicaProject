@@ -8,7 +8,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import space.gatt.magicaproject.MagicaMain;
 import space.gatt.magicaproject.extra.MagicaRecipe;
 import space.gatt.magicaproject.interfaces.Craftable;
-import space.gatt.magicaproject.objects.blocks.pipes.MagicaPipe;
 import space.gatt.magicaproject.objects.items.MagicaEssence;
 import space.gatt.magicaproject.objects.items.MagicaShard;
 import space.gatt.magicaproject.utilities.BaseUtils;
