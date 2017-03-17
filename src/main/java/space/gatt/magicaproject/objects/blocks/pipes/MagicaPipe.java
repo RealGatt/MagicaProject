@@ -92,7 +92,6 @@ public class MagicaPipe extends MagicaBlock implements Craftable, Saveable, List
 		Bukkit.getPluginManager().registerEvents(this, MagicaMain.getMagicaMain());
 		MagicaMain.getMagicaMain().getBlockManager().registerBlock(this);
 		l.getBlock().setMetadata("isPipe", new FixedMetadataValue(MagicaMain.getMagicaMain(), true));
-		Location[] nearbyPipes = getNearbyPipes();
 	}
 
 	public MagicaPipe(JsonObject object) {
@@ -286,7 +285,7 @@ public class MagicaPipe extends MagicaBlock implements Craftable, Saveable, List
 
 	}
 
-	private static ItemStack getStaticCraftedItem(){
+	public static ItemStack getStaticCraftedItem(){
 		ItemStack is = new ItemStack(Material.END_ROD);
 		ItemMeta im = is.getItemMeta();
 		im.setDisplayName(BaseUtils.colorString("&fMagica Pipe"));

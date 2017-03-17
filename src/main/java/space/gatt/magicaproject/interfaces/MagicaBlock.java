@@ -8,6 +8,7 @@ import net.minecraft.server.v1_11_R1.TileEntityMobSpawner;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_11_R1.CraftWorld;
 import org.bukkit.event.EventHandler;
@@ -45,6 +46,12 @@ public class MagicaBlock implements Listener{
 		Bukkit.getPluginManager().registerEvents(this, MagicaMain.getMagicaMain());
 	}
 
+	public MagicaBlock(Location location, OfflinePlayer offlinePlayer){
+		this.location = location;
+		this.displayedItem = new ItemStack(Material.DIAMOND_HOE);
+		Bukkit.getPluginManager().registerEvents(this, MagicaMain.getMagicaMain());
+	}
+
 	public MagicaBlock(JsonObject jsonObject){
 		if (jsonObject.has("upgrades")){
 			JsonObject upObjs = jsonObject.get("upgrades").getAsJsonObject();
@@ -68,9 +75,7 @@ public class MagicaBlock implements Listener{
 
 	@EventHandler
 	public void onBreak(BlockBreakEvent e) {
-		Bukkit.broadcastMessage("MagicaBlock test");
 		if (isActive()) {
-
 			if (e.getBlock().getLocation().equals(getLocation())) {
 				for (UpgradeInstance upgrades : getUpgrades()){
 					ItemStack drop = upgrades.getType().getUpgradeItem().clone();

@@ -157,7 +157,7 @@ public class MagicCrafter extends MagicaBlock implements Saveable, Listener {
 						if (crafted == false) {
 							timeTaken++;
 							craftingItemObject.teleport(l.clone().add(0.5, 1.5, 0.5));
-							l.getWorld().spawnParticle(Particle.END_ROD, l.clone().add(0.5, 1.3, 0.5), 10, 0, 0.1, 0, 0);
+							l.getWorld().spawnParticle(Particle.END_ROD, l.clone().add(0.5, 1.3, 0.5), 1, 0, 0, 0, 0);
 							craftingItemObject.setCustomName(BaseUtils.colorString("&aCrafting... " +
 									is.getItemMeta().getDisplayName() +
 									" &a" + Math.round(timeTaken / timeInTicks * 100) + "%"));

@@ -27,8 +27,21 @@ public class MagicaStorage extends MagicaBlock implements Craftable, Saveable, M
 	private BlockDisplayName blockDisplayName;
 	private boolean displayMana = true;
 
-	public MagicaStorage(Location l, OfflinePlayer playerPlaced) {
+	public MagicaStorage(Location l) {
 		super(l);
+		super.setLocation(l);
+		super.setActive(true);
+		super.setActive(true);
+		this.l = l;
+		super.setDisplayedItem(getStaticCraftedItem());
+		super.updateBlock();
+		Bukkit.getPluginManager().registerEvents(this, MagicaMain.getMagicaMain());
+		MagicaMain.getMagicaMain().getBlockManager().registerBlock(this);
+		blockDisplayName = new BlockDisplayName(this, "&7Mana Stored: &b0", 1);
+	}
+
+	public MagicaStorage(Location l, OfflinePlayer playerPlaced) {
+		super(l, playerPlaced);
 		super.setLocation(l);
 		super.setActive(true);
 		super.setActive(true);
