@@ -15,7 +15,7 @@ import space.gatt.magicaproject.extra.BlockDisplayName;
 import space.gatt.magicaproject.extra.MagicaRecipe;
 import space.gatt.magicaproject.interfaces.*;
 import space.gatt.magicaproject.objects.items.MagicaShard;
-import space.gatt.magicaproject.objects.items.Wrench;
+import space.gatt.magicaproject.objects.items.MagicaWrench;
 import space.gatt.magicaproject.utilities.BaseUtils;
 
 import java.util.ArrayList;
@@ -102,7 +102,7 @@ public class MagicaStorage extends MagicaBlock implements Craftable, Saveable, M
 	public void onWrench(PlayerInteractEvent e){
 		if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
 			if (e.getClickedBlock().getLocation().equals(super.getLocation()) && e.hasItem()) {
-				if (BaseUtils.matchItem(e.getItem(), Wrench.getStaticCraftedItem())) {
+				if (BaseUtils.matchItem(e.getItem(), MagicaWrench.getStaticCraftedItem())) {
 					displayMana = !displayMana;
 				}
 			}

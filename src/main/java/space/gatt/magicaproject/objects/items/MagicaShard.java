@@ -29,7 +29,7 @@ public class MagicaShard implements Craftable{
 
 	@Override
 	public String getItemName() {
-		return "Magica Shard";
+		return "Mana Shard";
 	}
 
 	public static ArrayList<MagicaRecipe> getStaticRecipes(){

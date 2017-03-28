@@ -309,6 +309,16 @@ public class MagicaMain extends JavaPlugin implements Listener{
 	}
 
 	@EventHandler
+	public void onInventoryClick(InventoryClickEvent e){
+		if (e.getInventory().getHolder() == null || (e.getClickedInventory() != null && e.getClickedInventory().getHolder() == null)){
+			if (e.getClick() == ClickType.SHIFT_LEFT || e.getClick() == ClickType.SHIFT_RIGHT){
+				e.setCancelled(true);
+				e.getWhoClicked().sendMessage(BaseUtils.colorString("&cShift-Clicking in custom inventories likes to throw Spigot-Based errors, so it's been disabled~"));
+			}
+		}
+	}
+
+	@EventHandler
 	public void onHopperPickup(InventoryPickupItemEvent e){
 		e.setCancelled(e.getItem().getCustomName() != null);
 		if (e.getInventory().getType() == InventoryType.HOPPER && e.getItem().getCustomName() == null){

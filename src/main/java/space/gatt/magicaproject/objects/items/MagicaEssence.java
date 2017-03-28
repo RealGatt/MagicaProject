@@ -30,7 +30,7 @@ public class MagicaEssence implements Craftable{
 
 	@Override
 	public String getItemName() {
-		return "Magica Essence";
+		return "Mana Essence";
 	}
 
 	public static ArrayList<MagicaRecipe> getStaticRecipes(){

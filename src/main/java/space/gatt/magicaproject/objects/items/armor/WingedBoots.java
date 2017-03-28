@@ -25,9 +25,9 @@ public class WingedBoots implements Craftable {
 		im.setDisplayName(BaseUtils.colorString("&eWinged Boots"));
 		im.addItemFlags(ItemFlag.values());
 		im.setLore(Arrays.asList(
-				BaseUtils.colorString("&eMana Stored: &b0&7/&e1000000"),
+				BaseUtils.colorString("&eMana Stored: &b0&7/&e50000"),
 				BaseUtils.colorString("&eAllows for flight!"),
-				BaseUtils.colorString("&eRecharge in a &9Magica Redirector"),
+				BaseUtils.colorString("&eRecharge in a &9Mana Redirector"),
 				"",
 				MagicaMain.getLoreLine().get(0)));
 		im.setUnbreakable(true);

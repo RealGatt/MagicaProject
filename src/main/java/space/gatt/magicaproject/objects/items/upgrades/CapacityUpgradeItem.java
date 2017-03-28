@@ -32,7 +32,7 @@ public class CapacityUpgradeItem implements Craftable, UpgradeItem {
 			public void onRightClick(PlayerInteractEvent e){
 				if (e.hasItem() && (e.getAction() == Action.RIGHT_CLICK_BLOCK || e.getAction() == Action.RIGHT_CLICK_AIR) &&
 						BaseUtils.matchItem(e.getItem(), getStaticCraftedItem())){
-					e.setUseItemInHand(Event.Result.DENY);
+					e.setUseItemInHand(Event.Result.ALLOW);
 					e.setUseInteractedBlock(Event.Result.DENY);
 				}
 			}

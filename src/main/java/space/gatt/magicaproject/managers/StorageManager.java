@@ -4,8 +4,11 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.bukkit.Bukkit;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 import space.gatt.magicaproject.MagicaMain;
 import space.gatt.magicaproject.interfaces.MagicaBlock;
+import space.gatt.magicaproject.interfaces.MagicaInventory;
 import space.gatt.magicaproject.interfaces.Saveable;
 
 import java.io.*;
@@ -105,6 +108,11 @@ public class StorageManager {
 				HashMap hash = storage.get(saveable);
 				hash.put("upgrades", ja);
 				hash.put("isActive", mb.isActive());
+			}
+			if (saveable instanceof MagicaInventory){
+				MagicaInventory inv = (MagicaInventory)saveable;
+				Inventory invOb = inv.getInventory();
+				final int slot = -1; // TODO Save the shit
 			}
 			saveable.shutdownCall();
 			if (storage.get(saveable) != null && !storage.get(saveable).isEmpty() && storage.get(saveable).size() > 0) {

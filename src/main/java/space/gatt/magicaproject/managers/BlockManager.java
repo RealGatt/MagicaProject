@@ -8,6 +8,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.ItemSpawnEvent;
@@ -79,7 +80,8 @@ public class BlockManager implements Listener{
 
 	@EventHandler
 	public void onPlace(PlayerInteractEvent e) {
-		if (e.getAction() == Action.RIGHT_CLICK_BLOCK && e.hasItem()) {
+		if (e.getAction() == Action.RIGHT_CLICK_BLOCK &&
+				e.hasItem() && e.getItem().getType() == MagicaMain.getBaseBlockStack().getType()) {
 			BlockFace face = e.getBlockFace();
 			Block b = e.getClickedBlock().getRelative(face);
 			if (b.isEmpty() || b.isLiquid() && !e.isCancelled()) {
@@ -147,18 +149,18 @@ public class BlockManager implements Listener{
 						exp.printStackTrace();
 					}
 				}
-				return;
 			}
 		}
 	}
-	@EventHandler
+	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlaceUpgrade(PlayerInteractEvent e){
-		if (e.getAction() == Action.RIGHT_CLICK_BLOCK && e.hasItem()){
+		if (e.getAction() == Action.RIGHT_CLICK_BLOCK && e.hasItem() && e.useItemInHand() == Event.Result.ALLOW){
 			if (e.getItem().getType() == MagicaMain.getBaseItem().getType()){
 				MagicaBlock mb = MagicaBlock.getMagicaBlockAtLocation(e.getClickedBlock().getLocation());
 				if (mb != null){
 					for (UpgradeType upgrades : UpgradeType.values()){
 						if (BaseUtils.matchItem(upgrades.getUpgradeItem(), e.getItem())){
+							e.setUseInteractedBlock(Event.Result.DENY);
 							if (mb.acceptsUpgrade(upgrades)){
 								mb.applyUpgrade(upgrades);
 								e.getClickedBlock().getWorld().playSound(e.getClickedBlock().getLocation(), Sound.BLOCK_ANVIL_USE, 1, 1);

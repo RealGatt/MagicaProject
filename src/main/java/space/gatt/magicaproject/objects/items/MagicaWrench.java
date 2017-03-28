@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class Wrench implements Craftable{
+public class MagicaWrench implements Craftable{
 
 
 	public static void registerItemListener(){
@@ -63,14 +63,14 @@ public class Wrench implements Craftable{
 
 	@Override
 	public String getItemName() {
-		return "Wrench";
+		return "Magica Wrench";
 	}
 
 	public static ItemStack getStaticCraftedItem(){
 		ItemStack is = MagicaMain.getBaseItem();
 		is.setDurability((short)1);
 		ItemMeta im = is.getItemMeta();
-		im.setDisplayName(BaseUtils.colorString("&bMagic Wrench"));
+		im.setDisplayName(BaseUtils.colorString("&bMagica Wrench"));
 		im.addItemFlags(ItemFlag.values());
 		im.setLore(Arrays.asList(BaseUtils.colorString("&7Allows the ability to rotate Magica Pipes"), MagicaMain.getLoreLine().get(0)));
 		im.setUnbreakable(true);

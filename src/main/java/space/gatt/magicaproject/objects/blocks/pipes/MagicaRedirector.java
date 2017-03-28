@@ -2,7 +2,9 @@ package space.gatt.magicaproject.objects.blocks.pipes;
 
 import com.google.gson.JsonObject;
 import org.bukkit.*;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -16,15 +18,14 @@ import space.gatt.magicaproject.enums.UpgradeType;
 import space.gatt.magicaproject.extra.MagicaRecipe;
 import space.gatt.magicaproject.interfaces.*;
 import space.gatt.magicaproject.objects.items.MagicaShard;
-import space.gatt.magicaproject.objects.items.Wrench;
 import space.gatt.magicaproject.utilities.BaseUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
-public class MagicaRedirector extends MagicaBlock implements Craftable, Saveable, ManaStorable, Listener {
+public class MagicaRedirector extends MagicaBlock implements Craftable, Saveable, ManaStorable, Listener, MagicaInventory {
 	private Location l;
-	private float storedMana;
 	private Inventory inv;
 
 	public MagicaRedirector(Location l) {
@@ -37,7 +38,7 @@ public class MagicaRedirector extends MagicaBlock implements Craftable, Saveable
 		super.updateBlock();
 		Bukkit.getPluginManager().registerEvents(this, MagicaMain.getMagicaMain());
 		MagicaMain.getMagicaMain().getBlockManager().registerBlock(this);
-		inv = Bukkit.createInventory(null, InventoryType.DISPENSER, BaseUtils.colorString("Mana Redirector"));
+		inv = Bukkit.createInventory(null, InventoryType.DISPENSER, "Mana Redirector");
 	}
 
 	public MagicaRedirector(JsonObject object){
@@ -64,15 +65,22 @@ public class MagicaRedirector extends MagicaBlock implements Craftable, Saveable
 		Bukkit.getPluginManager().registerEvents(this, MagicaMain.getMagicaMain());
 		super.updateBlock();
 		MagicaMain.getMagicaMain().getBlockManager().registerBlock(this);
-		inv = Bukkit.createInventory(null, InventoryType.DISPENSER, BaseUtils.colorString("Mana Redirector"));
+		inv = Bukkit.createInventory(null, InventoryType.DISPENSER,"Mana Redirector");
 	}
 
-	@EventHandler
+	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onInteract(PlayerInteractEvent e){
 		if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
-			if (super.isActive()) {
+			if (super.isActive() && !e.isCancelled() && e.useInteractedBlock() == Event.Result.ALLOW && e.useItemInHand() == Event.Result.DENY) {
 				if (e.getClickedBlock().getLocation().equals(super.getLocation())) {
-					e.getPlayer().openInventory(inv);
+					if (!e.getPlayer().isSneaking()) {
+						e.getPlayer().openInventory(inv);
+						e.setCancelled(true);
+						e.setUseItemInHand(Event.Result.DENY);
+					}else{
+						e.setUseInteractedBlock(Event.Result.DENY);
+						e.setUseItemInHand(Event.Result.ALLOW);
+					}
 				}
 			}
 		}
@@ -85,6 +93,15 @@ public class MagicaRedirector extends MagicaBlock implements Craftable, Saveable
 				MagicaMain.getMagicaMain().getBlockManager().removeBlock(this);
 				MagicaMain.getMagicaMain().getStorageManager().removeFromSave(this);
 				super.setActive(false);
+				if (inv.getContents().length > 0) {
+					for (ItemStack is : inv.getStorageContents()) {
+						if (is != null) {
+							super.getLocation().getWorld().dropItemNaturally(super.getLocation(), is);
+						}
+					}
+				}
+				inv.clear();
+				inv = null;
 			}
 		}
 	}
@@ -123,9 +140,57 @@ public class MagicaRedirector extends MagicaBlock implements Craftable, Saveable
 
 	@Override
 	public void runParticles() {
-		super.getLocation().getWorld().spawnParticle(
-				Particle.DRAGON_BREATH, super.getLocation().clone().add(0.5, 0.5, 0.5), 1, 0.3, 0.3, 0.3, 0);
+		if (getManaLevel() > 5) {
+			if (inv.getStorageContents().length > 0) {
+				super.getLocation().getWorld().spawnParticle(
+						Particle.DRAGON_BREATH,
+						super.getLocation().clone().add(0.5, 0.5, 0.5),
+						1, 0.3, 0.3, 0.3, 0);
+				for (ItemStack is : inv.getStorageContents()){
+					if (is != null && is.hasItemMeta() && is.getItemMeta().hasLore()){
+						int id = -1;
+						lorecheck : for (String loreLine : is.getItemMeta().getLore()){
+							id++;
+							String loreLineCopy = ChatColor.stripColor(loreLine);
+							if (loreLineCopy.contains("Mana Stored: ")){
+								String[] parts = loreLineCopy.replaceAll("Mana Stored: ", "").split("/");
+								if (parts.length > 1) {
+									int stored = Integer.parseInt(parts[0]);
+									int max = Integer.parseInt(parts[1]);
+									int newStored = stored;
+									if (stored < max) {
+										if (stored + getRechargeSpeed() <= max) {
+											if (getManaLevel() > getRechargeSpeed()) {
+												newStored += getRechargeSpeed();
+												decreaseMana(getRechargeSpeed());
+											} else {
+												newStored += getManaLevel();
+												decreaseMana(getManaLevel());
+											}
+										}else{
+											int dif = max - stored;
+											stored = max;
+											decreaseMana(dif);
+										}
 
+
+										loreLine = loreLine.replace(BaseUtils.colorString("&b" + stored + "&7/"),
+												BaseUtils.colorString("&b" + newStored + "&7/"));
+										List<String> newLore = is.getItemMeta().getLore();
+										newLore.set(id, loreLine);
+										ItemMeta im = is.getItemMeta();
+										im.setLore(newLore);
+
+										is.setItemMeta(im);
+									}
+								}
+								break lorecheck;
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 
 	@Override
@@ -143,11 +208,13 @@ public class MagicaRedirector extends MagicaBlock implements Craftable, Saveable
 		return false;
 	}
 
-	private float maxMana = 100000;
+	private float maxMana = 100000f;
+
+	private float manaStored = 0;
 
 	@Override
 	public float getMaxMana() {
-		return maxMana;
+		return this.maxMana;
 	}
 
 	@Override
@@ -157,22 +224,37 @@ public class MagicaRedirector extends MagicaBlock implements Craftable, Saveable
 
 	@Override
 	public float getManaLevel() {
-		return storedMana;
+		return manaStored;
 	}
 
 	@Override
 	public void setManaLevel(float f) {
-		storedMana = f;
+		manaStored = f;
 	}
 
 	@Override
 	public float increaseMana(float f) {
-		return 0;
+		manaStored += f;
+		if (manaStored > getMaxMana()){
+			manaStored = getMaxMana();
+		}
+		return manaStored;
 	}
 
 	@Override
 	public float decreaseMana(float f) {
-		return 0;
+		manaStored -= f;
+		if (manaStored > getManaLevel()){
+			manaStored = getMaxMana();
+		}
+		if (manaStored < 0){
+			manaStored = 0;
+		}
+		return manaStored;
+	}
+
+	public float getRechargeSpeed() {
+		return rechargeSpeed;
 	}
 
 	public float increaseRechargeSpeed(float f) {
@@ -189,7 +271,7 @@ public class MagicaRedirector extends MagicaBlock implements Craftable, Saveable
 		this.rechargeSpeed = rechargeSpeed;
 	}
 
-	private float rechargeSpeed = 100;
+	private float rechargeSpeed = 15;
 
 
 	@Override
@@ -234,5 +316,10 @@ public class MagicaRedirector extends MagicaBlock implements Craftable, Saveable
 	@Override
 	public void loadCall(JsonObject loadedObject) {
 
+	}
+
+	@Override
+	public Inventory getInventory() {
+		return inv;
 	}
 }

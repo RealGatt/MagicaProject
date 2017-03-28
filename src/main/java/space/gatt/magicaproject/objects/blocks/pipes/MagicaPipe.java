@@ -5,6 +5,7 @@ import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -18,7 +19,7 @@ import space.gatt.magicaproject.MagicaMain;
 import space.gatt.magicaproject.enums.UpgradeType;
 import space.gatt.magicaproject.extra.MagicaRecipe;
 import space.gatt.magicaproject.interfaces.*;
-import space.gatt.magicaproject.objects.items.Wrench;
+import space.gatt.magicaproject.objects.items.MagicaWrench;
 import space.gatt.magicaproject.utilities.BaseUtils;
 
 import java.util.ArrayList;
@@ -29,10 +30,11 @@ public class MagicaPipe extends MagicaBlock implements Craftable, Saveable, List
 
 	public static void registerListener(){
 		Bukkit.getPluginManager().registerEvents(new Listener() {
-			@EventHandler
+			@EventHandler(priority = EventPriority.HIGHEST)
 			private void onPlace(BlockPlaceEvent e){
 				if (e.canBuild() && !e.isCancelled() && BaseUtils.matchItem(e.getItemInHand(), getStaticCraftedItem())){
 					new MagicaPipe(e.getBlockPlaced().getLocation());
+					e.setCancelled(false);
 				}
 			}
 		}, MagicaMain.getMagicaMain());
@@ -148,7 +150,7 @@ public class MagicaPipe extends MagicaBlock implements Craftable, Saveable, List
 	public void onWrenchUse(PlayerInteractEvent e){
 		if (e.getAction() == Action.RIGHT_CLICK_BLOCK && super.isActive()){
 			if (e.getClickedBlock().getLocation().equals(super.getLocation())){
-				if (BaseUtils.matchItem(e.getItem(), Wrench.getStaticCraftedItem())){
+				if (BaseUtils.matchItem(e.getItem(), MagicaWrench.getStaticCraftedItem())){
 					if (e.getClickedBlock().getData() < 6){
 						byte next = (byte)(e.getClickedBlock().getData() + 1);
 						e.getClickedBlock().setData(next);
@@ -292,7 +294,6 @@ public class MagicaPipe extends MagicaBlock implements Craftable, Saveable, List
 		im.addItemFlags(ItemFlag.values());
 		im.setLore(Arrays.asList(BaseUtils.colorString("&7Allows for the transportation of Magica"),
 				BaseUtils.colorString("&7 Can be rotated with the &9Magic Wrench"),
-				BaseUtils.colorString("&7 Requires a &9Magica Redirector&7 to change directions."),
 				MagicaMain.getLoreLine().get(0)));
 		im.setUnbreakable(true);
 		is.setItemMeta(im);
@@ -383,8 +384,8 @@ public class MagicaPipe extends MagicaBlock implements Craftable, Saveable, List
 	public float increaseMana(float f) {
 
 		manaStored += f;
-		if (manaStored > getManaLevel()){
-			manaStored = getManaLevel();
+		if (manaStored > getMaxMana()){
+			manaStored = getMaxMana();
 		}
 		return manaStored;
 	}
@@ -392,8 +393,11 @@ public class MagicaPipe extends MagicaBlock implements Craftable, Saveable, List
 	@Override
 	public float decreaseMana(float f) {
 		manaStored -= f;
-		if (manaStored > getManaLevel()){
-			manaStored = getManaLevel();
+		if (manaStored > getMaxMana()){
+			manaStored = getMaxMana();
+		}
+		if (manaStored < 0){
+			manaStored = 0;
 		}
 		return manaStored;
 	}

@@ -318,9 +318,10 @@ public class MagicCrafter extends MagicaBlock implements Saveable, Listener {
 				getWand().remove();
 			}
 			e.getBlock().setType(Material.AIR);
-			e.getBlock().getWorld().dropItem(e.getBlock().getLocation(), getStaticCraftedItem());
+			if (e.getPlayer().getGameMode() != GameMode.CREATIVE) {
+				e.getBlock().getWorld().dropItem(e.getBlock().getLocation(), getStaticCraftedItem());
+			}
 			super.setActive(false);
-			e.getBlock().getWorld().createExplosion(l.clone().add(0.5, 0.5, 0.5), 0);
 			spinnerTask.cancel();
 			blockDisplayName.destroy();
 		}
